@@ -44,35 +44,14 @@
   </div>
 
   <div style="margin-top:40px;">
-    <h2 style="color:#f5a623;font-family:'Poppins',sans-serif;">🚀 Join Early Access</h2>
-    <p style="font-size:1rem;color:#555;margin-bottom:20px;">
-      Be the first to try <strong>MyPetAI+</strong> and earn bonus Paw Coins when we launch 🐾
-    </p>
-  
-    <!-- Paste your Google Form embed below -->
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfEa7-jgaWtMFw1UKMzEPFBDUj6NnPWkEP05nkLue8yvsKswg/viewform?embedded=true"
-            width="100%" height="500"
-            frameborder="0"
-            marginheight="0"
-            marginwidth="0"
-            style="border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-width:640px;">
-      Loading…
-    </iframe>
-
-    <div style="margin-top:30px;text-align:center;background:#fffaf2;border-radius:16px;padding:20px;max-width:640px;margin-left:auto;margin-right:auto;box-shadow:0 3px 10px rgba(0,0,0,0.05);">
-      <h3 style="color:#f5a623;margin-bottom:10px;">🎉 You’re on the list!</h3>
-      <p style="color:#333;font-size:0.95rem;">
-        Thank you for joining <strong>MyPetAI+</strong> early access.  
-        You’ll be among the first to experience our AI-powered pet care app 🐶🐱🐠
+    <div style="text-align:center;margin-top:50px;">
+      <button onclick="openForm()"
+        style="background:#f5a623;color:white;padding:14px 40px;border-radius:30px;border:none;font-weight:600;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 10px rgba(245,166,35,0.4);transition:all 0.2s ease-in-out;">
+        🚀 Join Early Access
+      </button>
+      <p style="margin-top:15px;font-size:0.9rem;color:#555;">
+        Be the first to try <strong>MyPetAI+</strong> and earn bonus Paw Coins when we launch 🐾
       </p>
-      <p style="color:#666;font-size:0.9rem;">
-        Follow us for sneak peeks, updates, and pet care tips:
-      </p>
-      <div style="margin-top:10px;">
-        <a href="https://tiktok.com/@mypetai" style="margin:0 8px;color:#f5a623;text-decoration:none;font-weight:600;">TikTok</a> •
-        <a href="https://facebook.com/mypetai" style="margin:0 8px;color:#f5a623;text-decoration:none;font-weight:600;">Facebook</a> •
-        <a href="https://instagram.com/mypetai" style="margin:0 8px;color:#f5a623;text-decoration:none;font-weight:600;">Instagram</a>
-      </div>
     </div>
   </div>
 
@@ -84,5 +63,32 @@
     <a href="https://instagram.com/mypetai" style="margin:0 8px;color:#f5a623;text-decoration:none;font-weight:600;">Instagram</a>
   </div>
 </section>
+
+
+<!-- Popup Form Container -->
+<div id="formPopup" 
+     style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100%;height:100%;
+            background-color:rgba(0,0,0,0.5);backdrop-filter:blur(4px);">
+  <div style="background:#fff;border-radius:20px;max-width:640px;margin:8% auto;padding:30px;position:relative;box-shadow:0 6px 20px rgba(0,0,0,0.3);">
+    <span onclick="closeForm()" 
+          style="position:absolute;top:15px;right:20px;font-size:24px;cursor:pointer;color:#999;">✖</span>
+    <h2 style="text-align:center;color:#f5a623;margin-bottom:10px;">🐾 Join MyPetAI+ Early Access</h2>
+    <p style="text-align:center;color:#666;">Enter your email to get notified before launch!</p>
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfEa7-jgaWtMFw1UKMzEPFBDUj6NnPWkEP05nkLue8yvsKswg/viewform?embedded=true"
+            width="100%" height="400" frameborder="0" marginheight="0" marginwidth="0"
+            style="border:none;border-radius:12px;">Loading…</iframe>
+  </div>
+</div>
+
+<!-- JS for opening/closing the popup -->
+<script>
+function openForm() {
+  document.getElementById("formPopup").style.display = "block";
+}
+function closeForm() {
+  document.getElementById("formPopup").style.display = "none";
+}
+</script>
+
 </body>
 </html>
