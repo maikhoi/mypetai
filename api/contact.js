@@ -47,13 +47,15 @@ export default async function handler(req, res) {
     }
 
     const sheets = google.sheets({ version: "v4", auth });
-
+    const melTime = new Date().toLocaleString("en-AU", { timeZone: "Australia/Melbourne" });
+    
+    
     // Append to sheet
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEETS_ID,
       range: "A:B",
       valueInputOption: "USER_ENTERED",
-      requestBody: { values: [[email, new Date().toISOString()]] },
+      requestBody: { values: [[email, melTime]] },
     });
 
     // Send thank-you email
