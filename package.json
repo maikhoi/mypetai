@@ -3,6 +3,7 @@
     "dotenv": "^17.2.3",
     "googleapi": "^1.0.2",
     "googleapis": "^162.0.0",
+    "mongodb": "^6.20.0",
     "resend": "^6.1.2"
   },
   "name": "mypetai-landing",
