@@ -1,6 +1,8 @@
 {
     "redirects": [
-      { "source": "/admin", "destination": "/admin.html", "permanent": false }
+      { "source": "/admin", "destination": "/admin.html", "permanent": false },
+      { "source": "/about", "destination": "/about.html", "permanent": false },
+      { "source": "/privacy", "destination": "/privacy.html", "permanent": false }
     ]
   }
   
