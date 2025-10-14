@@ -42,7 +42,18 @@ export default async function handler(req, res) {
         ["https://www.googleapis.com/auth/spreadsheets"]
       );
       await auth.authorize();
-    } else {
+    } else if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+        const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+        auth = new google.auth.JWT(
+          creds.client_email,
+          undefined,
+          creds.private_key,
+          ["https://www.googleapis.com/auth/spreadsheets"]
+        );
+        await auth.authorize();
+      }
+      
+     else {
       throw new Error("Missing Google credentials. Set GOOGLE_APPLICATION_CREDENTIALS or service account env vars.");
     }
 
