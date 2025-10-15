@@ -98,9 +98,13 @@
   </main>
 
   <footer>
-    © 2025 MyPetAI+. All Rights Reserved. |
+    <div>© <span id="year">2025</span> MyPetAI+. All Rights Reserved. | </div>
     <a href="/privacy.html">Privacy Policy</a> |
     <a href="mailto:hello@mypetai.app">Contact Us</a>
   </footer>
+  <script>
+    // Keep year current without needing to edit the file
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
