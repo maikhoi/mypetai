@@ -13,7 +13,7 @@ const BREED_OPTIONS = [
   "Parrot",
   "Generic",
 ];
-const CATEGORY_OPTIONS = ["Food","Dry Food","Wet Food", "Treats", "FTW", "Toys", "Health", "Accessories", "Test Kit", "Live Fish"];
+const CATEGORY_OPTIONS = ["Food","Dry Food","Wet Food", "Treats", "FTW", "Toys", "Health", "Accessories", "Test Kit", "Live Fish", "Live Plant"];
 
 export default function ProductAdminDashboard() {
   const [selectedId, setSelectedId] = useState("");
@@ -993,36 +993,100 @@ export default function ProductAdminDashboard() {
         </div>
       )}
       <style jsx>{`
-        div[style*='overflow-y: auto']::-webkit-scrollbar {
-          width: 6px;
-        }
-        div[style*='overflow-y: auto']::-webkit-scrollbar-thumb {
-          background-color: #ccc;
-          border-radius: 4px;
-        }
-        div[style*='overflow-y: auto']::-webkit-scrollbar-track {
-          background-color: transparent;
-        }
+  /* Scrollbars for detail area */
+  div[style*='overflow-y: auto']::-webkit-scrollbar {
+    width: 6px;
+  }
+  div[style*='overflow-y: auto']::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+  }
+  div[style*='overflow-y: auto']::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
 
-        @media (max-width: 768px) {
-          div[style*='overflow-y: auto'] {
-            max-height: 400px !important;
-          }
-        }
-        @media (max-width: 700px) {
-          textarea {
-            font-size: 14px;
-            min-height: 100px;
-          }
-      
-          input,
-          select,
-          textarea,
-          button {
-            width: 100% !important;
-          }
-        }
-      `}</style>
+  /* 📱 MOBILE OPTIMIZATION */
+  @media (max-width: 900px) {
+    /* Reduce padding and max width on main container */
+    div[style*='max-width: 750px'] {
+      padding: 12px !important;
+      max-width: 100% !important;
+    }
+
+    /* Stack top header and logout button vertically */
+    div[style*='justify-content: space-between'] {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 10px !important;
+    }
+
+    /* Stack dropdown selector buttons */
+    div[style*='gap: 10px'][style*='margin-bottom: 20px'] {
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+
+    /* Grid for species / breed / category becomes vertical */
+    div[style*='grid-template-columns: 1fr 1fr 1fr'] {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 20px !important;
+    }
+
+    /* Inputs, selects, buttons: full width */
+    input,
+    select,
+    textarea,
+    button {
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      font-size: 14px;
+      min-height: 100px;
+    }
+
+    /* Product cards (for stores) spacing */
+    div[style*='border: 1px solid #ddd'][style*='background: #fafafa'] {
+      padding: 10px !important;
+    }
+
+    /* Store prices grid becomes stacked */
+    div[style*='grid-template-columns: 1fr 1fr 1fr'] {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+    }
+
+    /* Fix small screens for scrollable content */
+    div[style*='overflow-y: auto'] {
+      max-height: 400px !important;
+    }
+
+    /* Buttons spacing */
+    button {
+      margin-top: 8px !important;
+    }
+  }
+
+  /* 📲 EXTRA SMALL (phones < 480px) */
+  @media (max-width: 480px) {
+    h2, h3, h4 {
+      font-size: 1rem !important;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font-size: 0.9rem !important;
+    }
+
+    label {
+      font-size: 0.9rem !important;
+    }
+  }
+`}</style>
 
     </div>
   );
