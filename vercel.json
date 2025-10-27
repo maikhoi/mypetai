@@ -1,8 +1,10 @@
 {
-    "redirects": [
-      { "source": "/admin", "destination": "/admin.html", "permanent": false },
-      { "source": "/about", "destination": "/about.html", "permanent": false },
-      { "source": "/privacy", "destination": "/privacy.html", "permanent": false }
-    ]
+  "version": 2,
+  "builds": [
+    { "src": "package.json", "use": "@vercel/next" }
+  ],
+  "framework": "nextjs",
+  "env": {
+    "NODE_ENV": "production"
   }
-  
+}
