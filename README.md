@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -34,3 +35,39 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+=======
+# 🐾 MyPetAI+ Landing Page
+
+This is the official landing page for **MyPetAI+**, the smart pet-care assistant app for pet lovers.
+
+## 🌟 Overview
+MyPetAI+ helps pet owners manage their pets’ routines, track health and feeding reminders, and discover the best deals on pet products using AI-powered insights.
+
+### Features
+- 🤖 AI Pet Analyzer (photo-based breed detection)
+- 🕐 Smart care reminders
+- 💰 Best deal finder for pet food & supplies
+- 🎁 Paw Coin rewards system
+
+## 🚀 Deployment
+This landing page is built as a **static site (HTML + CSS)** and hosted on **Vercel**.
+
+### Quick Setup
+```bash
+git clone https://github.com/maikhoi/mypetai-landing.git
+cd mypetai-landing
+vercel
+
+
+Tech Stack:
+HTML5 / CSS3
+Hosted on Vercel
+Domain: mypetai.app
+
+💌 Contact
+For partnership or collaboration:
+Email: maikhoi@gmail.com
+ (example)
+TikTok: @mypetai
+Instagram: @mypetai
+>>>>>>> 82c7d05f9f9a5029e47d290b2868232e7b125c03

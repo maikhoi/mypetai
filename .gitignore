@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -40,3 +41,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+=======
+# dependencies
+node_modules/
+
+# environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# system files
+.DS_Store
+.vercel
+.env.old
+mypetai-service-key.json
+>>>>>>> 82c7d05f9f9a5029e47d290b2868232e7b125c03

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐾 MyPetAI+ Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Poppins, sans-serif;
+      background: #faf9f6;
+      padding: 40px;
+      color: #333;
+    }
+    h2 {
+      color: #f5a623;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-right: 8px;
+    }
+    button {
+      background: #f5a623;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:disabled {
+      background: #ddd;
+      cursor: not-allowed;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #fff0d6;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🐾 MyPetAI+ Subscribers</h2>
+
+  <div>
+    <input type="password" id="adminKey" placeholder="Enter admin key" />
+    <button id="fetchBtn">View Subscribers</button>
+  </div>
+
+  <p id="error" class="error"></p>
+
+  <table id="subsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Joined (Melbourne)</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody id="subsBody"></tbody>
+  </table>
+
+  <script>
+    const fetchBtn = document.getElementById("fetchBtn");
+    const subsTable = document.getElementById("subsTable");
+    const subsBody = document.getElementById("subsBody");
+    const errorEl = document.getElementById("error");
+
+    fetchBtn.addEventListener("click", async () => {
+      const token = document.getElementById("adminKey").value.trim();
+      if (!token) return alert("Please enter your admin key.");
+      fetchBtn.disabled = true;
+      errorEl.textContent = "";
+      subsBody.innerHTML = "";
+      subsTable.style.display = "none";
+
+      try {
+        const res = await fetch("/api/admin-subscribers", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          throw new Error(res.status === 401 ? "Unauthorized – wrong admin key" : "Server error");
+        }
+
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          subsBody.innerHTML = "<tr><td colspan='3'>No subscribers found</td></tr>";
+        } else {
+          data.forEach((s) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${s.email}</td>
+              <td>${s.joinedAt}</td>
+              <td>${s.source || "N/A"}</td>
+            `;
+            subsBody.appendChild(tr);
+          });
+        }
+
+        subsTable.style.display = "table";
+      } catch (err) {
+        errorEl.textContent = err.message;
+      } finally {
+        fetchBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
