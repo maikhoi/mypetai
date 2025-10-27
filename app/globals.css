@@ -1,0 +1,482 @@
+/* Base colors and layout */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #fffaf2 0%, #fff2e1 100%);
+  color: #333;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ----- Header ----- */
+.header {
+  background: #fff;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.logo {
+  color: #f5a623;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Navigation */
+.nav {
+  display: flex;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.nav-link {
+  color: #333;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #f5a623;
+}
+
+/* Active link highlight */
+.nav-link.active {
+  color: #f5a623;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ----- Hamburger Button ----- */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #f5a623;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+    color: #f5a623;
+  }
+
+  .nav {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    padding: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  /* Animate slide down */
+  .nav.open {
+    display: flex;
+    animation: slideDown 0.3s ease forwards;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+  }
+
+  .nav-link {
+    padding: 10px 0;
+    font-size: 1.1rem;
+  }
+}
+
+/* ----- Main Content ----- */
+.page-container {
+  flex: 1;
+}
+
+/* ----- Footer ----- */
+.footer {
+  text-align: center;
+  padding: 30px;
+  background: #fff;
+  color: #777;
+  border-top: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.footer a {
+  color: #f5a623;
+  text-decoration: none;
+}
+
+
+/* ---------- Homepage Specific ---------- */
+.homepage {
+  text-align: center;
+  padding: 10px 20px;
+}
+
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #fff9e5 0%, #ffe7d4 100%);
+  padding: 10px 20px;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  color: #f5a623;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+
+/* Features */
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.feature-box {
+  background: white;
+  padding: 20px 24px;
+  border-radius: 20px;
+  width: 260px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Signup Area */
+.signup-area {
+  margin-top: 40px;
+}
+
+.signup-area h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.signup-form {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.signup-form input {
+  padding: 12px 16px;
+  border-radius: 30px;
+  border: 1px solid #ccc;
+  min-width: 220px;
+  width: 260px;
+}
+
+.signup-form button {
+  background: #f5a623;
+  color: white;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(245, 166, 35, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.signup-form button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.signup-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.note {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.note-small {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.socials {
+  margin-top: 20px;
+}
+
+.socials a {
+  margin: 0 8px;
+  color: #f5a623;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #f5a623;
+}
+
+.nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  color: #f5a623;
+}
+
+/* Dropdown styling */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-btn {
+  background: none;
+  border: none;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 6px 0;
+  min-width: 180px;
+  z-index: 50;
+}
+
+.dropdown-menu.open {
+  display: block;
+}
+
+.dropdown-item {
+  position: relative;
+  padding: 4px 10px;
+}
+
+.dropdown-item > a,
+.dropdown-item > span {
+  display: block;
+  padding: 6px 12px;
+  color: #333;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dropdown-item > a:hover,
+.dropdown-item > span:hover {
+  background: #fdf4e3;
+  color: #f5a623;
+  border-radius: 4px;
+}
+
+/* Show submenu */
+.has-sub:hover > .sub-menu {
+  display: block;
+}
+
+/* 🔸 NEW: Flip direction if too close to the right edge */
+.dropdown-menu > .dropdown-item.has-sub:last-child > .sub-menu,
+.sub-menu > .dropdown-item.has-sub:last-child > .sub-menu {
+  left: auto;
+  right: 100%;      /* open to the left instead */
+  margin-left: 0;
+  margin-right: -4px;
+}
+
+/* Small fade animation */
+.sub-menu {
+  animation: dropdownFade 0.15s ease-in-out;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Invisible hover bridge to prevent flicker */
+.dropdown-item.has-sub {
+  position: relative;
+}
+
+.dropdown-item.has-sub::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 16px;
+  height: 100%;
+  background: transparent;
+  z-index: 998;
+}
+
+/* === Accordion Dropdown Styles === */
+
+.nav-item {
+  position: relative;
+}
+
+.dropdown-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dropdown-btn.active {
+  color: #f5a623;
+}
+
+.dropdown-panel {
+  position: absolute;             /* ← key change */
+  top: calc(100% + 8px);
+  left: 0;                         /* anchor under “Your Pet” */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  padding: 10px 0;
+  z-index: 1000;
+  width: 260px;                    /* keep tidy width */
+  max-height: 70vh;                /* prevent going off-screen */
+  overflow: auto;                  /* scroll inside panel if tall */
+}
+
+.dropdown-section {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 16px;
+}
+
+.sub-btn {
+  background: none;
+  border: none;
+  color: #333;
+  font: inherit;
+  text-align: left;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.sub-btn.active {
+  color: #f5a623;
+}
+
+.dropdown-sub {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  margin-top: 4px;
+}
+
+.dropdown-sub a {
+  text-decoration: none;
+  color: #333;
+  padding: 4px 0;
+  border-radius: 4px;
+}
+
+.dropdown-sub a:hover {
+  color: #f5a623;
+  background: #fff8ee;
+}
+
+/* Responsive collapse for mobile */
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+    flex-direction: column;
+    background: #fff;
+    padding: 12px 0;
+  }
+  .nav.open {
+    display: flex;
+  }
+  .dropdown-panel {
+    position: static;     /* ← stack inside mobile menu */
+    width: 100%;
+    max-height: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 6px 0;
+  }
+}
+
+/* Active submenu highlight */
+.dropdown-sub a.active-sub {
+  color: #f5a623;
+  font-weight: 600;
+  background: #fff8ee;
+}
+
+.dropdown-sub a:hover:not(.active-sub) {
+  background: #fff8ee;
+  color: #f5a623;
+}
+ 
