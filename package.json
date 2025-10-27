@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "mypetai-next",
   "version": "0.1.0",
   "private": true,
@@ -37,22 +36,5 @@
     "eslint-config-next": "15.5.6",
     "tailwindcss": "^4",
     "typescript": "^5"
-=======
-  "dependencies": {
-    "dotenv": "^17.2.3",
-    "googleapi": "^1.0.2",
-    "googleapis": "^162.0.0",
-    "mongodb": "^6.20.0",
-    "resend": "^6.1.2"
-  },
-  "name": "mypetai-landing",
-  "version": "1.0.0",
-  "description": "This is the official landing page for **MyPetAI+**, the smart pet-care assistant app for pet lovers.",
-  "main": "index.html",
-  "author": "",
-  "license": "ISC",
-  "scripts": {
-    "dev": "next dev"
->>>>>>> 82c7d05f9f9a5029e47d290b2868232e7b125c03
   }
 }
