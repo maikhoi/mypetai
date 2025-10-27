@@ -53,7 +53,11 @@ function DealsInner() {
 
   // 🏷️ Dynamic titles
   const titleParts = [capitalize(breed || species || "Pet"), capitalize(category || "Deals")];
-  const title = `🛍️ ${titleParts.join(" ")} Deals`;
+  const title = `${titleParts.join(" ")=="Pet Deals"?titleParts.join(" "):titleParts.join(" ")+" Deals"}`;
+
+
+
+  //const title = `🛍️ ${titleParts.join(" ")=="Pet Deals"?titleParts.join(" "):titleParts.join(" ") Deals} `;
   const subtitle = `Compare ${breed || species} ${category || ""} prices from multiple stores`;
 
   return (
