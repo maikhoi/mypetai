@@ -496,7 +496,7 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
 
           {activeTab === "reviews" && (
             <p style={{ color: "#888", textAlign: "center" }}>
-              Reviews feature coming soon 🐾
+                No reviews yet 🐾
             </p>
           )}
         </div>
