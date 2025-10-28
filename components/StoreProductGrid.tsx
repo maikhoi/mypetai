@@ -469,7 +469,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                 <div
                 style={{
                     flex: "0 0 auto",
-                    width: 120,
+                    width: 160,
                     height: 220,
                     background: "transparent",
                     color: "#f5a623",
@@ -492,7 +492,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                     )
                 }
                 >
-                <span style={{ fontSize: "0.9rem" }}>Browse this store</span>
+                <span style={{ fontSize: "0.9rem" }}><br/><br/><br/>Browse <br/>more <br/>this <br/>store</span>
                 <span style={{ fontSize: "1.2rem", marginTop: 2 }}>→</span>
                 </div>
             </div>

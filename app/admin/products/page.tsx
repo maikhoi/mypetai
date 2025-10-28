@@ -10,7 +10,7 @@ const BREED_OPTIONS = [
   "Shrimp",
   "Betta",
   "Golden Retriever",
-  "Labrador",
+  "Labrador Retriever",
   "Goldfish",
   "Bulldog",
   "Persian Cat",

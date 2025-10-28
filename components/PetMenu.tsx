@@ -125,7 +125,7 @@ export default function PetMenu() {
                             active.b === b.breed.toLowerCase() ? "active" : ""
                           }`}
                         >
-                          {capitalize(b.breed)}
+                          {formatCategory(b.breed)}
                         </div>
 
                         <ul className="petnav-category-list">
