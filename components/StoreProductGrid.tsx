@@ -321,9 +321,9 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                         ${bestPrice.toFixed(2)}
                       </span>
                     </div>
-                    <span style={{ color: "#777", fontSize: "0.85rem" }}>
+                    {(totalItems > 1 && <span style={{ color: "#777", fontSize: "0.85rem" }}>
                       +{totalItems - 1} more deals
-                    </span>
+                    </span>)}
                   </div>
                 );
               })()}

@@ -44,7 +44,7 @@ function DealsInner() {
     { label: "Your Pet", href: "/your-pet" },
     ...(species
       ? [{ label: capitalize(species), href: `/your-pet/${species}` }]
-      : []),
+      : [{label: "All Species", href: "/deals"}]),
     ...(breed
       ? [{ label: capitalize(breed), href: `/your-pet/${species}/${breed}` }]
       : []),
