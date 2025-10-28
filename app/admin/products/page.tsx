@@ -4,16 +4,20 @@ import ProductSwitcher from "@/components/admin/ProductSwitcher";
 
 // Example dropdown options — you can later fetch these dynamically
 
-const SPECIES_OPTIONS = ["Dog", "Cat", "Fish", "Bird", "Reptile"];
+const SPECIES_OPTIONS = ["Dog", "Cat", "Aquatic", "Bird", "Reptile"];
 const BREED_OPTIONS = [
   "Guppy",
+  "Shrimp",
+  "Betta",
+  "Golden Retriever",
+  "Labrador",
   "Goldfish",
   "Bulldog",
   "Persian Cat",
   "Parrot",
   "Generic",
 ];
-const CATEGORY_OPTIONS = ["Food","Dry Food","Wet Food", "Treats", "FTW", "Toys", "Health", "Accessories", "Test Kit", "Live Fish", "Live Plant"];
+const CATEGORY_OPTIONS = ["Food","Flake Food","Dry Food","Wet Food", "Treats", "FTW", "Toys", "Health", "Accessories", "Test Kit", "Live Aquatic", "Live Plant"];
 
 export default function ProductAdminDashboard() {
   const [selectedId, setSelectedId] = useState("");

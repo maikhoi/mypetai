@@ -41,24 +41,24 @@ function DealsInner() {
 
   // 🧭 Build breadcrumb dynamically
   const breadcrumbItems = [
-    { label: "Your Pet", href: "/your-pet" },
+    { label: "Pet Deals", href: "/deals" },
     ...(species
-      ? [{ label: capitalize(species), href: `/your-pet/${species}` }]
-      : [{label: "All Species", href: "/deals"}]),
+      ? [{ label: formatCategory(species), href: `/deals?species=${species}` }]
+      : [{label: "All Pet Deals", href: "/deals"}]),
     ...(breed
-      ? [{ label: capitalize(breed), href: `/your-pet/${species}/${breed}` }]
+      ? [{ label: formatCategory(breed), href: `/deals?species=${species}&breedCompatibility=${breed}` }]
       : []),
-    ...(category ? [{ label: capitalize(category) }] : []),
+    ...(category ? [{ label: formatCategory(category) }] : []),
   ];
 
   // 🏷️ Dynamic titles
-  const titleParts = [capitalize(breed || species || "Pet"), capitalize(category || "Deals")];
+  const titleParts = [formatCategory(breed || species || "Pet"), formatCategory(category || "")];
   const title = `${titleParts.join(" ")=="Pet Deals"?titleParts.join(" "):titleParts.join(" ")+" Deals"}`;
 
 
 
   //const title = `🛍️ ${titleParts.join(" ")=="Pet Deals"?titleParts.join(" "):titleParts.join(" ") Deals} `;
-  const subtitle = `Compare ${breed || species} ${category || ""} prices from multiple stores`;
+  const subtitle = `Compare ${capitalize(breed) || formatCategory(species)} ${formatCategory(category) || ""} prices from multiple stores`;
 
   return (
     <div style={{ padding: "20px", fontFamily: "Poppins, sans-serif" }}>
@@ -75,4 +75,8 @@ function DealsInner() {
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function formatCategory(str: string) {
+  return str.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }

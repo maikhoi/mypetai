@@ -33,7 +33,7 @@ const productSchema = new Schema(
     name: { type: String, required: true, index: true },
 
     species: {
-      type: [{ type: String, enum: ["dog", "cat", "fish", "bird", "small-animal", "reptile", "other"] }],
+      type: [{ type: String, enum: ["dog", "cat", "aquatic", "bird", "small-animal", "reptile", "other"] }],
       default: ["dog"],
       index: true,
     },
