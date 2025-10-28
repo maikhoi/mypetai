@@ -85,7 +85,7 @@ function formatCategory(str: string) {
 }
  
 
-export function DealsPageFooter() {
+function DealsPageFooter() {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
   
