@@ -330,14 +330,7 @@ export default function ProductAdminDashboard() {
         </button>
       </div>
       {/* Dropdown selector */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          marginBottom: 20,
-        }}
-      >
+      <div className="select-product">
         <div style={{ flex: 1 }}>
           <ProductSwitcher
             key={refreshKey}
@@ -1084,6 +1077,52 @@ export default function ProductAdminDashboard() {
 
     label {
       font-size: 0.9rem !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    /* Stack the top toolbar and dropdown cleanly */
+    div[style*='display: flex'][style*='align-items: center'][style*='gap: 10px'] {
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+
+    /* Force dropdown and buttons full width */
+    div[style*='display: flex'][style*='align-items: center'][style*='gap: 10px']
+      > :global(select),
+    div[style*='display: flex'][style*='align-items: center'][style*='gap: 10px']
+      > :global(button) {
+      width: 100% !important;
+      flex: 1 1 100% !important;
+    }
+
+    /* Tighten button padding for mobile */
+    :global(button) {
+      padding: 10px 12px !important;
+      font-size: 15px !important;
+    }
+
+    /* Prevent layout overflow */
+    html,
+    body {
+      overflow-x: hidden !important;
+    }
+  }
+  .select-product {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    :global(.select-product) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    :global(.select-product select) {
+      width: 100% !important;
     }
   }
 `}</style>

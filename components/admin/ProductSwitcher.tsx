@@ -31,12 +31,12 @@ export default function ProductSwitcher({ onSelect, selectedId }: Props) {
 
   return (
     <div className="flex items-center gap-3 mb-4">
-      <label className="font-medium text-sm">Select Product:</label>
+      <label className="font-medium text-sm">Select Product: </label>
       {loading ? (
         <span className="text-gray-500 text-sm">Loading...</span>
       ) : (
         <select
-          className="border rounded-lg px-3 py-2 max-h-52 overflow-y-auto"
+          className="select-product"
           value={selectedId || ""}
           onChange={(e) => onSelect(e.target.value)}
         >
