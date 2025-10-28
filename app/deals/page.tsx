@@ -145,7 +145,7 @@ function DealsPageFooter() {
           }}
         >
           <p style={{ marginBottom: 6 }}>
-            ⚠️ <strong>Note:</strong> Deal prices may exclude shipping costs.
+            ⚠️ <strong>Please Note:</strong> Deal prices may exclude shipping costs.
           </p>
           <p style={{ marginBottom: 6 }}>
             Prices may differ slightly from actual listings depending on when
