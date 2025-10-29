@@ -6,13 +6,15 @@ export const dynamic = "force-dynamic"; // ensures search params re-render
 
 // ✅ Explicit type for searchParams
 interface DealsPageProps {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export async function generateMetadata({ searchParams, }: DealsPageProps): Promise<Metadata> {
-  const species = searchParams.species || "pet";
-  const breed = searchParams.breedCompatibility || "";
-  const category = searchParams.category || "";
+  const params= await searchParams; // must await searchParams in Next 15
+
+  const species = params.species || "pet";
+  const breed = params.breedCompatibility || "";
+  const category = params.category || "";
 
   const readableTitle = [
     species !== "pet" ? species : "",
@@ -29,7 +31,7 @@ export async function generateMetadata({ searchParams, }: DealsPageProps): Promi
 
   const description = `Find the best ${readableTitle || "pet"} deals and price comparisons across top stores on MyPetAI+.`;
 
-  const canonical = `https://mypetai.app/deals?${new URLSearchParams(searchParams as Record<string, string>).toString()}`;
+  const canonical = `https://mypetai.app/deals?${new URLSearchParams(params as Record<string, string>).toString()}`;
 
   return {
     title,
@@ -45,10 +47,10 @@ export async function generateMetadata({ searchParams, }: DealsPageProps): Promi
 }
 
 export default async function DealsPage({ searchParams }: DealsPageProps) {
+  const params = await searchParams; // ✅ must await this
   // ⚡ Fetch small dataset for structured data
-  const query = new URLSearchParams(
-    searchParams as Record<string, string>
-  ).toString();
+  const query = new URLSearchParams(params as Record<string, string>).toString();
+  
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mypetai.app";
   let deals: any[] = [];
 
