@@ -1,4 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pet Deals — Compare Pet Food Prices | MyPetAI+",
+  description: "Find the best deals on pet food, toys, and supplies from top stores.",
+};
 
 export default async function ShopPage({
   searchParams,
