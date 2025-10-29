@@ -1,37 +1,60 @@
 import { MetadataRoute } from "next";
+import { dbConnect } from "@/lib/mongoose";
+import Product from "@/models/Product";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://mypetai.app";
+  await dbConnect();
 
-  const featuredCombos = [
-    { species: "dog", category: "food" },
-    { species: "dog", category: "flea-tick-worming" },
-    { species: "cat", category: "treats" },
-    { species: "fish", category: "food" },
-  ];
+  // 🧩 Fetch only the needed fields
+  const products = await Product.find({}, "species categories breedCompatibility updatedAt").lean();
 
-  const dealPages: MetadataRoute.Sitemap = featuredCombos.map((combo) => ({
-    url: `${baseUrl}/deals?${new URLSearchParams(combo).toString()}`,
+  // Use a Set to avoid duplicate URLs
+  const urlSet = new Set<string>();
+
+  products.forEach((p: any) => {
+    const speciesList = Array.isArray(p.species) ? p.species : [];
+    const categoryList = Array.isArray(p.categories) ? p.categories : [];
+    const breedList = Array.isArray(p.breedCompatibility) ? p.breedCompatibility : [];
+
+    // Species + Category URLs
+    speciesList.forEach((sp: string) => {
+      categoryList.forEach((cat: string) => {
+        urlSet.add(`species=${sp}&category=${cat}`);
+      });
+    });
+
+    // Species + Breed URLs
+    speciesList.forEach((sp: string) => {
+      breedList.forEach((br: string) => {
+        urlSet.add(`species=${sp}&breedCompatibility=${br}`);
+      });
+    });
+  });
+
+  // 🧠 Encode URLs safely for XML
+  const dynamicUrls: MetadataRoute.Sitemap = Array.from(urlSet).map((q) => ({
+    url: `${baseUrl}/deals?${encodeURI(q).replace(/&/g, "&amp;")}`,
     lastModified: new Date(),
-    changeFrequency: "weekly", // ✅ must use a literal from allowed types
+    changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
 
-  // Add main site pages
-  const staticPages: MetadataRoute.Sitemap = [
+  // 🏠 Base pages
+  const staticUrls: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: "daily",
+      changeFrequency: "daily" as const,
       priority: 1.0,
     },
     {
       url: `${baseUrl}/deals`,
       lastModified: new Date(),
-      changeFrequency: "daily",
+      changeFrequency: "daily" as const,
       priority: 0.9,
     },
   ];
 
-  return [...staticPages, ...dealPages];
+  return [...staticUrls, ...dynamicUrls];
 }
