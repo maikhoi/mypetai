@@ -17,7 +17,7 @@ const BREED_OPTIONS = [
   "Parrot",
   "Generic",
 ];
-const CATEGORY_OPTIONS = ["Food","Flake Food","Dry Food","Wet Food", "Treats", "FTW", "Toys", "Health", "Accessories", "Test Kit", "Live Aquatic", "Live Plant"];
+const CATEGORY_OPTIONS = ["Food","Flake Food","Dry Food","Wet Food", "Treats", "FTW", "Toys", "Health", "Accessories", "Test Kit", "Live Aquatic", "Live Plant", "Treat", "Flea Tick Worming", "Grooming", "Bedding", "Cleaning", "Collar & Leash", "Apparel", "Training", "Crate & Carrier", "Aquarium", "Tank Decor", "Filters & Pumps", "Lighting", "Heaters", "Water Care"];
 
 export default function ProductAdminDashboard() {
   const [selectedId, setSelectedId] = useState("");

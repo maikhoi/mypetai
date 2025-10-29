@@ -63,12 +63,6 @@ export default function Navbar() {
         >
           About
         </Link>
-        <Link
-          href="/privacy"
-          className={`nav-link ${isActive("/privacy") ? "active" : ""}`}
-        >
-          Privacy
-        </Link>
         <a href="mailto:hello@mypetai.app" className="nav-link">
           Contact
         </a>
