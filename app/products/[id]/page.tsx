@@ -118,12 +118,11 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
 
       {/* ✅ JSON-LD Schema */}
       <script
-        id="product-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productSchema),
-        }}
-      />
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(productSchema, null, 2),
+          }}
+        />
 
       {/* ✅ Main Client Component (renders gallery, PayPal, and ReviewForm) */}
       <ProductPageClient product={JSON.parse(JSON.stringify(product))} />
