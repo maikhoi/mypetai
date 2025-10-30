@@ -5,9 +5,9 @@ import Product from "@/models/Product";
 
 export async function POST(
     req: Request,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }  // ✅ must be a Promise
   ) {
-    const { id } = context.params; // ✅ safe extraction
+    const { id } = await context.params; // ✅ await it here
   await dbConnect();
 
   const { name, rating, comment } = await req.json();
