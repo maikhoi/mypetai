@@ -3,8 +3,13 @@ import { dbConnect } from "@/lib/mongoose";
 import Product from "@/models/Product";
 //import { getServerSession } from "next-auth";
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(
+    req: Request,
+    context: { params: { id: string } }
+  ) {
+    const { id } = context.params; // ✅ safe extraction
   await dbConnect();
+
   const { name, rating, comment } = await req.json();
   const session = null;//await getServerSession();
 
@@ -12,7 +17,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     //return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   //}
 
-  const product = await Product.findById(params.id);
+  const product = await Product.findById(id);
   if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
   product.reviews.push({
