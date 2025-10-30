@@ -117,7 +117,7 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
       />
 
       {/* ✅ JSON-LD Schema */}
-      <Script
+      <script
         id="product-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
