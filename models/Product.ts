@@ -1,5 +1,7 @@
 import mongoose, { Schema, models, model } from "mongoose";
 
+
+/* ----------------------------- 🏪 Store Schema ----------------------------- */
 const storePriceSchema = new Schema(
   {
     storeId: { type: Schema.Types.ObjectId, ref: "Store" },
@@ -27,7 +29,28 @@ const storePriceSchema = new Schema(
 
 storePriceSchema.index({ storeName: 1, lastUpdated: -1 });
 
-// 🧩 Updated Product Schema
+/* ----------------------------- 💬 Review Schema ---------------------------- */
+export type Review = {
+  userId?: string;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+const ReviewSchema = new Schema<Review>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: "User" },
+    name: { type: String, required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String, required: true },
+  },
+  { timestamps: true }
+);
+
+
+/* ----------------------------- 🧩 Product Schema ---------------------------- */
 const productSchema = new Schema(
   {
     name: { type: String, required: true, index: true },
@@ -78,6 +101,9 @@ const productSchema = new Schema(
     stores: [storePriceSchema],
     isActive: { type: Boolean, default: true },
     updatedBy: { type: String, index: true },
+    reviews: [ReviewSchema],
+    averageRating: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
@@ -86,6 +112,18 @@ productSchema.index({ species: 1, categories: 1 });
 productSchema.index({ species: 1, "breedCompatibility": 1 });
 productSchema.index({ name: "text", description: "text" });
 
+// Auto-calc before save
+productSchema.methods.updateRating = function () {
+  if (this.reviews.length > 0) {
+    this.reviewCount = this.reviews.length;
+    this.averageRating =
+      this.reviews.reduce((acc: number, r : {rating:number}) => acc + r.rating, 0) / this.reviewCount;
+  } else {
+    this.reviewCount = 0;
+    this.averageRating = 0;
+  }
+};
+/* ----------------------------- 🧾 Type Definitions ---------------------------- */
 export type DigitalAsset = {
   url: string;
   type?: "image" | "video";
@@ -126,12 +164,26 @@ export type ProductDoc = {
   lastChecked?: string;
   storesAvailable?: string[];
   stores: StorePrice[];
+  isActive?: boolean;
+  updatedBy?: string;
+
+  /* ✅ Reviews */
+  reviews: Review[];
+  averageRating: number;
+  reviewCount: number;
+
   createdAt?: string;
   updatedAt?: string;
-  updatedBy?: string;
+
+  /* Method added by schema */
+  updateRating?: () => void;
 };
 
 
+/* ----------------------------- ✅ Export Model ---------------------------- */
+const Product = (models.Product as mongoose.Model<ProductDoc>) || model<ProductDoc>("Product", productSchema);
 
-export default (models.Product as mongoose.Model<ProductDoc>) ||
-  model<ProductDoc>("Product", productSchema);
+export default Product;  
+
+//export default (models.Product as mongoose.Model<ProductDoc>) ||
+ // model<ProductDoc>("Product", productSchema);

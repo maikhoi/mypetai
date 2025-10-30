@@ -3,12 +3,12 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import ReviewModal from "@/components/ReviewModal";
+import type { ProductDoc, DigitalAsset, Review } from "@/models/Product";
 
-type DigitalAsset = {
-  url: string;
-  type: "image" | "video";
-};
 
+
+/* re|double declare ???
 type StorePrice = {
   storeName: string;
   productUrl?: string;
@@ -16,6 +16,10 @@ type StorePrice = {
   regularPrice?: number | null;
   memberPrice?: number | null;
   repeatPrice?: number | null;
+};
+type DigitalAsset = {
+  url: string;
+  type: "image" | "video";
 };
 
 type ProductDoc = {
@@ -27,12 +31,20 @@ type ProductDoc = {
   categories?: string[];
   averagePrice?: number;
 };
-
+*/
 function formatCategory(str: string) {
     return str.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
 export default function ProductPageClient({ product }: { product: ProductDoc }) {
+  // 🧠 local state for reviews
+  const [reviews, setReviews] = useState(product.reviews || []);
+
+  // Handler to add new review after submission
+  function handleNewReview(newReview: Review) {
+    setReviews((prev) => [newReview, ...prev]);
+  }
+
   const [quantity, setQuantity] = useState(1);
   
   const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
@@ -485,7 +497,7 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
         </div>
 
         {/* Tab Content */}
-        <div style={{ padding: 20, lineHeight: 1.6, color: "#555" }}>
+        <div style={{ padding: 20, lineHeight: 1.6, color: "#555",}}>
           {activeTab === "description" && (
             product.description ? (
               <ReactMarkdown>{product.description}</ReactMarkdown>
@@ -495,13 +507,38 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
           )}
 
           {activeTab === "reviews" && (
-            <p style={{ color: "#888", textAlign: "center" }}>
-                No reviews yet 🐾
-            </p>
+            <div style={{ textAlign: "center" }}>
+              {product.reviews?.length ? (
+                  <ul style={{ listStyle: "none", padding: 0 }}>
+                    {product.reviews.map((r, i) => (
+                      <li
+                        key={i}
+                        style={{
+                          background: "#f9fafb",
+                          padding: 12,
+                          borderRadius: 8,
+                          marginBottom: 8,
+                        }}
+                      >
+                        <strong>{r.name}</strong> &nbsp;
+                        <span style={{ color: "#f59e0b" }}>
+                          {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                        </span>
+                        <p style={{ marginTop: 4 }}>{r.comment}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span style={{ color: "#888",  }}>
+                          No reviews yet 🐾
+                      </span>
+              )}
+              {/* 🔹 Review modal button here 🟢 Pass callback down */}
+              <ReviewModal productId={product._id} onReviewAdded={handleNewReview} />
+          </div>
           )}
         </div>
       </div>
-
       {/* 📱 Responsive Styles */}
       <style jsx>{`
         .thumb-scroll-wrapper::-webkit-scrollbar {

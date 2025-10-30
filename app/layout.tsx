@@ -14,10 +14,11 @@ export const metadata: Metadata = {
   keywords:
     "pet care, pet food deals, pet reminders, pet tracking, MyPetAI, best prices, dog food, cat food, aquarium, fish care, aquatic, pet supplies, pet health, pet wellness, pet discounts",
   authors: [{ name: "MyPetAI Team" }],
+  metadataBase: new URL("https://mypetai.app"),
   openGraph: {
-    title: "MyPetAI+ — Smarter Pet Care & Best Deals",
+    title: "MyPetAI+ — Smarter Pet Care & Best Deals Finder",
     description:
-      "Track your pet’s care, find great deals, and simplify your pet’s daily routine with MyPetAI+.",
+      "Find the best deals for your pets, manage care reminders, and track everything with MyPetAI+.",
     url: "https://mypetai.app",
     siteName: "MyPetAI+",
     locale: "en_AU",
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
         url: "https://mypetai.app/preview.jpg",
         width: 1200,
         height: 630,
-        alt: "MyPetAI+ Smart Pet Care and Deals Finder",
+        alt: "MyPetAI+ Smart Pet Care and Best Deals Finder",
       },
     ],
   },
@@ -37,7 +38,11 @@ export const metadata: Metadata = {
     description:
       "Find the best deals for your pets and manage their care easily.",
     images: ["https://mypetai.app/preview.jpg"],
+    creator: "@mypetaiapp",
   },
+  alternates: {
+    canonical: "https://mypetai.app",
+  },  
 };
 
 const poppins = Poppins({

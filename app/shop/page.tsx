@@ -1,10 +1,36 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Pet Deals — Compare Pet Food Prices | MyPetAI+",
-  description: "Find the best deals on pet food, toys, and supplies from top stores.",
-};
+export const dynamic = "force-dynamic";
+
+interface ShopPageProps {
+  searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const category = params.category || "Pet Products";
+
+  const readableCategory = category.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const title = `${readableCategory} | MyPetAI+ Shop`;
+  const description = `Explore ${readableCategory} available at the best prices across multiple trusted stores on MyPetAI+.`;
+
+  const canonical = `https://mypetai.app/shop?${new URLSearchParams(params as Record<string, string>).toString()}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "website",
+    },
+  };
+}
+
 
 export default async function ShopPage({
   searchParams,
