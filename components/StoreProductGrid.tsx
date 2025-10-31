@@ -420,7 +420,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                             fontSize: "1.05rem",
                             }}
                         >
-                            ${best.bestPrice.toFixed(2)}
+                            ${best.memberPrice?.toFixed(2)}
                         </span>
                         </p>
                     ) : (
