@@ -401,8 +401,8 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
                     {best ? (
                         <p style={{ margin: 0 }}>
-                        {isSale && best.regularPrice && (
-                            <span
+                        {isSale && best.regularPrice && best.memberPrice && (
+                            <div><span
                             style={{
                                 textDecoration: "line-through",
                                 color: "#aaa",
@@ -411,17 +411,26 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                             }}
                             >
                             ${best.regularPrice.toFixed(2)}
-                            </span>
+                            </span><span
+                                style={{
+                                fontWeight: 700,
+                                color: isSale ? "#e94e1b" : "#f5a623",
+                                fontSize: "1.05rem",
+                                }}
+                            >
+                                ${best.memberPrice.toFixed(2)}
+                            </span>                            
+                            </div>
                         )}
-                        <span
+                        {!isSale && best.regularPrice && (<span
                             style={{
                             fontWeight: 700,
                             color: isSale ? "#e94e1b" : "#f5a623",
                             fontSize: "1.05rem",
                             }}
                         >
-                            ${best.memberPrice?.toFixed(2)}
-                        </span>
+                            ${best.regularPrice.toFixed(2)}
+                        </span>)}
                         </p>
                     ) : (
                         <p style={{ color: "#777", margin: 0 }}>Price unavailable</p>
