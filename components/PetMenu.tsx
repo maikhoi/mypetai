@@ -12,7 +12,7 @@ export default function PetMenu() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const inPetSection =
-        pathname.startsWith("/deals") || pathname.startsWith("/your-pet");
+    pathname.startsWith("/deals") || pathname.startsWith("/your-pet");
 
   // 🧭 Fetch dynamic menu once
   useEffect(() => {
@@ -57,7 +57,6 @@ export default function PetMenu() {
     if (window.innerWidth <= 768) setIsOpen((o) => !o);
   };
 
-
   return (
     <div
       className="petnav-container"
@@ -96,7 +95,7 @@ export default function PetMenu() {
 
             return (
               <div key={sp.species} className="petnav-species">
-                {/* 🐠 Species name (click to expand) */}
+                {/* 🐠 Species name */}
                 <div
                   className={`petnav-species-name ${
                     isActiveSpecies ? "active" : ""
@@ -118,35 +117,43 @@ export default function PetMenu() {
                 {/* 🧬 Breeds and categories */}
                 {isExpanded && (
                   <div className="petnav-breeds">
-                    {sp.breeds.map((b: any) => (
-                      <div key={b.breed} className="petnav-breed">
-                        <div
-                          className={`petnav-breed-name ${
-                            active.b === b.breed.toLowerCase() ? "active" : ""
-                          }`}
-                        >
-                          {formatCategory(b.breed)}
-                        </div>
+                    {sp.breeds.map((b: any) => {
+                      const breedKey = b.breed.toLowerCase();
+                      const isActiveBreed = active.b === breedKey;
 
-                        <ul className="petnav-category-list">
-                          {b.categories.map((cat: string) => {
-                            const catKey = cat.toLowerCase();
-                            const isActive = active.c === catKey;
-                            return (
-                              <li key={cat}>
-                                <Link
-                                  href={`/deals?species=${sp.species}&breedCompatibility=${b.breed}&category=${cat}`}
-                                  className={isActive ? "active" : ""}
-                                  onClick={() => setIsOpen(false)}
-                                >
-                                  {formatCategory(cat)}
-                                </Link>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    ))}
+                      return (
+                        <div key={b.breed} className="petnav-breed">
+                          <div
+                            className={`petnav-breed-name ${
+                              isActiveBreed ? "active" : ""
+                            }`}
+                          >
+                            {formatCategory(b.breed)}
+                          </div>
+
+                          <ul className="petnav-category-list">
+                            {b.categories.map((cat: string) => {
+                              const catKey = cat.toLowerCase();
+                              // ✅ FIX: Match breed + category
+                              const isActive =
+                                active.b === breedKey && active.c === catKey;
+
+                              return (
+                                <li key={cat}>
+                                  <Link
+                                    href={`/deals?species=${sp.species}&breedCompatibility=${b.breed}&category=${cat}`}
+                                    className={isActive ? "active" : ""}
+                                    onClick={() => setIsOpen(false)}
+                                  >
+                                    {formatCategory(cat)}
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
