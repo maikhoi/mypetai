@@ -329,19 +329,29 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
               })()}
 
               {/* Product list */}
-            {expanded && (
-            <div
-                className="store-products"
-                style={{
-                display: "flex",
-                overflowX: "auto",
-                scrollSnapType: "x mandatory",
-                WebkitOverflowScrolling: "touch",
-                gap: 16,
-                padding: 16,
-                }}
-            >
-                {items.slice(0, 10).map((p) => {
+              {expanded && (
+                <div
+                  className="store-products"
+                  style={{
+                    display: "flex",
+                    overflowX: "auto",
+                    scrollSnapType: "x mandatory",
+                    WebkitOverflowScrolling: "touch",
+                    gap: 16,
+                    padding: 16,
+                  }}
+                >
+                  {/* ✅ Sort products by best (lowest) price before showing */}
+                  {items
+                    .map((p) => {
+                      const best = bestStoreOffer(p.stores, storeName);
+                      return best
+                        ? { ...p, _bestPrice: best.bestPrice || Infinity }
+                        : { ...p, _bestPrice: Infinity };
+                    })
+                    .sort((a, b) => a._bestPrice - b._bestPrice) // ascending (cheapest first)
+                    .slice(0, 10)
+                    .map((p, idx) => {
                 const storeArray = Array.isArray(p.stores) ? p.stores : [];
                 const best = bestStoreOffer(storeArray, storeName);
                 const repeat = storeArray.find(
@@ -362,14 +372,18 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                     key={`${storeName}-${p._id}`}
                     className="product-card"
                     style={{
-                        flex: "0 0 auto",
-                        width: 220,
-                        scrollSnapAlign: "start",
-                        background: "#fff",
-                        borderRadius: 10,
-                        boxShadow: "0 3px 6px rgba(0,0,0,0.05)",
-                        padding: 14,
-                        textAlign: "center",
+                      flex: "0 0 auto",
+                      width: 220,
+                      scrollSnapAlign: "start",
+                      background: "#fff",
+                      borderRadius: 10,
+                      boxShadow: "0 3px 6px rgba(0,0,0,0.05)",
+                      padding: 14,
+                      textAlign: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      height: 340, // fixed consistent height
                     }}
                     >
                     <div
@@ -398,11 +412,23 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
                     </div>
                     <h4 style={{ margin: "8px 0 4px", color: "#333" }}>{p.name}</h4>
-
+                    {/* 🏷️ Label for the first (cheapest) item 
+                    {idx === 0 && (
+                      <div
+                        style={{
+                          color: "#4caf50",
+                          fontWeight: 600,
+                          fontSize: "0.85rem",
+                          marginBottom: 6,
+                        }}
+                      >
+                        🏷️ Lowest Price
+                      </div>
+                    )}  */}
                     {best ? (
                         <p style={{ margin: 0 }}>
                         {isSale && best.regularPrice && best.memberPrice && (
-                            <div><span
+                            <><span
                             style={{
                                 textDecoration: "line-through",
                                 color: "#aaa",
@@ -420,7 +446,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                             >
                                 ${best.memberPrice.toFixed(2)}
                             </span>                            
-                            </div>
+                            </>
                         )}
                         {!isSale && best.regularPrice && (<span
                             style={{
@@ -457,14 +483,17 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
-                            display: "inline-block",
-                            marginTop: 8,
-                            padding: "6px 14px",
-                            background: "#f5a623",
-                            color: "#fff",
-                            borderRadius: 6,
-                            textDecoration: "none",
-                            fontWeight: 600,
+                          display: "inline-block",
+                          padding: "8px 18px",
+                          background: "#f5a623",
+                          color: "#fff",
+                          borderRadius: 6,
+                          textDecoration: "none",
+                          fontWeight: 600,
+                          marginTop: 8,
+                          marginLeft: "auto",
+                          marginRight: "auto",                          
+                          transition: "background 0.2s",
                         }}
                         >
                         View Deal
