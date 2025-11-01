@@ -17,6 +17,10 @@ export async function generateMetadata( props : { params: Promise<{ id: string }
   if (!product) {
     return { title: "Product Not Found | MyPetAI+" };
   }
+  //DB: MyPetAI Shop
+  const isShopProduct = product.stores?.some(
+    (s: any) => s.storeName === "MyPetAI Shop"
+  );
 
   const title = `${product.name} | MyPetAI+ Store`;
   const description =
@@ -37,6 +41,15 @@ export async function generateMetadata( props : { params: Promise<{ id: string }
       type: "website",
       images: [{ url: image, width: 1200, height: 630 }],
     },
+    robots: isShopProduct
+      ? {
+          index: true,
+          follow: true,
+        }
+      : {
+          index: false,
+          follow: false, // also stops passing link juice
+        },
   };
 }
 
