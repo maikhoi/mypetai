@@ -19,7 +19,7 @@ export async function generateMetadata( props : { params: Promise<{ id: string }
   }
   //DB: MyPetAI Shop
   const isShopProduct = product.stores?.some(
-    (s: any) => s.storeName === "MyPetAI Shop"
+    (s: any) => s.storeName?.toLowerCase().includes("mypetai")
   );
 
   const title = `${product.name} | MyPetAI+ Store`;
