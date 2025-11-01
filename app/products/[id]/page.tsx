@@ -11,7 +11,7 @@ export async function generateMetadata( props : { params: Promise<{ id: string }
   await dbConnect();
   const { id } = await props.params; // ✅ must await params in Next 15
   const product = await Product.findById(id)
-    .select("name description digitalAssets averageRating reviewCount")
+    .select("name description digitalAssets averageRating reviewCount stores.storeName")
     .lean();
 
   if (!product) {
@@ -22,6 +22,7 @@ export async function generateMetadata( props : { params: Promise<{ id: string }
     (s: any) => s.storeName?.toLowerCase().includes("mypetai")
   );
 
+  //console.log("🧩 isShopProduct:", isShopProduct, product.stores);
   const title = `${product.name} | MyPetAI+ Store`;
   const description =
     product.description?.slice(0, 160) ||
