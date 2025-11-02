@@ -2,6 +2,7 @@ import { dbConnect } from "@/lib/mongoose";
 import Product from "@/models/Product";
 import ProductPageClient from "@/components/ProductPageClient"; 
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Script from "next/script";
 
 /**
@@ -64,6 +65,44 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
   const product = await Product.findById(id).lean();
 
   if (!product) return <p>Product not found.</p>;
+
+  // 🧩 Detect whether product is from MyPetAI Shop
+  const hasShopListing = product.stores?.some((s: any) =>
+    s.storeName?.toLowerCase().includes("mypetai")
+  );
+
+  // 🚫 If not, redirect to deals page
+  if (!hasShopListing) {
+    // ✅ Choose species
+    const species = product.species?.[0] || "pet";
+
+    // ✅ Choose breed: prefer 'generic' if exists
+    const breed =
+      product.breedCompatibility?.find(
+        (b: string) => b?.toLowerCase().includes("generic")
+      ) || product.breedCompatibility?.[0] || "";
+
+    // ✅ Choose category
+    const category = product.categories?.[0] || "";
+
+    // ✅ Build redirect URL safely
+    const params = new URLSearchParams();
+    if (species) params.set("species", species);
+    if (breed) params.set("breedCompatibility", breed);
+    if (category) params.set("category", category);
+
+    // ✅ Fallback: if no valid redirect query, render message instead
+    if (!params.toString()) {
+      return (
+        <p style={{ textAlign: "center", marginTop: 40 }}>
+          🐾 Sorry, we couldn’t find matching deals for this product.
+        </p>
+      );
+    }
+
+    // Redirect to relevant deals listing
+    redirect(`/deals?${params.toString()}`);
+  }
 
   const canonical = `https://mypetai.app/products/${id}`;
   const image = product.digitalAssets?.[0]?.url || "/preview.jpg";
