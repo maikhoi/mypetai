@@ -90,6 +90,8 @@ function getCheapestItemForStore(
 
 // ====== MAIN COMPONENT ======
 export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
+  const [visibleCount, setVisibleCount] = useState<Record<string, number>>({});
+
   const [storeSummaries, setStoreSummaries] = useState<
     { storeName: string; items: (Product & { store: StorePrice })[]; cheapestPrice: number }[]
   >([]);
@@ -125,6 +127,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
         // Group by store — make sure p.stores is an array
         const grouped: Record<string, (Product & { store: StorePrice })[]> = {};
+        const seenKeys = new Set<string>();
 
         for (const p of products) {
           const storeArray = Array.isArray(p.stores)
@@ -135,11 +138,33 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
           for (const s of storeArray) {
             if (!s?.storeName) continue;
+            const key = `${s.storeName}-${p._id}`;
+            if (seenKeys.has(key)) continue; // skip duplicate same-store entry
+            seenKeys.add(key);
+
             if (!grouped[s.storeName]) grouped[s.storeName] = [];
             grouped[s.storeName].push({ ...p, store: s });
           }
         }
 
+
+        // 🧹 Deduplicate products within each store group
+        for (const storeName in grouped) {
+          const seen = new Set<string>();
+
+          grouped[storeName] = grouped[storeName].filter((p) => {
+            const key = [
+              p.name?.trim().toLowerCase(),
+              p.store?.productUrl?.trim().toLowerCase().replace(/\/$/, ""), // remove trailing slash
+              p.store?.regularPrice,
+              p.store?.memberPrice,
+            ].join("|");
+
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        }
 
         // Summaries
         const summary = Object.entries(grouped)
@@ -157,6 +182,10 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
         summary.slice(0, 2).forEach((s) => (initialExpanded[s.storeName] = true));
 
         if (!cancelled) {
+          const initialVisible: Record<string, number> = {};
+          summary.forEach(({ storeName }) => (initialVisible[storeName] = 10));
+          setVisibleCount(initialVisible);
+
           setExpandedStores(initialExpanded);
           setStoreSummaries(summary);
         }
@@ -350,7 +379,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                         : { ...p, _bestPrice: Infinity };
                     })
                     .sort((a, b) => a._bestPrice - b._bestPrice) // ascending (cheapest first)
-                    .slice(0, 10)
+                    .slice(0, visibleCount[storeName] || 10)     //.slice(0, 10)
                     .map((p, idx) => {
                 const storeArray = Array.isArray(p.stores) ? p.stores : [];
                 const best = bestStoreOffer(storeArray, storeName);
@@ -369,7 +398,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
                 return (
                     <div
-                    key={`${storeName}-${p._id}`}
+                    key={`${storeName}-${p._id}-${p.store?.productUrl || idx}`}
                     className="product-card"
                     style={{
                       flex: "0 0 auto",
@@ -504,35 +533,85 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                 })}
 
                 {/* Browse more card */}
-                <div
-                style={{
-                    flex: "0 0 auto",
-                    width: 160,
-                    height: 220,
-                    background: "transparent",
-                    color: "#f5a623",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 600,
-                    textAlign: "center",
-                    cursor: "pointer",
-                    opacity: 0.8,
-                    scrollSnapAlign: "center",
-                }}
-                onClick={() =>
-                    window.open(
-                    `https://www.google.com/search?q=${encodeURIComponent(
-                        storeName + " pet food site:.au"
-                    )}`,
-                    "_blank"
-                    )
-                }
-                >
-                <span style={{ fontSize: "0.9rem" }}><br/><br/><br/>Browse <br/>more <br/>this <br/>store</span>
-                <span style={{ fontSize: "1.2rem", marginTop: 2 }}>→</span>
-                </div>
+                {items.length > (visibleCount[storeName] || 10) ? (
+            <div
+              className="browse-more-card"
+              style={{
+                flex: "0 0 auto",
+                width: 160,
+                height: 220,
+                background: "transparent",
+                color: "#f5a623",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 600,
+                textAlign: "center",
+                cursor: "pointer",
+                opacity: 0.8,
+                scrollSnapAlign: "center",
+              }}
+              onClick={() =>
+                setVisibleCount((prev) => ({
+                  ...prev,
+                  [storeName]: (prev[storeName] || 10) + 10,
+                }))
+              }
+            >
+              <span style={{ fontSize: "0.9rem" }}>
+                <br />
+                <br />
+                <br />
+                Browse <br />
+                more <br />
+                product <br />
+                this <br />
+                store
+              </span>
+              <span style={{ fontSize: "1.2rem", marginTop: 2 }}>→</span>
+            </div>
+          ) : (
+            <div
+              className="browse-more-card"
+              style={{
+                flex: "0 0 auto",
+                width: 160,
+                height: 220,
+                background: "transparent",
+                color: "#f5a623",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 600,
+                textAlign: "center",
+                cursor: "pointer",
+                opacity: 0.8,
+                scrollSnapAlign: "center",
+              }}
+              onClick={() =>
+                window.open(
+                  `https://www.google.com/search?q=${encodeURIComponent(
+                    storeName + " pet food site:.au"
+                  )}`,
+                  "_blank"
+                )
+              }
+            >
+              <span style={{ fontSize: "0.9rem" }}>
+                <br />
+                <br />
+                <br />
+                No more.<br />
+                Browse  <br />
+                more on<br />
+                Google
+              </span>
+              <span style={{ fontSize: "1.2rem", marginTop: 2 }}>→</span>
+            </div>
+          )}
+
             </div>
             )}
             </div>
@@ -584,6 +663,27 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
       
           .product-card {
             width: 100% !important;
+          }
+
+          .browse-more-card {
+            width: auto !important;
+            height: auto !important;
+            background: none !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 10px 0 !important;
+            font-size: 0.95rem !important;
+            opacity: 1 !important;
+          }
+        
+          .browse-more-card span {
+            display: inline !important;
+            font-size: 0.95rem !important;
+          }
+        
+          .browse-more-card br {
+            display: none !important;
           }
         }
       
