@@ -361,14 +361,6 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
               {expanded && (
                 <div
                   className="store-products"
-                  style={{
-                    display: "flex",
-                    overflowX: "auto",
-                    scrollSnapType: "x mandatory",
-                    WebkitOverflowScrolling: "touch",
-                    gap: 16,
-                    padding: 16,
-                  }}
                 >
                   {/* ✅ Sort products by best (lowest) price before showing */}
                   {items
@@ -412,7 +404,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
-                      height: 340, // fixed consistent height
+                      height: 360, // fixed consistent height
                     }}
                     >
                     <div
@@ -605,7 +597,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                 <br />
                 No more.<br />
                 Browse  <br />
-                more on<br />
+                more on <br />
                 Google
               </span>
               <span style={{ fontSize: "1.2rem", marginTop: 2 }}>→</span>
@@ -644,6 +636,12 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
       {/* Mobile responsiveness styles */}
       <style jsx>{`
+      .store-products {
+        display: flex;
+        overflow-x: auto;
+        gap: 16px;
+        padding: 16px;
+        }
         /* 💻 Default: scroll horizontally */
         .store-products::-webkit-scrollbar {
           height: 6px;
@@ -662,7 +660,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
           }
       
           .product-card {
-            width: 100% !important;
+            width: 90% !important;
           }
 
           .browse-more-card {
@@ -686,12 +684,32 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
             display: none !important;
           }
         }
-      
         @media (max-width: 480px) {
           .store-products {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .browse-more-card {
+            width: auto !important;
+            height: auto !important;
+            background: none !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 10px 0 !important;
+            font-size: 0.95rem !important;
+            opacity: 1 !important;
+          }
+        
+          .browse-more-card span {
+            display: inline !important;
+            font-size: 0.95rem !important;
+          }
+        
+          .browse-more-card br {
+            display: none !important;
           }
         }
+        
       `}</style>
     </div>
   );
