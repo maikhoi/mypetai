@@ -23,6 +23,7 @@ const storePriceSchema = new Schema(
     memberPrice: { type: Number, default: null },
     repeatPrice: { type: Number, default: null },
     lastUpdated: { type: Date, default: Date.now },
+    lastUpdatedLocal: { type: String }, // ✅ new local string field
   },
   { _id: false }
 );
@@ -97,6 +98,7 @@ const productSchema = new Schema(
     productCode: String,
     averagePrice: { type: Number, default: null },
     lastChecked: Date,
+    lastCheckedLocal: String, // ✅ new lastChecked local string field
     storesAvailable: [{ type: Schema.Types.ObjectId, ref: "Store" }],
     stores: [storePriceSchema],
     isActive: { type: Boolean, default: true },
@@ -138,7 +140,8 @@ export type StorePrice = {
   regularPrice?: number | null;
   memberPrice?: number | null;
   repeatPrice?: number | null;
-  lastUpdated?: string;
+  lastUpdated?: Date;
+  lastUpdatedLocal?: string;
 };
 
 export type ProductDoc = {
@@ -161,7 +164,8 @@ export type ProductDoc = {
   sku?: string;
   productCode?: string;
   averagePrice?: number;
-  lastChecked?: string;
+  lastChecked?: Date;
+  lastCheckedLocal?: string;
   storesAvailable?: string[];
   stores: StorePrice[];
   isActive?: boolean;

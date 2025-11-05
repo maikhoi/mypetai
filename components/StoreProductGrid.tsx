@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
 
 // ====== TYPES ======
 
@@ -15,6 +16,8 @@ type StorePrice = {
   regularPrice?: number | null;
   memberPrice?: number | null;
   repeatPrice?: number | null;
+  lastUpdated?: Date;
+  lastUpdatedLocal?: string;
 };
 
 type Product = {
@@ -381,6 +384,50 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                     s.repeatPrice &&
                     s.repeatPrice > 0
                 );
+
+                // 🕒 Determine last update string
+                const storeMatch = storeArray.find((s) => s.storeName === storeName);
+                let lastUpdatedText = "Unknown";
+                
+                if (storeMatch?.lastUpdated) {
+                  try {
+                    // Convert stored timestamp (string or Date) → Melbourne DateTime
+                    const melbourneTime = DateTime.fromISO(
+                      typeof storeMatch.lastUpdated === "string"
+                        ? storeMatch.lastUpdated
+                        : storeMatch.lastUpdated.toISOString(),
+                      { zone: "utc" }
+                    ).setZone("Australia/Melbourne");
+                
+                    // Get current Melbourne time
+                    const now = DateTime.now().setZone("Australia/Melbourne");
+                
+                    // Calculate difference in units
+                    const diff = now.diff(melbourneTime, [
+                      "days",
+                      "hours",
+                      "minutes",
+                      "seconds",
+                    ]).toObject();
+                
+                    // Build human-readable text
+                    const parts: string[] = [];
+                    if (diff.days && diff.days >= 1) parts.push(`${Math.floor(diff.days)} day${diff.days >= 2 ? "s" : ""}`);
+                    if (diff.hours && diff.hours >= 1) parts.push(`${Math.floor(diff.hours)} hour${diff.hours >= 2 ? "s" : ""}`);
+                    if (diff.minutes && diff.minutes >= 1) parts.push(`${Math.floor(diff.minutes)} min${diff.minutes >= 2 ? "s" : ""}`);
+                
+                    if (parts.length === 0) {
+                      lastUpdatedText = "just now";
+                    } else {
+                      lastUpdatedText = `Last updated ${parts.join(" ")} ago`;
+                    }
+                  } catch (err) {
+                    lastUpdatedText = "Invalid date";
+                  }
+                } else if (storeMatch?.lastUpdatedLocal) {
+                  // Fallback to provided formatted text
+                  lastUpdatedText = storeMatch.lastUpdatedLocal;
+                }
                 const isSale =
                         best &&
                         best._normalized?.member &&
@@ -390,23 +437,67 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
                 return (
                     <div
-                    key={`${storeName}-${p._id}-${p.store?.productUrl || idx}`}
-                    className="product-card"
-                    style={{
-                      flex: "0 0 auto",
-                      width: 220,
-                      scrollSnapAlign: "start",
-                      background: "#fff",
-                      borderRadius: 10,
-                      boxShadow: "0 3px 6px rgba(0,0,0,0.05)",
-                      padding: 14,
-                      textAlign: "center",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      height: 360, // fixed consistent height
-                    }}
+                        key={`${storeName}-${p._id}-${p.store?.productUrl || idx}`}
+                        className="product-card"
+                        onMouseEnter={(e) => {
+                          const tip = e.currentTarget.querySelector(".tooltip") as HTMLElement;
+                          if (tip) tip.style.opacity = "1";
+                        }}
+                        onMouseLeave={(e) => {
+                          const tip = e.currentTarget.querySelector(".tooltip") as HTMLElement;
+                          if (tip) tip.style.opacity = "0";
+                        }}
+                        onTouchStart={(e) => {
+                          const tip = e.currentTarget.querySelector(".tooltip") as HTMLElement;
+                          if (tip) {
+                            tip.style.visibility = "visible";
+                            tip.style.opacity = "1";
+                            setTimeout(() => {
+                              tip.style.visibility = "hidden";
+                              tip.style.opacity = "0";
+                            }, 2000);
+                          }
+                        }}
+                        style={{
+                          position: "relative", // <— important for tooltip positioning
+                          flex: "0 0 auto",
+                          width: 220,
+                          scrollSnapAlign: "start",
+                          background: "#fff",
+                          borderRadius: 10,
+                          boxShadow: "0 3px 6px rgba(0,0,0,0.05)",
+                          padding: 14,
+                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          height: 360, // fixed consistent height
+                        }}
                     >
+
+                {/* 🧠 Tooltip */}
+                  <div
+                    className="tooltip"
+                    style={{
+                      position: "absolute",
+                      top: -4,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "rgba(0,0,0,0.85)",
+                      color: "#fff",
+                      padding: "6px 10px",
+                      borderRadius: 6,
+                      fontSize: "0.8rem",
+                      whiteSpace: "nowrap",
+                      pointerEvents: "none",
+                      opacity: 0,
+                      transition: "opacity 0.25s ease",
+                      zIndex: 20,
+                    }}
+                  >
+                    🕒 {lastUpdatedText}<br/>(Melbourne time)
+                  </div>
+
                     <div
                         style={{
                         height: 120,
