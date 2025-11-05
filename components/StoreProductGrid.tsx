@@ -375,11 +375,17 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                     })
                     .sort((a, b) => a._bestPrice - b._bestPrice) // ascending (cheapest first)
                     .slice(0, visibleCount[storeName] || 10)     //.slice(0, 10)
-                    .map((p, idx) => {
+                    .map((p: Product, idx: number) => {
+
+                // 🏆 Global cheapest = first product in first store
+                const isGlobalCheapest = index === 0 && idx === 0;                
+                // 💰 Local cheapest = first product within this store
+                const isLocalCheapest = idx === 0 && !isGlobalCheapest;
+
                 const storeArray = Array.isArray(p.stores) ? p.stores : [];
                 const best = bestStoreOffer(storeArray, storeName);
                 const repeat = storeArray.find(
-                    (s) =>
+                    (s: StorePrice) =>
                     s.storeName === storeName &&
                     s.repeatPrice &&
                     s.repeatPrice > 0
@@ -437,7 +443,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
                 return (
                     <div
-                        key={`${storeName}-${p._id}-${p.store?.productUrl || idx}`}
+                        key={`${storeName}-${p._id}-${best?.productUrl || idx}`}
                         className="product-card"
                         onMouseEnter={(e) => {
                           const tip = e.currentTarget.querySelector(".tooltip") as HTMLElement;
@@ -497,6 +503,46 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                   >
                     🕒 {lastUpdatedText}<br/>(Melbourne time)
                   </div>
+
+ {/* 🏆 / 💰 Badges */}
+{isGlobalCheapest ? (
+  <div
+    style={{
+      position: "absolute",
+      top: 8,
+      left: 8,
+      background: "#e91e63",
+      color: "#fff",
+      fontSize: "0.75rem",
+      padding: "4px 8px",
+      borderRadius: 6,
+      fontWeight: 700,
+      boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+      zIndex: 15,
+    }}
+  >
+    🏆 Best Deal
+  </div>
+) : isLocalCheapest ? (
+  <div
+    style={{
+      position: "absolute",
+      top: 8,
+      left: 8,
+      background: "#4caf50",
+      color: "#fff",
+      fontSize: "0.75rem",
+      padding: "4px 8px",
+      borderRadius: 6,
+      fontWeight: 700,
+      boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+      zIndex: 15,
+    }}
+  >
+    💰 Lowest @{storeName}
+  </div>
+) : null}
+
 
                     <div
                         style={{
