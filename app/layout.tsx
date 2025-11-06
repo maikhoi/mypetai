@@ -70,7 +70,8 @@ export default function RootLayout({
         <footer className="footer">
           <p>
             © {currentYear} MyPetAI+. All Rights Reserved. |{' '}
-            <a href="/about">About</a> | <a href="/privacy">Privacy</a> |{' '}
+            <a href="/about">About</a> | <a href="/privacy">Privacy</a> |{' '}            
+            <a href="/affiliate-disclosure">Affiliate Disclosure</a> |{' '}
             <a href="mailto:hello@mypetai.app">Contact Us</a>
           </p>
         </footer>
