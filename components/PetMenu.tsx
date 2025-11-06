@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 export default function PetMenu() {
+  
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
   const [menu, setMenu] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [expandedSpecies, setExpandedSpecies] = useState<string | null>(null);
@@ -51,6 +54,27 @@ export default function PetMenu() {
     else setExpandedSpecies(null);
   }, [pathname, searchParams]);
 
+  useEffect(() => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!rootRef.current) return;
+      if (!rootRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+  
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+  
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+  
+
   // 🧩 Click to expand/collapse species (both desktop & mobile)
   const handleSpeciesClick = (sp: string) => {
     const slug = sp.toLowerCase();
@@ -61,18 +85,15 @@ export default function PetMenu() {
   const handleMouseEnter = () => {
     if (window.innerWidth > 768) setIsOpen(true);
   };
-  const handleMouseLeave = () => {
-    if (window.innerWidth > 768) setIsOpen(false);
-  };
   const handleToggleClick = () => {
     if (window.innerWidth <= 768) setIsOpen((o) => !o);
   };
 
   return (
     <div
+  ref={rootRef}
       className="petnav-container"
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       {/* 🐾 Toggle button */}
       <button
