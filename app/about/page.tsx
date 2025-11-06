@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 export default function AboutPage() {
   const currentYear = new Date().getFullYear();
 
@@ -9,7 +10,7 @@ export default function AboutPage() {
         background: 'linear-gradient(135deg, #fffaf2 0%, #fff2e1 100%)',
         fontFamily: "'Poppins', sans-serif",
         color: '#333',
-        minHeight: '100vh',
+        minHeight: '60vh',
       }}
     >
       {/* Main Content */}
@@ -62,6 +63,26 @@ export default function AboutPage() {
           better daily routine for your furry, feathered, or finned friends.
         </p>
 
+        <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
+        We’re proud to grow out of the <strong>Melbourne Guppy Group</strong>, a warm and welcoming community of over 3,600 fish keepers and pet enthusiasts from across Australia.
+Together, we share care tips, product finds, and the joy of raising happy, healthy pets.
+
+🐠 Join us on Facebook Group:{" "}
+<Link
+href="https://www.facebook.com/groups/melbourne.guppy"
+style={{
+  color: "#f5a623",
+  fontWeight: 600,
+  textDecoration: "underline",
+  textDecorationStyle: "dotted",
+  textUnderlineOffset: "3px",
+  transition: "color 0.2s ease",
+}}
+onMouseEnter={(e) => (e.currentTarget.style.color = "#e28a0d")}
+onMouseLeave={(e) => (e.currentTarget.style.color = "#f5a623")}
+>
+Melbourne Guppy Group →
+</Link></p>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
           🧡 Built with love in Australia, for pet lovers everywhere.
         </p>
