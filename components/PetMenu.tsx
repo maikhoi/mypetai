@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 export default function PetMenu() {
   const [menu, setMenu] = useState<any[]>([]);
@@ -29,6 +29,17 @@ export default function PetMenu() {
       setExpandedSpecies(null);
     }
   }, [pathname]);
+
+  const router = useRouter();
+
+  // 🧭 Auto-close menu after navigation (mobile fix)
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (window.innerWidth <= 768) setIsOpen(false);
+    };
+    window.addEventListener("popstate", handleRouteChange);
+    return () => window.removeEventListener("popstate", handleRouteChange);
+  }, []);
 
   // 🟡 Update active state + auto-expand
   useEffect(() => {

@@ -1,33 +1,14 @@
-import { NextResponse } from "next/server";
+import Product from "@/models/Product";
 import Menu from "@/models/Menu";
-import { buildPetMenu } from "@/lib/petMenu";
 import { dbConnect } from "@/lib/mongoose";
 
-
-export async function GET() {
-  await dbConnect();
-  let menu = await Menu.findOne({ type: "pet" });
-
-  // Auto rebuild if missing or too old
-  if (!menu || Date.now() - menu.lastBuilt.getTime() > 24 * 3600 * 1000) {
-    const result = await buildPetMenu();
-    return NextResponse.json(result);
-  }
-
-  return NextResponse.json(menu.items);
-}
-
-
-/*
-export async function GET() {
+export async function buildPetMenu() {
   await dbConnect();
 
-  // Get only active products
   const products = await Product.find({ isActive: { $ne: false } })
     .select("species breedCompatibility categories")
     .lean();
 
-  // 🧠 Build dynamic menu tree
   const menu: Record<string, Record<string, Set<string>>> = {};
 
   for (const p of products) {
@@ -39,14 +20,11 @@ export async function GET() {
       if (!menu[s]) menu[s] = {};
       for (const b of breeds) {
         if (!menu[s][b]) menu[s][b] = new Set();
-        for (const c of categories) {
-          menu[s][b].add(c);
-        }
+        for (const c of categories) menu[s][b].add(c);
       }
     }
   }
 
-  // 🧩 Convert Sets to arrays for JSON
   const result = Object.entries(menu).map(([species, breeds]) => ({
     species,
     breeds: Object.entries(breeds).map(([breed, cats]) => ({
@@ -55,6 +33,12 @@ export async function GET() {
     })),
   }));
 
-  return NextResponse.json(result);
+  // 🧾 Save to Menu collection
+  await Menu.findOneAndUpdate(
+    { type: "pet" },
+    { items: result, lastBuilt: new Date() },
+    { upsert: true, new: true }
+  );
+
+  return result;
 }
-*/
