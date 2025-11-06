@@ -35,14 +35,22 @@ export default function PetMenu() {
 
   const router = useRouter();
 
-  // 🧭 Auto-close menu after navigation (mobile fix)
+  // 🧭 Auto-close mobile menu after route change
   useEffect(() => {
     const handleRouteChange = () => {
-      if (window.innerWidth <= 768) setIsOpen(false);
+      if (window.innerWidth <= 768) {
+        setIsOpen(false);
+        setExpandedSpecies(null);
+      }
     };
-    window.addEventListener("popstate", handleRouteChange);
-    return () => window.removeEventListener("popstate", handleRouteChange);
-  }, []);
+
+    // The "navigation" router in App Router doesn’t expose events directly,
+    // but pathname change triggers re-render, so we watch pathname.
+    handleRouteChange(); // close once immediately if route already changed
+
+    return () => {}; // no cleanup needed since we rely on re-render
+  }, [pathname]);
+
 
   // 🟡 Update active state + auto-expand
   useEffect(() => {
