@@ -6,11 +6,13 @@ import { Poppins } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import { Suspense } from "react";
 
-
 export const metadata: Metadata = {
   title: "MyPetAI+ — Smart Pet Care & Best Deals Finder",
   description:
     "MyPetAI+ helps pet owners manage care reminders, find cheaper pet food and supplies, and track health schedules — all powered by smart recommendations.",
+  other: {
+      "commission-factory-verification": "645f69466477420f80d4c25f3e5d16e1",
+    },
   keywords:
     "pet care, pet food deals, pet reminders, pet tracking, MyPetAI, best prices, dog food, cat food, aquarium, fish care, aquatic, pet supplies, pet health, pet wellness, pet discounts",
   authors: [{ name: "MyPetAI Team" }],
