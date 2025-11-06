@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function PetMenu() {
   
@@ -32,25 +32,6 @@ export default function PetMenu() {
       setExpandedSpecies(null);
     }
   }, [pathname]);
-
-  const router = useRouter();
-
-  // 🧭 Auto-close mobile menu after route change
-  useEffect(() => {
-    const handleRouteChange = () => {
-      if (window.innerWidth <= 768) {
-        setIsOpen(false);
-        setExpandedSpecies(null);
-      }
-    };
-
-    // The "navigation" router in App Router doesn’t expose events directly,
-    // but pathname change triggers re-render, so we watch pathname.
-    handleRouteChange(); // close once immediately if route already changed
-
-    return () => {}; // no cleanup needed since we rely on re-render
-  }, [pathname]);
-
 
   // 🟡 Update active state + auto-expand
   useEffect(() => {
@@ -181,14 +162,21 @@ export default function PetMenu() {
                               return (
                                 <li key={cat}>
                                   <Link
-                                    href={`/deals?species=${sp.species}&breedCompatibility=${b.breed}&category=${cat}`}
-                                    className={isActive ? "active" : ""}
-                                    onClick={() => setIsOpen(false)}
-                                  >
-                                    {formatCategory(cat)}
-                                  </Link>
+                                          href={`/deals?species=${sp.species}&breedCompatibility=${b.breed}&category=${cat}`}
+                                          className={isActive ? "active" : ""}
+                                          onClick={() => {
+                                            setIsOpen(false);
+                                            setExpandedSpecies(null);
+                                            // 👉 Tell the mobile nav to close itself
+                                            if (typeof window !== "undefined") {
+                                              window.dispatchEvent(new CustomEvent("mypetai:close-mobile-nav"));
+                                            }
+                                          }}
+                                        >
+                                          {formatCategory(cat)}
+                                        </Link> 
                                 </li>
-                              );
+                              );      
                             })}
                           </ul>
                         </div>

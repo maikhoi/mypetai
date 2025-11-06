@@ -427,6 +427,10 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                     } else {
                       lastUpdatedText = `Last updated ${parts.join(" ")} ago`;
                     }
+                    // ✅ Add this check right here
+                    if (diff.days && diff.days > 2) {
+                      lastUpdatedText = "Last updated over 2 days ago";
+                    }
                   } catch (err) {
                     lastUpdatedText = "Invalid date";
                   }

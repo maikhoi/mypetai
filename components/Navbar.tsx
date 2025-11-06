@@ -13,6 +13,12 @@ export default function Navbar() {
   const [openFish, setOpenFish] = useState(false);
   const [openGuppy, setOpenGuppy] = useState(false);
 
+  const closeMenu = () => {
+    setMenuOpen(false);
+    document.body.classList.remove("overflow-hidden");
+  };
+  
+
   const isActive = (href: string) => pathname === href;
 
   // 🔁 Expand menus automatically when navigating
@@ -22,7 +28,24 @@ export default function Navbar() {
     setOpenGuppy(pathname.startsWith("/your-pet/fish/guppy"));
   }, [pathname]);
 
+  // 🧭 Close mobile nav when PetMenu triggers event or route changes
+  useEffect(() => {
+    const handleClose = () => closeMenu();
+
+    // Listen for the custom event dispatched by PetMenu
+    window.addEventListener("mypetai:close-mobile-nav", handleClose);
+
+    // Also close whenever the route (pathname) changes
+    handleClose(); // optional: ensure closed on first mount
+    return () => window.removeEventListener("mypetai:close-mobile-nav", handleClose);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (menuOpen) document.body.classList.add("overflow-hidden");
+    else document.body.classList.remove("overflow-hidden");
+  }, [menuOpen]);
   
+
 
   return (
     <header className="header">
@@ -70,75 +93,3 @@ export default function Navbar() {
     </header>
   );
 }
-
-
-
-/*
-
-
-<div className="nav-item">
-        <button
-            className={`dropdown-btn ${openPet ? "active" : ""}`}
-            onClick={() => setOpenPet((p) => !p)}
-            >
-            Your Pet Deals ▾
-            </button>
-
-
-          {openPet && (
-            <div className="dropdown-panel">
-              
-              <div className="dropdown-section">
-                <button
-                  className={`sub-btn ${openDog ? "active" : ""}`}
-                  onClick={() => setOpenDog((p) => !p)}
-                >
-                  🐶 Dog ▾
-                </button>
-                {openDog && (
-                  <div className="dropdown-sub">
-                    <a href="/your-pet/dog/food" className={pathname === "/your-pet/dog/food" ? "active-sub" : ""}>🍖 Food</a>
-                  </div>
-                )}
-              </div>
-
-              <div className="dropdown-section">
-                <a href="/your-pet/cat">🐱 Cat</a>
-              </div>
-
-        
-              <div className="dropdown-section">
-                <button
-                  className={`sub-btn ${openFish ? "active" : ""}`}
-                  onClick={() => setOpenFish((p) => !p)}
-                >
-                  🐠 Fish ▾
-                </button>
-
-                {openFish && (
-                  <div className="dropdown-sub">
-                    <div className="dropdown-section">
-                      <button
-                        className={`sub-btn ${openGuppy ? "active" : ""}`}
-                        onClick={() => setOpenGuppy((p) => !p)}
-                      >
-                        🐡 Guppy ▾
-                      </button>
-                      {openGuppy && (
-                        <div className="dropdown-sub">
-                          <a href="/your-pet/fish/guppy/food" className={pathname === "/your-pet/fish/guppy/food" ? "active-sub" : ""}>🍽️ Food</a>
-                          <a href="/your-pet/fish/guppy/test-kit" className={pathname === "/your-pet/fish/guppy/test-kit" ? "active-sub" : ""}>🧪 Test Kit</a>
-                          <a href="/your-pet/fish/guppy/live-fish" className={pathname === "/your-pet/fish/guppy/live-fish" ? "active-sub" : ""}>💧 Live Fish</a>
-                          <a href="/your-pet/fish/guppy/treatments" className={pathname === "/your-pet/fish/guppy/treatments" ? "active-sub" : ""}>💊 Treatments</a>
-                        </div>
-                      )}
-                    </div>
-
-                    <a href="/your-pet/fish/gold-fish">🐟 Gold Fish</a>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-*/
