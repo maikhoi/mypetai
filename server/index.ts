@@ -61,7 +61,8 @@ io.on("connection", (socket) => {
             createdAt: new Date(), // ensure timestamp
           });
       // ✅ only send to users in that room
-      io.to(msg.channelId).emit("chat:new", newMsg);
+      io.to(msg.channelId).emit("chat:new", newMsg);      
+        console.log("💬 received & saved message:", msg);
     } catch (err) {
       console.error("Error saving message:", err);
     }
