@@ -6,6 +6,9 @@ import { Poppins } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import { Suspense } from "react";
 
+import SessionProviderWrapper from './providers/SessionProviderWrapper';
+
+
 export const metadata: Metadata = {
   title: "MyPetAI+ — Smart Pet Care & Best Deals Finder",
   description:
@@ -67,7 +70,10 @@ export default function RootLayout({
           <Navbar />
         </Suspense>
 
-        <main className="page-container">{children}</main>
+        <main className="page-container">
+        <SessionProviderWrapper>
+          {children}
+        </SessionProviderWrapper></main>
 
         <footer className="footer">
           <p>

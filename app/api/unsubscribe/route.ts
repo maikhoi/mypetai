@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI!;
+const uri = process.env.MONGO_URI!;
 const dbName = process.env.MONGODB_DB || "mypetai";
 
 let cachedClient: MongoClient | null = null;

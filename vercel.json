@@ -6,5 +6,6 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "ignoreCommand": "echo '🟢 Skipping server folder for Vercel build'"
 }

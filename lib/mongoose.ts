@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGO_URI!;
-if (!MONGODB_URI) throw new Error('Missing MONGODB_URI');
+const MONGO_URI = process.env.MONGO_URI!;
+if (!MONGO_URI) throw new Error('Missing MONGO_URI');
 
 interface GlobalMongoose {
   conn: typeof mongoose | null;
@@ -18,7 +18,7 @@ let cached = global._mongoose || { conn: null, promise: null };
 export async function dbConnect() {
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
+    cached.promise = mongoose.connect(MONGO_URI, {
       // You can add options here if needed
     });
   }

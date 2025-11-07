@@ -1,9 +1,40 @@
 "use client";
 
+import { useSession, signIn, signOut } from "next-auth/react";
+
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import PetMenu from "./PetMenu";
+
+
+export function AuthStatus() {
+  const { data: session } = useSession();
+
+  if (session) {
+    return (
+      <div className="flex items-center gap-2">
+        <img
+          src={session.user?.image || '/default-avatar.png'}
+          alt="avatar"
+          className="w-6 h-6 rounded-full"
+        />
+        <span className="text-sm">{session.user?.name}</span>
+        <button onClick={() => signOut()} className="text-xs text-blue-500 ml-2">
+          Logout
+        </button>
+      </div>
+    );
+  }
+  return (
+    <button
+      onClick={() => signIn("facebook")}
+      className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md"
+    >
+      Login with Facebook
+    </button>
+  );
+}
 
 export default function Navbar() {
   const pathname = usePathname();
