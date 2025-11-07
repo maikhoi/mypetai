@@ -28,7 +28,7 @@ const io = new Server(server, {
 
 // ✅ Connect Mongo
 mongoose
-  .connect(process.env.MONGODB_URI!)
+  .connect(process.env.MONGO_URI!)
   .then(() => console.log("✅ Mongo connected"))
   .catch((err) => console.error("❌ Mongo error:", err));
 
@@ -43,11 +43,13 @@ app.get("/api/messages/:channelId", async (req, res) => {
 io.on("connection", (socket) => {
   const { channelId, senderName } = socket.handshake.query;
   let currentRoom: string | null = null;
+  const displayName = senderName || "Guest";
+  const socketId = socket.id;
 
   if (typeof channelId === "string") {
     currentRoom = channelId;
     socket.join(channelId);
-    console.log(`👋 ${senderName || "Guest"} joined room: ${channelId}`);
+    console.log(`👋 [${socketId}] ${displayName} joined room: ${channelId}`);
   }
 
   socket.on("chat:switchRoom", (newRoom: string) => {
@@ -75,9 +77,10 @@ io.on("connection", (socket) => {
     if (currentRoom) socket.to(currentRoom).emit("chat:typing", data);
   });
 
+  // Track disconnect clearly too
   socket.on("disconnect", () => {
     if (currentRoom) socket.leave(currentRoom);
-    console.log(`❌ ${senderName || "Guest"} disconnected`);
+    console.log(`❌ [${socketId}] ${displayName} left room: ${currentRoom || "unknown"}`);
   });
 });
 
