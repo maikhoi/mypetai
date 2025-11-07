@@ -33,11 +33,16 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
   const serverUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL!;
   if (!serverUrl) console.warn('⚠️ Missing NEXT_PUBLIC_CHAT_SERVER_URL, chat will not connect.');
   
-  const senderName =
-    session?.user?.name ||
-    (typeof window !== 'undefined'
-      ? localStorage.getItem('guestName') || `Guest-${Math.floor(Math.random() * 1000)}`
-      : 'Guest');
+  let guestName: string | null = null;
+  if (typeof window !== 'undefined') {
+    guestName = localStorage.getItem('guestName');
+    if (!guestName) {
+      guestName = `Guest-${Math.floor(Math.random() * 10000)}`;
+      localStorage.setItem('guestName', guestName);
+    }
+  }
+  const senderName = session?.user?.name || guestName || 'Guest';
+
   const avatar = session?.user?.image || '/default-avatar.png';
 
   // ✅ Smooth scroll helper
@@ -68,7 +73,14 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
         setTimeout(() => scrollToBottom(false), 150);
       });
 
-    const socket = io(serverUrl, { query: { channelId } });
+    const socket = io(serverUrl, {
+      query: {
+        channelId,
+        senderName,
+        senderId: session?.user?.id || guestName,
+      },
+    });
+      
     socketRef.current = socket;
 
     // Handle new messages
