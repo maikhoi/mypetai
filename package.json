@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build:server": "tsc -p server/tsconfig.server.json",
+    "start:server": "node dist/server/index.js",
     "dev": "concurrently \"npm run dev:next\" \"npm run dev:chat\"",
     "dev:next": "next dev",
     "dev:chat": "nodemon --watch server --ext ts --exec ts-node --project server/tsconfig.server.json server/index.ts",
