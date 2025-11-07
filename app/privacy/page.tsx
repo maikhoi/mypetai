@@ -94,7 +94,24 @@ export default function PrivacyPage() {
           <strong>Australian Privacy Principles (APPs)</strong>.
         </p>
 
-        <h3 style={{ color: '#f5a623', marginTop: 25 }}>7. Your Rights</h3>
+        <h3 id="data-deletion" style={{ color: '#f5a623', marginTop: 25 }}>7. Facebook User Data Deletion</h3>
+        <p  className="text-gray-700 leading-relaxed">        
+            If you have logged in to MyPetAI using your Facebook account and would like to delete your
+            Facebook-related data from our system, you can do so in one of the following ways:
+        </p>
+        <ul  className="list-disc list-inside my-4 text-gray-700">
+          <li>Send an email to <a href="mailto:support@mypetai.app" className="text-blue-600 underline">
+        support@mypetai.app
+      </a> requesting removal of your data.</li>
+          <li>Or visit your Facebook settings and remove “MyPetAI” from the list of connected apps.
+      Facebook will automatically send us a deletion request for your associated data.</li>
+        </ul>
+        <p style={{ lineHeight: 1.8 }}>        
+        Once we receive a valid deletion request, all Facebook-linked user information (name, email, and
+    profile image) will be permanently removed from our records within 7 days.
+        </p>
+
+        <h3 style={{ color: '#f5a623', marginTop: 25 }}>8. Your Rights</h3>
         <ul style={{ lineHeight: 1.8, marginBottom: 18 }}>
           <li>Access and update your personal information.</li>
           <li>Request deletion of your data.</li>
@@ -108,13 +125,13 @@ export default function PrivacyPage() {
           .
         </p>
 
-        <h3 style={{ color: '#f5a623', marginTop: 25 }}>8. Changes to This Policy</h3>
+        <h3 style={{ color: '#f5a623', marginTop: 25 }}>9. Changes to This Policy</h3>
         <p style={{ lineHeight: 1.8 }}>
           We may update this Privacy Policy to reflect new features or legal requirements. Updates will be posted here
           with a new effective date.
         </p>
 
-        <h3 style={{ color: '#f5a623', marginTop: 25 }}>9. Contact Us</h3>
+        <h3 style={{ color: '#f5a623', marginTop: 25 }}>10. Contact Us</h3>
         <p style={{ lineHeight: 1.8 }}>
           If you have questions about this Privacy Policy, please email{' '}
           <a href="mailto:support@mypetai.app" style={{ color: '#f5a623', textDecoration: 'none' }}>
