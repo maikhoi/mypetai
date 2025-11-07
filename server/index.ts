@@ -5,79 +5,82 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import {Message} from "./models/Message";
+import { Message } from "./models/Message";
 
 const app = express();
 
-app.use(cors({ origin: (process.env.CORS_ORIGIN||'http://localhost:3000').split(','), credentials: true }));
+// 🌏 Setup CORS
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").split(",");
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+// 🧩 Root route for health check
+app.get("/", (_, res) => res.send("🐾 MyPetAI Chat Server is live."));
 
+// 🚀 HTTP + Socket.IO setup
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*" },
+  cors: { origin: allowedOrigins, credentials: true },
 });
 
 // ✅ Connect Mongo
 mongoose
-  .connect(process.env.MONGO_URI!)
+  .connect(process.env.MONGODB_URI!)
   .then(() => console.log("✅ Mongo connected"))
-  .catch((err) => console.error("Mongo error:", err));
-  
-// REST: get recent messages for a channel
-app.get('/api/messages/:channelId', async (req, res) => {
-    const { channelId } = req.params;
-    const items = await Message.find({ channelId }).sort({ createdAt: 1 }).limit(200);
-    res.json(items);
+  .catch((err) => console.error("❌ Mongo error:", err));
+
+// 📨 REST: recent messages
+app.get("/api/messages/:channelId", async (req, res) => {
+  const { channelId } = req.params;
+  const items = await Message.find({ channelId }).sort({ createdAt: 1 }).limit(200);
+  res.json(items);
 });
 
+// 💬 WebSocket logic
 io.on("connection", (socket) => {
+  const { channelId, senderName } = socket.handshake.query;
   let currentRoom: string | null = null;
 
-  // Join the room based on query
-  const { channelId } = socket.handshake.query;
   if (typeof channelId === "string") {
     currentRoom = channelId;
     socket.join(channelId);
-    console.log(`👋 User joined room: ${channelId}`);
+    console.log(`👋 ${senderName || "Guest"} joined room: ${channelId}`);
   }
 
-  // Handle switching room dynamically (optional future feature)
   socket.on("chat:switchRoom", (newRoom: string) => {
     if (currentRoom) socket.leave(currentRoom);
     socket.join(newRoom);
     currentRoom = newRoom;
-    console.log(`🔁 User switched to room: ${newRoom}`);
+    console.log(`🔁 ${senderName || "Guest"} switched to room: ${newRoom}`);
   });
 
-  // Handle sending messages
   socket.on("chat:send", async (msg) => {
     try {
-        const newMsg = await Message.create({
-            ...msg,
-            createdAt: new Date(), // ensure timestamp
-          });
-      // ✅ only send to users in that room
-      io.to(msg.channelId).emit("chat:new", newMsg);      
-        console.log("💬 received & saved message:", msg);
+      const newMsg = await Message.create({
+        ...msg,
+        createdAt: new Date(),
+      });
+      console.log(`💬 ${msg.senderName}: ${msg.text || "[media]"} → ${msg.channelId}`);
+      io.to(msg.channelId).emit("chat:new", newMsg);
+      console.log(`✅ Saved message ID: ${newMsg._id}`);
     } catch (err) {
-      console.error("Error saving message:", err);
+      console.error("❌ Error saving message:", err);
     }
   });
 
-  // ✅ When a user is typing
   socket.on("chat:typing", (data) => {
-    if (!currentRoom) return;
-    socket.to(currentRoom).emit("chat:typing", data); // send to others in same room
+    if (currentRoom) socket.to(currentRoom).emit("chat:typing", data);
   });
 
   socket.on("disconnect", () => {
     if (currentRoom) socket.leave(currentRoom);
-    console.log("❌ User disconnected");
+    console.log(`❌ ${senderName || "Guest"} disconnected`);
   });
 });
 
-server.listen(4000, () => console.log("🚀 Chat backend on :4000"));
+// 🧩 Dynamic port for Render
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => console.log(`🚀 Chat backend on :${PORT}`));
