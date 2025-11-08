@@ -27,6 +27,8 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
   const [atBottom, setAtBottom] = useState(true);
   const [unread, setUnread] = useState(0);
 
+  const atBottomRef = useRef(true);
+
   const listRef = useRef<HTMLDivElement | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<any>(null);
@@ -61,6 +63,7 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
     const el = e.currentTarget;
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     setAtBottom(nearBottom);
+    atBottomRef.current = nearBottom; // ✅ keep ref updated
     if (nearBottom) setUnread(0);
   };
 
@@ -88,7 +91,7 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
     socket.on('chat:new', (msg: Message) => {
       setMessages((prev) => {
         const next = [...prev, msg];
-        if (atBottom) {
+        if (atBottomRef.current) {
           requestAnimationFrame(() => scrollToBottom(true));
         } else {
           setUnread((u) => u + 1);
@@ -102,11 +105,13 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
       if (data.senderName !== senderName) {
         setTypingUser(data.senderName);
         setTimeout(() => setTypingUser(null), 2000);
+
+        requestAnimationFrame(() => scrollToBottom(true));
       }
     });
 
     return () => {socket.disconnect()};
-  }, [channelId, serverUrl, senderName, atBottom]);
+  }, [channelId, serverUrl, senderName]);
 
   // ✅ Send message (text or file)
   const send = async () => {
@@ -148,7 +153,7 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
   };
 
   return (
-    <div className="relative flex flex-col h-[80vh] max-w-3xl border rounded-xl bg-white shadow p-3">
+    <div className="relative flex flex-col h-[80vh] w-3/4 border rounded-xl bg-white shadow p-3">
       <div
         ref={listRef}
         onScroll={handleScroll}
@@ -266,6 +271,12 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
           className="flex-1 bg-transparent outline-none text-sm px-2"
           value={input}
           onChange={(e) => handleTyping(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault(); // stop newline
+              send();
+            }
+          }}
           placeholder="Type a message..."
         />
 
@@ -298,9 +309,12 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
         />
         
         {/* 📎 Styled button to trigger file input */}
-        <label htmlFor="fileUpload" className="cursor-pointer text-gray-500 hover:text-blue-600">
-        📎📎📎
-        </label>
+        <label
+  htmlFor="fileUpload"
+  className="cursor-pointer text-gray-500 hover:text-blue-600 text-3xl leading-none px-2"
+>
+  📎
+</label>
 
         <button
           onClick={send}

@@ -31,7 +31,7 @@ export default function UserName({ name, isSelf, isGuest }: UserNameProps) {
   const handleClick = () => {
     // 🧠 Case 1: Viewer not logged in
     if (!viewerIsLoggedIn) {
-      showTooltip("You must log in with Facebook to message this user.");
+      showTooltip("You must log in with Facebook to direct message this user.");
       return;
     }
 
