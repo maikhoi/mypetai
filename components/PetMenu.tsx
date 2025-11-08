@@ -17,6 +17,8 @@ export default function PetMenu() {
   const inPetSection =
     pathname.startsWith("/deals") || pathname.startsWith("/your-pet");
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // 🕒 for auto-close timer
+
   // 🧭 Fetch dynamic menu once
   useEffect(() => {
     fetch("/api/menu/pets")
@@ -72,17 +74,40 @@ export default function PetMenu() {
 
   // 🧭 Hover top menu
   const handleMouseEnter = () => {
-    if (window.innerWidth > 768) setIsOpen(true);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (window.innerWidth > 768) {      
+      setIsOpen(true);
+    }
   };
+
+  // 🧭 Leave top menu
+  const handleMouseLeave = () => {
+    if (window.innerWidth > 768) {
+      // clear old timer and start a new 10s countdown
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setIsOpen(false);
+        setExpandedSpecies(null);
+      }, 5000); // 6 seconds
+    }
+  };
+
   const handleToggleClick = () => {
     if (window.innerWidth <= 768) setIsOpen((o) => !o);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   return (
     <div
   ref={rootRef}
       className="petnav-container"
       onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* 🐾 Toggle button */}
       <button

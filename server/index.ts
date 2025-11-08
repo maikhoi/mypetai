@@ -46,6 +46,14 @@ io.on("connection", (socket) => {
   const displayName = senderName || "Guest";
   const socketId = socket.id;
 
+  // 🚫 Block guests from private room
+  if (channelId !== "general" && (!displayName || (displayName as string).startsWith("Guest"))) {
+    console.log(`❌ Guest ${displayName} tried to access private room ${channelId}`);
+    socket.emit("error", { message: "This room is only for logged-in users." });
+    socket.disconnect();
+    return;
+  }
+
   if (typeof channelId === "string") {
     currentRoom = channelId;
     socket.join(channelId);
