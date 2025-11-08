@@ -83,6 +83,7 @@ export default function RootLayout({
             <a href="/affiliate-disclosure">Affiliate Disclosure</a> |{' '}
             <a href="mailto:hello@mypetai.app">Contact Us</a>
           </p>
+          <p>Australian Registered ABN: 34525786729, Title: TRAN, THAO THI THANH</p>
         </footer>
 
         {/* ✅ Google Analytics (GA4) */}
