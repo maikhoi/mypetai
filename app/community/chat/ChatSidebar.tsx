@@ -9,7 +9,7 @@ interface Props {
 
 export default function ChatSidebar({ rooms, currentRoom, onSelect }: Props) {
   return (
-    <div className="w-48 border-r bg-gray-50 h-[80vh] rounded-l-2xl p-3">
+    <div className="w-1/4 border-r bg-gray-50 h-[80vh] rounded-l-2xl p-3">
       <h3 className="font-semibold mb-3 text-gray-700">Rooms</h3>
       <ul className="space-y-1">
         {rooms.map((r) => (

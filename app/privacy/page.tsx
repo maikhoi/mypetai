@@ -61,6 +61,11 @@ export default function PrivacyPage() {
           <li>
             <strong>Optional Info</strong> — such as your pet’s name or type, if you provide it in future features.
           </li>
+          <li>
+            <strong>Facebook Login</strong> — MyPetAI only uses Facebook Login to verify your identity and display
+        your name and profile picture in chat. We do not store or share any
+        personal Facebook data.
+          </li>
         </ul>
         <p style={{ lineHeight: 1.8 }}>
           We do not collect payment details or sensitive personal information through the website.

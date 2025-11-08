@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import io from 'socket.io-client';
+import UserName from '@/components/chat/UserName'; // ✅ import the new component
 
 interface Message {
   _id?: string;
@@ -147,17 +148,19 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
   };
 
   return (
-    <div className="relative flex flex-col h-[80vh] max-w-2xl border rounded-xl bg-white shadow p-3">
+    <div className="relative flex flex-col h-[80vh] max-w-3xl border rounded-xl bg-white shadow p-3">
       <div
         ref={listRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto space-y-3 mb-3"
       >
-        {messages.map((m, i) => (
+        {messages.map((m, i) => {
+          const isSelf = m.senderName === senderName;
+          return (
           <div
             key={i}
             className={`flex items-end gap-2 ${
-              m.senderName === senderName ? 'justify-end' : 'justify-start'
+              isSelf ? 'justify-end' : 'justify-start'
             }`}
           >
             {m.senderName !== senderName && (
@@ -170,11 +173,24 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
 
             <div
               className={`px-3 py-2 rounded-2xl max-w-[70%] break-words ${
-                m.senderName === senderName
+                isSelf
                   ? 'bg-blue-600 text-white rounded-br-none'
                   : 'bg-gray-100 text-gray-900 rounded-bl-none'
               }`}
             >
+              {/* ✅ Replace plain sender name with UserName component */}
+                <div className="flex justify-between items-center mb-1 text-[11px] font-semibold">
+                  <UserName name={m.senderName} isSelf={isSelf} isGuest={m.isGuest}/>
+                  {m.createdAt && (
+                    <span className="text-[10px] opacity-70">
+                      {new Date(m.createdAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  )}
+                </div>
+
               {m.text && <p className="text-sm">{m.text}</p>}
 
               {m.mediaUrl && (
@@ -222,7 +238,7 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
               />
             )}
           </div>
-        ))}
+        )})}
 
        
 
