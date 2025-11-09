@@ -16,12 +16,14 @@ const handler = NextAuth({
         },
       },
       profile(profile) {
+        const email = profile.email || `${profile.id}@facebook.com`;
         // ✅ Map the Facebook API response into a NextAuth-compatible user object
         return {
           id: profile.id,
           name: profile.name || "Facebook User",
-          email: profile.email || `${profile.id}@facebook.com`, // fallback prevents createAccount errors
+          email,
           image: profile.picture?.data?.url || null,
+          username: email, // ✅ use email as username          
         };
       },
     }),
