@@ -7,6 +7,8 @@ import ChatHeader from '@/components/chat/ChatHeader';
 export default function ChatPage() {
   const rooms = ['general', 'exchange', 'breeding-tips'];
   const [currentRoom, setCurrentRoom] = useState('general');
+  const [activeUsers, setActiveUsers] = useState<string[]>([]); // ✅ New shared state
+  const [roomCounts, setRoomCounts] = useState<Record<string, number>>({}); // ✅ New
 
   return (
     <div className="flex justify-center mt-5">
@@ -21,8 +23,13 @@ export default function ChatPage() {
             rooms={rooms}
             currentRoom={currentRoom}
             onSelect={setCurrentRoom}
+            activeUsers={activeUsers} // ✅ Pass down
+            roomCounts={roomCounts} // ✅ pass new prop
           />
-          <ChatClient channelId={currentRoom} />
+          <ChatClient channelId={currentRoom}           
+             onActiveUsersUpdate={setActiveUsers} // ✅ Pass callback down
+             onRoomCountsUpdate={setRoomCounts} // ✅ new callback
+             />
         </div>
       </div>
     </div>

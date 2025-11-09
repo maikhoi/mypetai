@@ -18,7 +18,13 @@ interface Message {
   createdAt?: string;
 }
 
-export default function ChatClient({ channelId = 'general' }: { channelId?: string }) {
+interface ChatClientProps {
+  channelId?: string;
+  onActiveUsersUpdate?: (users: string[]) => void;
+  onRoomCountsUpdate?: (counts: Record<string, number>) => void;
+}
+
+export default function ChatClient({ channelId = 'general', onActiveUsersUpdate, onRoomCountsUpdate }: ChatClientProps) {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -116,8 +122,22 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
       setMessages((prev) => prev.filter((m) => m._id !== data._id));
     });
 
-    return () => {socket.disconnect()};
-  }, [channelId, serverUrl, senderName]);
+    socket.on('room:users', (users: string[]) => {
+      onActiveUsersUpdate?.(users);
+      //if (onActiveUsersUpdate) onActiveUsersUpdate(users); // ✅ Pass up
+    });
+
+    
+    socket.on('room:counts', (counts: Record<string, number>) => {
+      onRoomCountsUpdate?.(counts);
+    });
+
+    return () => {
+      socket.off('room:users');
+      socket.off('room:counts');
+      socket.disconnect();
+    };
+  }, [channelId, serverUrl, senderName, onActiveUsersUpdate]);
 
   // ✅ Send message (text or file)
   const send = async () => {

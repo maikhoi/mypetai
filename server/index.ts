@@ -67,6 +67,9 @@ app.delete("/api/messages/:id", async (req, res) => {
   }
 });
 
+// 🧠 Track users in each room
+const roomUsers: Record<string, Set<string>> = {}; // ✅ Add this line at the top of your socket section
+
 // 💬 WebSocket logic
 io.on("connection", (socket) => {
   const { channelId, senderName } = socket.handshake.query;
@@ -82,40 +85,72 @@ io.on("connection", (socket) => {
     return;
   }
 
+  // ✅ Helper to broadcast room user list
+  const broadcastUsers = (room: string) => {
+    const users = Array.from(roomUsers[room] || []);
+    io.to(room).emit("room:users", users);
+  
+    // 🧮 Emit room counts to everyone (for sidebar stats)
+    const roomCounts = Object.fromEntries(
+      Object.entries(roomUsers).map(([key, set]) => [key, set.size])
+    );
+    io.emit("room:counts", roomCounts);
+  };
+  
+
+  // 🚪 Join room
   if (typeof channelId === "string") {
     currentRoom = channelId;
     socket.join(channelId);
     console.log(`👋 [${socketId}] ${displayName} joined room: ${channelId}`);
+    
+    // Add user to memory list
+    if (!roomUsers[channelId]) roomUsers[channelId] = new Set();
+    roomUsers[channelId].add(displayName as string);
+    broadcastUsers(channelId);    
   }
 
+  // 🔄 Switch rooms
   socket.on("chat:switchRoom", (newRoom: string) => {
-    if (currentRoom) socket.leave(currentRoom);
+    if (currentRoom) {
+      // Remove user from old room
+      roomUsers[currentRoom]?.delete(displayName as string);
+      broadcastUsers(currentRoom);
+      socket.leave(currentRoom);
+    }
+
     socket.join(newRoom);
     currentRoom = newRoom;
-    console.log(`🔁 ${senderName || "Guest"} switched to room: ${newRoom}`);
+    console.log(`🔁 ${displayName} switched to room: ${newRoom}`);
   });
 
+  // 💬 Send message
   socket.on("chat:send", async (msg) => {
     try {
       const newMsg = await Message.create({
         ...msg,
         createdAt: new Date(),
       });
-      console.log(`💬 ${msg.senderName}: ${msg.text || "[media]"} → ${msg.channelId}`);
+      //console.log(`💬 ${msg.senderName}: ${msg.text || "[media]"} → ${msg.channelId}`);
       io.to(msg.channelId).emit("chat:new", newMsg);
-      console.log(`✅ Saved message ID: ${newMsg._id}`);
+      console.log(`✅ Saved 💬 message ID: ${newMsg._id}`);
     } catch (err) {
       console.error("❌ Error saving message:", err);
     }
   });
 
+  // ✍️ Typing indicator
   socket.on("chat:typing", (data) => {
     if (currentRoom) socket.to(currentRoom).emit("chat:typing", data);
   });
 
-  // Track disconnect clearly too
+  // 🚪 Handle disconnect
   socket.on("disconnect", () => {
-    if (currentRoom) socket.leave(currentRoom);
+    if (currentRoom) {
+      roomUsers[currentRoom]?.delete(displayName as string);
+      broadcastUsers(currentRoom);
+      socket.leave(currentRoom);
+    }
     console.log(`❌ [${socketId}] ${displayName} left room: ${currentRoom || "unknown"}`);
   });
 });
