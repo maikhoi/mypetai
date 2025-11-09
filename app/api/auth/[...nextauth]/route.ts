@@ -2,7 +2,8 @@ import NextAuth from "next-auth";
 import FacebookProvider from "next-auth/providers/facebook";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
-
+import mongoose from "mongoose";
+import User from "@/models/User"; //  Mongoose model
 
 const handler = NextAuth({
   adapter: MongoDBAdapter(clientPromise),
@@ -32,6 +33,24 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user }) {
+      try {
+        // Ensure Mongoose is connected (safe even if already connected)
+        if (mongoose.connection.readyState === 0) {
+          await mongoose.connect(process.env.MONGO_URI!);
+        }
+
+        // Update lastLogin for this username if it exists in your custom model
+        await User.findOneAndUpdate(
+          { username: user.email }, // or match by email if that's your identifier
+          { lastLogin: new Date() }
+        );
+      } catch (err) {
+        console.error("⚠️ Error updating lastLogin:", err);
+      }
+
+      return true; // always allow login
+    },
     async session({ session, token }) {
       if (token.sub) session.user.id = token.sub;
       return session;
