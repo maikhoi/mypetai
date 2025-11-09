@@ -8,6 +8,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import { Message } from "./models/Message";
+Message.collection.createIndex({ channelId: 1, createdAt: -1 });
 
 const app = express();
 
@@ -33,10 +34,26 @@ mongoose
   .catch((err) => console.error("❌ Mongo error:", err));
 
 // 📨 REST: recent messages
+// 📨 REST: lazy-load messages with pagination
 app.get("/api/messages/:channelId", async (req, res) => {
-  const { channelId } = req.params;
-  const items = await Message.find({ channelId }).sort({ createdAt: 1 }).limit(200);
-  res.json(items);
+  try {
+    const { channelId } = req.params;
+    const { before, limit = 30 } = req.query;
+
+    const query: any = { channelId };
+    if (before) query.createdAt = { $lt: new Date(before as string) };
+
+    // 🕒 Sort newest → oldest, then reverse for chronological order
+    const messages = await Message.find(query)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .lean();
+
+    res.json(messages.reverse());
+  } catch (err) {
+    console.error("❌ Error fetching paginated messages:", err);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
 });
 
 // 🧹 DELETE message by ID
@@ -77,8 +94,11 @@ io.on("connection", (socket) => {
   const displayName = senderName || "Guest";
   const socketId = socket.id;
 
-  // 🚫 Block guests from private room
-  if (channelId !== "general" && (!displayName || (displayName as string).startsWith("Guest"))) {
+  // 🚫 Block guests from private (non-general) rooms
+  const isGuest = !displayName || (displayName as string).startsWith("Guest");
+  const isPublicRoom = typeof channelId === "string" && channelId.endsWith("general");
+
+  if (isGuest && !isPublicRoom) {
     console.log(`❌ Guest ${displayName} tried to access private room ${channelId}`);
     socket.emit("error", { message: "This room is only for logged-in users." });
     socket.disconnect();
@@ -107,7 +127,10 @@ io.on("connection", (socket) => {
     // Add user to memory list
     if (!roomUsers[channelId]) roomUsers[channelId] = new Set();
     roomUsers[channelId].add(displayName as string);
-    broadcastUsers(channelId);    
+    broadcastUsers(channelId);  
+    
+    // ✅ broadcast new user counts after join
+    broadcastRoomCounts();
   }
 
   // 🔄 Switch rooms
@@ -122,6 +145,8 @@ io.on("connection", (socket) => {
     socket.join(newRoom);
     currentRoom = newRoom;
     console.log(`🔁 ${displayName} switched to room: ${newRoom}`);
+    
+    broadcastRoomCounts();
   });
 
   // 💬 Send message
@@ -152,7 +177,21 @@ io.on("connection", (socket) => {
       socket.leave(currentRoom);
     }
     console.log(`❌ [${socketId}] ${displayName} left room: ${currentRoom || "unknown"}`);
+    
+    broadcastRoomCounts();
   });
+
+  // 👉 new helper to calculate & send counts to everyone
+  function broadcastRoomCounts() {
+    const counts: Record<string, number> = {};
+    for (const [roomName, sockets] of io.sockets.adapter.rooms) {
+      // ignore internal socket rooms (each socket has its own id room)
+      if (!io.sockets.sockets.get(roomName)) {
+        counts[roomName] = sockets.size;
+      }
+    }
+    io.emit("chat:roomUsers", counts);
+  }
 });
 
 // 🧩 Dynamic port for Render
