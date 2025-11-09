@@ -38,6 +38,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
   const listRef = useRef<HTMLDivElement | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const serverUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL!;
   if (!serverUrl) console.warn('⚠️ Missing NEXT_PUBLIC_CHAT_SERVER_URL, chat will not connect.');
@@ -76,13 +77,19 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
   // ✅ Initial fetch + socket setup
   useEffect(() => {
-    fetch(`${serverUrl}/api/messages/${channelId}`)
-      .then((r) => r.json())
-      .then((data) => {
+    (async () => {
+      try {
+        const res = await fetch(`${serverUrl}/api/messages/${channelId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
         setMessages(data);
-        // scroll to bottom on first load for this room
         setTimeout(() => scrollToBottom(false), 150);
-      });
+      } catch (err) {
+        console.error("⚠️ Failed to load messages:", err);
+        setMessages([]); // clear just in case
+        setError("Unable to connect to chat server. Please try again later.");
+      }
+    })();
 
     const socket = io(serverUrl, {
       query: {
@@ -130,6 +137,14 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     
     socket.on('room:counts', (counts: Record<string, number>) => {
       onRoomCountsUpdate?.(counts);
+    });
+
+    socket.on("connect_error", () => {
+      setError("Chat server unreachable. Retrying...");
+    });
+    
+    socket.on("reconnect", () => {
+      setError(null);
     });
 
     return () => {
@@ -199,6 +214,11 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
   return (
     <div className="relative flex flex-col h-[80vh] w-3/4 border rounded-xl bg-white shadow p-3">
+      {error && (
+          <div className="text-center text-sm text-red-500 mt-4">
+            {error}
+          </div>
+        )}
       <div
         ref={listRef}
         onScroll={handleScroll}
