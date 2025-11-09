@@ -5,7 +5,7 @@ import ChatSidebar from './ChatSidebar';
 import ChatHeader from '@/components/chat/ChatHeader';
 
 export default function ChatPage() {
-  const rooms = ['general', 'buy-sell', 'breeding-tips'];
+  const rooms = ['general', 'exchange', 'breeding-tips'];
   const [currentRoom, setCurrentRoom] = useState('general');
 
   return (
