@@ -5,7 +5,7 @@ import ChatSidebar from './ChatSidebar';
 import ChatHeader from '@/components/chat/ChatHeader';
 
 export default function ChatPage() {
-  const rooms = ['general', 'exchange', 'breeding-tips'];
+  const rooms = ['general', 'buy & sell', 'breeding-tips'];
   const [currentRoom, setCurrentRoom] = useState('general');
   const [activeUsers, setActiveUsers] = useState<string[]>([]); // ✅ New shared state
   const [roomCounts, setRoomCounts] = useState<Record<string, number>>({}); // ✅ New
