@@ -32,13 +32,15 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
   const [typingUser, setTypingUser] = useState<string | null>(null);
   const [atBottom, setAtBottom] = useState(true);
   const [unread, setUnread] = useState(0);
-
+  const [loading, setLoading] = useState(false);            // 🆕 loading state
+  const [hasMore, setHasMore] = useState(true);             // 🆕 pagination flag
   const atBottomRef = useRef(true);
 
   const listRef = useRef<HTMLDivElement | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const topAnchorRef = useRef<HTMLDivElement | null>(null); // 🆕 top anchor for lazy scroll
 
   const serverUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL!;
   if (!serverUrl) console.warn('⚠️ Missing NEXT_PUBLIC_CHAT_SERVER_URL, chat will not connect.');
@@ -66,13 +68,51 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     });
   };
 
-  // ✅ Track whether user is near bottom
+  // ✅ Handle scrolling + lazy load trigger
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     setAtBottom(nearBottom);
-    atBottomRef.current = nearBottom; // ✅ keep ref updated
+    atBottomRef.current = nearBottom;
     if (nearBottom) setUnread(0);
+
+    // 🆕 Trigger lazy-load when scrolled near top
+    if (el.scrollTop < 150 && hasMore && !loading) {
+      const oldest = messages[0];
+      if (oldest?.createdAt) {
+        loadOlderMessages(oldest.createdAt);
+      }
+    }
+  };
+
+  // 🆕 Load older messages
+  const loadOlderMessages = async (before: string) => {
+    if (loading) return;
+    setLoading(true);
+
+    const container = listRef.current;
+    const prevHeight = container?.scrollHeight || 0;
+    const prevScrollTop = container?.scrollTop || 0;
+
+    try {
+      const res = await fetch(`${serverUrl}/api/messages/${channelId}?before=${before}&limit=30`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const older = await res.json();
+
+      if (older.length < 30) setHasMore(false);
+      setMessages((prev) => [...older, ...prev]);
+
+      // 🧩 Preserve scroll position (scroll anchoring)
+      if (container) {
+        const newHeight = container.scrollHeight;
+        container.scrollTop = newHeight - prevHeight + prevScrollTop;
+      }
+    } catch (err) {
+      console.error('⚠️ Failed to load older messages:', err);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ✅ Initial fetch + socket setup
@@ -139,10 +179,15 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       onRoomCountsUpdate?.(counts);
     });
 
+    // ✅ new: receive room user counts
+    socket.on("chat:roomUsers", (data: Record<string, number>) => {
+      onRoomCountsUpdate?.(data);
+    });
+
     socket.on("connect_error", () => {
       setError("Chat server unreachable. Retrying...");
     });
-    
+
     socket.on("reconnect", () => {
       setError(null);
     });
@@ -222,8 +267,21 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       <div
         ref={listRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto space-y-3 mb-3"
+        className="flex-1 overflow-y-auto space-y-3 mb-3 relative"
       >
+      {/* 🌀 Floating spinner when loading older messages */}
+      {loading && messages.length > 0 && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-sm">
+          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
+      <div ref={topAnchorRef}></div>
+
+      {loading && messages.length === 0 && (
+        <div className="text-center text-gray-400 mt-4">Loading messages...</div>
+      )}
+
         {messages.map((m, i) => {
           const isSelf = m.senderName === senderName;
           return (

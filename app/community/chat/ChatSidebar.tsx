@@ -9,16 +9,25 @@ interface ChatSidebarProps  {
   onSelect: (room: string) => void;
   activeUsers?: string[];
   roomCounts?: Record<string, number>;
+  topic?: string; // 🆕 add this
 }
 
-export default function ChatSidebar({ rooms, currentRoom, onSelect, activeUsers = [], roomCounts = {} }: ChatSidebarProps ) {
+export default function ChatSidebar({ 
+  rooms,
+  currentRoom,
+  onSelect,
+  activeUsers = [],
+  roomCounts = {},
+  topic = '', // 🆕 default empty for backward compatibility
+   }: ChatSidebarProps ) {
   const { data: session } = useSession();
   return (
     <div className="w-1/4 border-r bg-gray-50 h-[80vh] rounded-l-2xl p-3">
       <h3 className="font-semibold mb-3 text-gray-700">Rooms</h3>
       <ul className="space-y-1">
         {rooms.map((room) => {
-        const count = roomCounts[room] || 0;
+        const roomKey = topic ? `${topic}-${room}` : room; // 🧠 support topic-prefixed channels
+        const count = roomCounts[roomKey] || 0;
         return (
           <li key={room}><div key={room} className="group relative w-full">
             <button
