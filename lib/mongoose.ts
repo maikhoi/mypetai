@@ -20,6 +20,7 @@ export async function dbConnect() {
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGO_URI, {
       // You can add options here if needed
+      serverSelectionTimeoutMS: 20000, // 20 seconds
     });
   }
   cached.conn = await cached.promise;
