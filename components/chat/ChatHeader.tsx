@@ -3,8 +3,10 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { getSocket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
 
 export default function ChatHeader() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [guestName, setGuestName] = useState<string>("");
 
@@ -71,13 +73,21 @@ export default function ChatHeader() {
           </>
         ) : (
           <>
-            <span className="text-sm font-medium text-gray-600">{guestName}</span>
-            <button
-              onClick={() => signIn("facebook")}
-              className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Login with Facebook
-            </button>
+            <span className="text-sm font-medium text-gray-600">You're {guestName}</span>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => signIn("facebook")}
+                className="bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700"
+              >
+                Continue with Facebook
+              </button>
+              <button
+                onClick={() => router.push("/auth/signup")}
+                className="border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50"
+              >
+                Sign up with MyPetAI
+              </button>
+            </div>
           </>
         )}
       </div>

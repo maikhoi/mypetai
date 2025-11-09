@@ -45,6 +45,7 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
     }
   }
   const senderName = session?.user?.name || guestName || 'Guest';
+  const isOwner = senderName === "Khoi Mai";
 
   const avatar = session?.user?.image || '/default-avatar.png';
 
@@ -109,6 +110,11 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
         requestAnimationFrame(() => scrollToBottom(true));
       }
     });
+    
+    // 🧹 handle DELETE message 
+    socket.on('chat:delete', (data: { _id: string }) => {
+      setMessages((prev) => prev.filter((m) => m._id !== data._id));
+    });
 
     return () => {socket.disconnect()};
   }, [channelId, serverUrl, senderName]);
@@ -151,6 +157,25 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
     setInput(val);
     socketRef.current?.emit('chat:typing', { senderName, channelId });
   };
+
+  // 🧹 DELETE message 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this message?")) return;
+  
+    try {
+      const res = await fetch(`${serverUrl}/api/messages/${id}?senderId=${session?.user?.id || guestName}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Delete failed");
+  
+      // Optimistically update UI
+      setMessages((prev) => prev.filter((m) => m._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete message");
+    }
+  }; 
+
 
   return (
     <div className="relative flex flex-col h-[80vh] w-3/4 border rounded-xl bg-white shadow p-3">
@@ -197,7 +222,15 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
                 </div>
 
               {m.text && <p className="text-sm">{m.text}</p>}
-
+              {/* 🗑️ Delete button (only show for self messages) */}
+                  {(isSelf || isOwner) && (
+                    <button
+                      onClick={() => handleDelete(m._id!)}
+                      className="top-1 right-1 text-xs opacity-50 hover:opacity-100"
+                    >
+                      🗑️
+                    </button>
+                  )}
               {m.mediaUrl && (
                 <div className="mt-2">
                   {m.mediaType === 'video' ? (
@@ -219,6 +252,7 @@ export default function ChatClient({ channelId = 'general' }: { channelId?: stri
                       className="rounded-xl max-w-full"
                     />
                   )}
+                   
                 </div>
               )}
 

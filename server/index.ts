@@ -39,6 +39,34 @@ app.get("/api/messages/:channelId", async (req, res) => {
   res.json(items);
 });
 
+// 🧹 DELETE message by ID
+app.delete("/api/messages/:id", async (req, res) => {
+  try {
+    const messageId = req.params.id;
+    const { senderId } = req.query; // we’ll send this from the client
+    const isOwner = senderId === "Khoi Mai"; // 👑 your admin account
+    console.log("Trying to delete:", messageId, "as sender:", senderId);
+
+    const msg = await Message.findById(messageId);
+    if (!msg) return res.status(404).json({ error: "Message not found" });
+
+    // ✅ Only the sender or owner can delete
+    if (!isOwner && msg.senderId !== senderId && msg.senderName !== senderId) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    await msg.deleteOne();
+
+    // Notify all users in the same room via socket
+    io.to(msg.channelId).emit("chat:delete", { _id: msg._id });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete message" });
+  }
+});
+
 // 💬 WebSocket logic
 io.on("connection", (socket) => {
   const { channelId, senderName } = socket.handshake.query;
