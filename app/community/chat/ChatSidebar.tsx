@@ -3,19 +3,23 @@ import React from 'react';
 
 import { useSession, signIn, signOut } from "next-auth/react";
 
-interface Props {
+interface ChatSidebarProps  {
   rooms: string[];
   currentRoom: string;
   onSelect: (room: string) => void;
+  activeUsers?: string[];
+  roomCounts?: Record<string, number>;
 }
 
-export default function ChatSidebar({ rooms, currentRoom, onSelect }: Props) {
+export default function ChatSidebar({ rooms, currentRoom, onSelect, activeUsers = [], roomCounts = {} }: ChatSidebarProps ) {
   const { data: session } = useSession();
   return (
     <div className="w-1/4 border-r bg-gray-50 h-[80vh] rounded-l-2xl p-3">
       <h3 className="font-semibold mb-3 text-gray-700">Rooms</h3>
       <ul className="space-y-1">
-        {rooms.map((room) => (
+        {rooms.map((room) => {
+        const count = roomCounts[room] || 0;
+        return (
           <li key={room}><div key={room} className="group relative w-full">
             <button
     key={room}
@@ -28,6 +32,7 @@ export default function ChatSidebar({ rooms, currentRoom, onSelect }: Props) {
   >
     {room !== "general" && !session?.user ? "🔒 " : "#"}
     {room}
+    <span className="text-xs text-gray-500">({count} user{count > 1?"s":""})</span>
 
     {/* Tooltip */}
     {room !== "general" && !session?.user && (
@@ -41,7 +46,7 @@ export default function ChatSidebar({ rooms, currentRoom, onSelect }: Props) {
     )}
   </button>
           </div></li>
-        ))}
+      )})}
       </ul>
     </div>
   );
