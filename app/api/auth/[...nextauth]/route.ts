@@ -43,7 +43,8 @@ const handler = NextAuth({
         // Update lastLogin for this username if it exists in your custom model
         await User.findOneAndUpdate(
           { username: user.email }, // or match by email if that's your identifier
-          { lastLogin: new Date() }
+          { lastLogin: new Date() },
+          { upsert: false }
         );
       } catch (err) {
         console.error("⚠️ Error updating lastLogin:", err);
