@@ -39,9 +39,29 @@ export default function ChatSidebar({
     `}
     onClick={() => onSelect(room)}
   >
-    {room !== "general" && !session?.user ? "🔒 " : "#"}
-    {room}
-    <span className="text-xs text-gray-500">({count} user{count > 1?"s":""})</span>
+    {/* >>> Mobile = two lines / Desktop = inline <<< */}
+                  <div className="flex items-start gap-2 w-full">
+                    <span className="shrink-0 mt-[2px]">
+                      {room !== "general" && !session?.user ? "🔒" : "#"}
+                    </span>
+
+                    <div className="flex-1">
+                      {/* Line 1: room name (bigger on mobile) */}
+                      <div className="font-medium leading-tight text-base md:text-sm">
+                        {room}
+                      </div>
+
+                      {/* Line 2: user count (only on mobile) */}
+                      <div className="text-xs text-gray-500 md:hidden leading-tight">
+                        ({count} user{count > 1 ? "s" : ""})
+                      </div>
+                    </div>
+
+                    {/* Desktop: count stays inline on the right */}
+                    <span className="hidden md:block text-xs text-gray-500 ml-auto">
+                      ({count} user{count > 1 ? "s" : ""})
+                    </span>
+                  </div>
 
     {/* Tooltip */}
     {room !== "general" && !session?.user && (
