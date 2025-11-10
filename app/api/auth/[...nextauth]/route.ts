@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import FacebookProvider from "next-auth/providers/facebook";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import User from "@/models/User"; //  Mongoose model
 import { UserProfileModel } from "@/models/UserProfile";
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     FacebookProvider({
@@ -81,8 +81,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-};
+});
 
-// 👇 this part stays the same
-const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
