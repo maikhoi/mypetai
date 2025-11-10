@@ -16,6 +16,7 @@ export default function CommunityChatPage() {
   const roomsByTopic: Record<string, string[]> = {
     guppy: ['general', 'breeding', 'buy-sell'],
     dog: ['general', 'training', 'adoption'],
+    cat: ['general', 'training', 'adoption'],
     mypetai: ['general', 'feature-requests', 'announcements'],
   };
 

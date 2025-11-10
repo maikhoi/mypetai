@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import PetMenu from "./PetMenu";
+import ChatMenu from "./ChatMenu";
 
 
 export function AuthStatus() {
@@ -96,9 +97,11 @@ export default function Navbar() {
 
       {/* 🔹 Main nav */}
       <nav className={`nav ${menuOpen ? "open" : ""}`}>
-        <Link href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>
+
+        <ChatMenu /> {/* 👈 CHAT MENU dropdown */}
+        {/*  <Link href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>
           Home
-        </Link>
+        </Link> */}
 
         <Link
           href="/shop"
@@ -120,6 +123,8 @@ export default function Navbar() {
         <a href="mailto:hello@mypetai.app" className="nav-link">
           Contact
         </a>
+
+        
       </nav>
     </header>
   );
