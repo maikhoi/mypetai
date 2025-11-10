@@ -259,7 +259,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
 
   return (
-    <div className="relative flex flex-col h-[80vh] w-3/4 border rounded-xl bg-white shadow p-3">
+    <div className="relative flex flex-col h-[70vh] w-3/4 border rounded-xl bg-white shadow p-3">
       {error && (
           <div className="text-center text-sm text-red-500 mt-4">
             {error}
