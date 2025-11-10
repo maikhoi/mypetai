@@ -38,7 +38,7 @@ const handler = NextAuth({
       try {
         // 1️⃣ Ensure Mongoose connection
         if (mongoose.connection.readyState === 0) {
-          await mongoose.connect(process.env.MONGODB_URI!);
+          await mongoose.connect(process.env.MONGO_URI!);
         }
 
         // 2️⃣ Upsert into UserProfile
