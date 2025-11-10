@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import io from 'socket.io-client';
 import UserName from '@/components/chat/UserName'; // ✅ import the new component
+import TextareaAutosize from "react-textarea-autosize";
 
 interface Message {
   _id?: string;
@@ -127,7 +128,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       } catch (err) {
         console.error("⚠️ Failed to load messages:", err);
         setMessages([]); // clear just in case
-        setError("Unable to connect to chat server. Please try again later.");
+        setError("💤 Chat server is waking up... please try again in a minute.");
       }
     })();
 
@@ -185,7 +186,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     });
 
     socket.on("connect_error", () => {
-      setError("Chat server unreachable. Retrying...");
+      setError("Chat server unreachable. Please refresh this page after a few minutes to Retry...");
     });
 
     socket.on("reconnect", () => {
@@ -319,7 +320,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
                   )}
                 </div>
 
-              {m.text && <p className="text-sm">{m.text}</p>}
+              {m.text && <div className="whitespace-pre-wrap break-words">{m.text}</div>}
               {/* 🗑️ Delete button (only show for self messages) */}
                   {(isSelf || isOwner) && (
                     <button
@@ -398,9 +399,10 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       )}
 
       {/* Input */}
-      <div className="flex items-center gap-2 border rounded-full px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
-        <input
-          className="flex-1 bg-transparent outline-none text-sm px-2"
+      <div className="flex items-center border border-blue-400 rounded-full p-2 focus-within:ring-2 focus-within:ring-blue-400">
+        <TextareaAutosize
+          className="flex-grow resize-none bg-transparent text-sm px-3 outline-none border-0 focus:ring-0"
+          placeholder="Type a message... (Shift+Enter for new line)"
           value={input}
           onChange={(e) => handleTyping(e.target.value)}
           onKeyDown={(e) => {
@@ -409,7 +411,6 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
               send();
             }
           }}
-          placeholder="Type a message..."
         />
 
         {/* tiny thumbnail */}
