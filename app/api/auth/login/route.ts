@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
 import { UserProfileModel } from "@/models/UserProfile";
 
+import { dbConnect } from "@/lib/mongoose";
 import { SignJWT } from "jose";
-
-// Create or reuse your MongoDB connection
-async function connectDB() {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGO_URI!);
-  }
-}
 
 // 🔐 JWT secret and helper
 const JWT_SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!);
@@ -21,7 +14,8 @@ export async function POST(req: Request) {
     if (!username || !password)
       return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
 
-    await connectDB();
+    // 1️⃣ Mongoose connection
+    await dbConnect();
 
     //const user = await UserProfileModel.findOne({ email: username });//WRONG , find from UserProfile 
     const UserProfile = await UserProfileModel();

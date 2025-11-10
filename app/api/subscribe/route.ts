@@ -1,31 +1,15 @@
 import { NextResponse } from 'next/server';
-import { MongoClient } from 'mongodb';
+import mongoose from "mongoose";
+import { dbConnect } from "@/lib/mongoose";
 import { Resend } from 'resend';
 import crypto from "crypto";
 
 // ✅ Environment variables
-const uri = process.env.MONGO_URI!;
 const dbName = process.env.MONGO_DB || 'mypetai';
 const resendKey = process.env.RESEND_API_KEY!;
 
 // ✅ Resend client
 const resend = new Resend(resendKey);
-
-// ✅ Global cache to reuse MongoDB connection in dev/hot reload
-let cachedClient: MongoClient | null = null;
-let cachedPromise: Promise<MongoClient> | null = null;
-
-async function connectToDatabase() {
-  if (cachedClient) return cachedClient;
-  if (!cachedPromise) {
-    const client = new MongoClient(uri);
-    cachedPromise = client.connect().then((client) => {
-      cachedClient = client;
-      return client;
-    });
-  }
-  return cachedPromise;
-}
 
 // ✅ API Route Handler
 export async function POST(req: Request) {
@@ -36,8 +20,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Invalid email' }, { status: 400 });
     }
 
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
+    // Connect once via shared mongoose
+    await dbConnect();
+    const db = mongoose.connection.useDb(dbName);
     const subscribers = db.collection('subscribers');
 
     const existing = await subscribers.findOne({ email });
