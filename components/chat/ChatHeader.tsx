@@ -4,6 +4,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { getSocket } from "@/lib/socket";
 import { useRouter } from "next/navigation";
+import LoadingButton from "../ui/LoadingButton";
 
 export default function ChatHeader() {
   const router = useRouter();
@@ -80,13 +81,14 @@ export default function ChatHeader() {
                 className="bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700"
               >
                 Continue with Facebook
-              </button>
-              <button
+              </button> {/*
+              <LoadingButton
+                loadingText="Signing Up..."
                 onClick={() => router.push("/auth/signup")}
-                className="border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50"
+                className="border border-gray-300 px-3 py-1.5 rounded-md"
               >
                 Sign up with MyPetAI
-              </button>
+              </LoadingButton> */}
             </div>
           </>
         )}
