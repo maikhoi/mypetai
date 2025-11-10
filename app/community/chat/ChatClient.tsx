@@ -406,7 +406,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
           value={input}
           onChange={(e) => handleTyping(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter' && !e.shiftKey && !isMobile()) {
               e.preventDefault(); // stop newline
               send();
             }
@@ -459,4 +459,9 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
     </div>
   );
+}
+
+// 🆕 Simple mobile detection
+function isMobile() {
+  return /Mobi|Android/i.test(navigator.userAgent);
 }
