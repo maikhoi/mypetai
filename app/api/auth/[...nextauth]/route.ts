@@ -1,11 +1,12 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import FacebookProvider from "next-auth/providers/facebook";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import mongoose from "mongoose";
 import User from "@/models/User"; //  Mongoose model
+import { UserProfileModel } from "@/models/UserProfile";
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     FacebookProvider({
@@ -35,9 +36,32 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // Ensure Mongoose is connected (safe even if already connected)
+        // 1️⃣ Ensure Mongoose connection
         if (mongoose.connection.readyState === 0) {
-          await mongoose.connect(process.env.MONGO_URI!);
+          await mongoose.connect(process.env.MONGODB_URI!);
+        }
+
+        // 2️⃣ Upsert into UserProfile
+        const UserProfile = await UserProfileModel();
+        const existing = await UserProfile.findOne({ email: user.email });
+
+        if (!existing) {
+          // New Facebook user → create profile
+          await UserProfile.create({
+            userId: user.id ?? "", // keep ID reference to NextAuth user
+            email: user.email,
+            role: "user",
+            lastLogin: new Date(),
+            loginCount: 1,
+            passwordHash: null,
+            isEmailVerified: true,
+          });
+          console.log(`✅ Created new UserProfile for ${user.email}`);
+        } else {
+          // Returning user → update
+          existing.lastLogin = new Date();
+          existing.loginCount = (existing.loginCount || 0) + 1;
+          await existing.save();
         }
 
         // Update lastLogin for this username if it exists in your custom model
@@ -57,6 +81,8 @@ const handler = NextAuth({
       return session;
     },
   },
-});
+};
 
+// 👇 this part stays the same
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

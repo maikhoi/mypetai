@@ -243,7 +243,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     if (!confirm("Delete this message?")) return;
   
     try {
-      const res = await fetch(`${serverUrl}/api/messages/${id}?senderId=${session?.user?.id || guestName}`, {
+      const res = await fetch(`${serverUrl}/api/messages/${id}?senderId=${senderName || guestName}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Delete failed");
