@@ -1,35 +1,22 @@
 import { NextResponse } from 'next/server';
-import { MongoClient } from 'mongodb';
+import mongoose from "mongoose";
 import { getAdminUser } from "@/lib/userAuth";
+import { dbConnect } from "@/lib/mongoose";
 
-const uri = process.env.MONGO_URI!;
 const dbName = process.env.MONGO_DB || 'mypetai';
-const adminKey = process.env.ADMIN_KEY!;
-
-let cachedClient: MongoClient | null = null;
-let cachedPromise: Promise<MongoClient> | null = null;
-
-async function connectToDatabase() {
-  if (cachedClient) return cachedClient;
-  if (!cachedPromise) {
-    const client = new MongoClient(uri);
-    cachedPromise = client.connect().then((client) => {
-      cachedClient = client;
-      return client;
-    });
-  }
-  return cachedPromise;
-}
 
 export async function GET(req: Request) {
   try {
     const session = await getAdminUser();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // ✅ Reuse existing Mongoose connection
+    await dbConnect();
 
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
-    const subscribers = db.collection('subscribers');
+    // ✅ Use native MongoDB driver via Mongoose
+    const db = mongoose.connection.useDb(dbName);
+    const subscribers = db.collection("subscribers");
+
 
     const data = await subscribers
       .find({}, { projection: { _id: 0 } })

@@ -13,7 +13,12 @@ declare global {
   var _mongoose: GlobalMongoose | undefined;
 }
 
-let cached = global._mongoose || { conn: null, promise: null };
+// universal-safe cache
+let cached = (globalThis as any)._mongoose as GlobalMongoose;
+
+if (!cached) {
+  cached = (globalThis as any)._mongoose = { conn: null, promise: null };
+}
 
 export async function dbConnect() {
   if (cached.conn) return cached.conn;

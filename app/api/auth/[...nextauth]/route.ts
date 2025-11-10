@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import FacebookProvider from "next-auth/providers/facebook";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
-import mongoose from "mongoose";
+import { dbConnect } from "@/lib/mongoose";
 import User from "@/models/User"; //  Mongoose model
 import { UserProfileModel } from "@/models/UserProfile";
 
@@ -36,10 +36,8 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // 1️⃣ Ensure Mongoose connection
-        if (mongoose.connection.readyState === 0) {
-          await mongoose.connect(process.env.MONGO_URI!);
-        }
+        // 1️⃣ Mongoose connection
+        await dbConnect();
 
         // 2️⃣ Upsert into UserProfile
         const UserProfile = await UserProfileModel();

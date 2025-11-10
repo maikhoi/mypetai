@@ -1,23 +1,8 @@
 import { NextResponse } from "next/server";
-import { MongoClient } from "mongodb";
-
-const uri = process.env.MONGO_URI!;
+import mongoose from "mongoose";
+import { dbConnect } from "@/lib/mongoose";
+ 
 const dbName = process.env.MONGODB_DB || "mypetai";
-
-let cachedClient: MongoClient | null = null;
-let cachedPromise: Promise<MongoClient> | null = null;
-
-async function connectToDatabase() {
-  if (cachedClient) return cachedClient;
-  if (!cachedPromise) {
-    const client = new MongoClient(uri);
-    cachedPromise = client.connect().then((client) => {
-      cachedClient = client;
-      return client;
-    });
-  }
-  return cachedPromise;
-}
 
 // ✅ one-click GET handler
 export async function GET(req: Request) {
@@ -26,8 +11,9 @@ export async function GET(req: Request) {
     const token = searchParams.get("token");
     if (!token) return NextResponse.json({ success: false, error: "Missing token" }, { status: 400 });
 
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
+    // Connect once via shared mongoose
+    await dbConnect();
+    const db = mongoose.connection.useDb(dbName);
     const collection = db.collection("subscribers");
 
     const result = await collection.updateOne({ token }, { $set: { unsubscribed: true } });
@@ -48,8 +34,8 @@ export async function POST(req: Request) {
     const { email } = await req.json();
     if (!email) return NextResponse.json({ success: false, error: "Missing email" }, { status: 400 });
 
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
+    await dbConnect();
+    const db = mongoose.connection.useDb(dbName);
     const collection = db.collection("subscribers");
 
     const result = await collection.updateOne({ email }, { $set: { unsubscribed: true } });
