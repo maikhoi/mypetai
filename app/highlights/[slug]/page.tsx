@@ -42,9 +42,10 @@ const Highlight: Model<HighlightDoc> =
   mongoose.model<HighlightDoc>("Highlight", highlightSchema);
 
 // --- Metadata ---
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
   await dbConnect();
-  const doc = (await Highlight.findOne({ slug: params.slug }).lean()) as HighlightDoc | null;
+  const doc = (await Highlight.findOne({ slug: slug }).lean()) as HighlightDoc | null;
 
   if (!doc) {
     return {
@@ -65,9 +66,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 // --- Page ---
-export default async function HighlightPage({ params }: { params: { slug: string } }) {
+export default async function HighlightPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
   await dbConnect();
-  const doc = (await Highlight.findOne({ slug: params.slug }).lean()) as HighlightDoc | null;
+  const doc = (await Highlight.findOne({ slug }).lean()) as HighlightDoc | null;
 
   if (!doc) return notFound();
 
