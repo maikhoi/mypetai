@@ -80,7 +80,7 @@ export default async function HighlightPage({ params }: { params: Promise<{ slug
 
         {doc.image && (
           <div className="mb-6">
-            <Image
+            <img
               src={doc.image}
               alt={doc.title}
               width={800}
