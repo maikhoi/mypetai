@@ -1,10 +1,27 @@
 import { MetadataRoute } from "next";
 import { dbConnect } from "@/lib/mongoose";
 import Product from "@/models/Product";
+import mongoose from "mongoose";
+
+const highlightSchema = new mongoose.Schema({
+  slug: String,
+  updatedAt: Date,
+});
+const Highlight =
+  mongoose.models.Highlight || mongoose.model("Highlight", highlightSchema);
+
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://mypetai.app";
   await dbConnect();
+
+  // Fetch all highlights (limit fields for performance)
+  const highlights = await Highlight.find({}, { slug: 1, updatedAt: 1 }).lean();
+
+  const highlightUrls = highlights.map((h) => ({
+    url: `${baseUrl}/highlights/${h.slug}`,
+    lastModified: h.updatedAt || new Date(),
+  }));
 
   // 🧩 Fetch all needed product data
   const products = await Product.find(
@@ -91,8 +108,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.9,
     },
+    { 
+      url: `${baseUrl}/about`, 
+      lastModified: now.toISOString(),
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
   ];
 
   // Combine all URLs into final sitemap
-  return [...staticUrls, ...dealsUrls, ...shopUrls, ...productUrls];
+  return [...staticUrls, ...dealsUrls, ...shopUrls, ...productUrls, ...highlightUrls ];
 }
