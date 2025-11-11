@@ -164,6 +164,22 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("findMessageById", async (messageId) => {
+    const msg = await Message.findById(messageId);
+    if (msg) {
+      const rangeMs = 5 * 60 * 1000; // 5 minutes
+
+      const minTime = new Date(msg.createdAt.getTime() - rangeMs);
+      const maxTime = new Date(msg.createdAt.getTime() + rangeMs);
+
+      const nearby = await Message.find({
+        channelId: msg.channelId,
+        createdAt: { $gte: minTime, $lte: maxTime },
+      }).sort({ createdAt: 1 });
+      socket.emit("loadMessages", nearby);
+    }
+  });
+
   // ✍️ Typing indicator
   socket.on("chat:typing", (data) => {
     if (currentRoom) socket.to(currentRoom).emit("chat:typing", data);

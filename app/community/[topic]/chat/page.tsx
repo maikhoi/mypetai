@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import ChatClient from '@/app/community/chat/ChatClient';
 import ChatSidebar from '@/app/community/chat/ChatSidebar';
 import ChatHeader from '@/components/chat/ChatHeader';
@@ -8,6 +8,11 @@ import { useState, useEffect } from 'react';
 
 export default function CommunityChatPage() {
   const { topic } = useParams<{ topic: string }>();
+  const searchParams = useSearchParams();
+
+  const messageId = searchParams.get("messageId");
+  const urlChannelId = searchParams.get("channelId"); // optional override from URL
+
   const [currentRoom, setCurrentRoom] = useState('general');
   
   const [roomCounts, setRoomCounts] = useState<Record<string, number>>({});
@@ -21,6 +26,16 @@ export default function CommunityChatPage() {
   };
 
   const rooms = roomsByTopic[topic] || ['general'];
+
+  // 🧭 When URL specifies channelId, open that room automatically
+  useEffect(() => {
+    if (urlChannelId) {
+      const channelName = urlChannelId.replace(`${topic}-`, ""); // e.g. "guppy-breeding" → "breeding"
+      if (rooms.includes(channelName)) {
+        setCurrentRoom(channelName);
+      }
+    }
+  }, [urlChannelId, topic, rooms]);
 
   // Optional: page customization based on topic
   useEffect(() => {
@@ -47,7 +62,9 @@ export default function CommunityChatPage() {
           />
           {/* channelId can depend on topic */}
           <ChatClient channelId={`${topic}-${currentRoom}`} 
-            onRoomCountsUpdate={setRoomCounts}/>
+            onRoomCountsUpdate={setRoomCounts}
+            scrollToMessageId={messageId} // 🆕 pass messageId
+          />
         </div>
       </div>
     </div>
