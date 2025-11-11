@@ -22,10 +22,11 @@ interface Message {
 interface ChatClientProps {
   channelId?: string;
   onActiveUsersUpdate?: (users: string[]) => void;
-  onRoomCountsUpdate?: (counts: Record<string, number>) => void;
+  onRoomCountsUpdate?: (counts: Record<string, number>) => void;  
+  scrollToMessageId?: string | null; // 🆕
 }
 
-export default function ChatClient({ channelId = 'general', onActiveUsersUpdate, onRoomCountsUpdate }: ChatClientProps) {
+export default function ChatClient({ channelId = 'general', onActiveUsersUpdate, onRoomCountsUpdate, scrollToMessageId }: ChatClientProps) {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -44,6 +45,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
   const topAnchorRef = useRef<HTMLDivElement | null>(null); // 🆕 top anchor for lazy scroll
 
   const serverUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL!;
+  const hasTargetMessage = !!scrollToMessageId;
   if (!serverUrl) console.warn('⚠️ Missing NEXT_PUBLIC_CHAT_SERVER_URL, chat will not connect.');
   
   let guestName: string | null = null;
@@ -124,7 +126,10 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setMessages(data);
-        setTimeout(() => scrollToBottom(false), 150);
+        if(!hasTargetMessage) {
+          // ✅ only scroll when not deep-linking to a specific message
+          setTimeout(() => scrollToBottom(false), 150);
+        }        
       } catch (err) {
         console.error("⚠️ Failed to load messages:", err);
         setMessages([]); // clear just in case
@@ -193,12 +198,55 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       setError(null);
     });
 
+    // 📬 Handle server response for findMessageById
+    socket.on("loadMessages", (nearby: Message[]) => {
+      console.log("📩 Received loadMessages:", nearby.length);
+      setMessages((prev) => {
+        // de-dup by _id
+        const map = new Map<string, Message>();
+        for (const m of prev) if (m._id) map.set(m._id, m);
+        for (const m of nearby) if (m._id) map.set(m._id, m);
+    
+        const merged = Array.from(map.values()).sort(
+          (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()
+        );
+        return merged;
+      });
+    });
+
     return () => {
+      socket.off("loadMessages");
       socket.off('room:users');
       socket.off('room:counts');
       socket.disconnect();
     };
   }, [channelId, serverUrl, senderName, onActiveUsersUpdate]);
+
+  // 🆕 Scroll to specific message when messageId changes
+  useEffect(() => {
+    if (!scrollToMessageId) return;
+  
+    // do we already have it on the page?
+    const el = document.querySelector(`[data-message-id="${scrollToMessageId}"]`);
+    if (!el) {
+      // not present yet — ask server for a batch around that message
+      console.log("🔍 Emitting findMessageById", scrollToMessageId);
+      socketRef.current?.emit("findMessageById", scrollToMessageId);
+      return;
+    }
+  
+    // present — scroll and highlight
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("highlight-message");
+    setTimeout(() => el.classList.remove("highlight-message"), 2500);
+  }, [scrollToMessageId, messages]);
+
+  useEffect(() => {
+    setMessages([]); // clear old
+    setHasMore(true);
+    setUnread(0);
+    // ✅ Reset scroll flags automatically when changing room
+  }, [channelId]);
 
   // ✅ Send message (text or file)
   const send = async () => {
@@ -285,13 +333,21 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
         {messages.map((m, i) => {
           const isSelf = m.senderName === senderName;
+          const messageUrl = `${window.location.origin}/community/${channelId.split("-")[0]}/chat?messageId=${m._id}&channelId=${channelId}`;
+        
           return (
+            
           <div
-            key={i}
-            className={`flex items-end gap-2 ${
+            key={m._id ?? i}
+            className={`relative group flex items-end gap-2 ${
               isSelf ? 'justify-end' : 'justify-start'
-            }`}
-          >
+            }`} 
+            data-message-id={m._id} 
+          ><div key={m._id} data-message-id={m._id}>
+          {/* message bubble */}
+        </div>
+
+        
             {m.senderName !== senderName && (
               <img
                 src={m.senderAvatar || '/default-avatar.png'}
@@ -375,7 +431,30 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
                 className="w-8 h-8 rounded-full"
               />
             )}
+              {/* 🔗 Hover link icon */}
+  <button
+    type="button"
+    onClick={(e) => {
+      const messageUrl = `${window.location.origin}/community/${channelId.split("-")[0]}/chat?messageId=${m._id}&channelId=${channelId}`;
+      navigator.clipboard.writeText(messageUrl);
+
+      // quick "Copied!" tooltip
+      const tip = document.createElement("div");
+      tip.textContent = "Copied!";
+      tip.className =
+        "absolute -top-5 right-0 text-xs bg-black text-white px-1.5 py-0.5 rounded opacity-90";
+      (e.currentTarget.parentElement as HTMLElement)?.appendChild(tip);
+      setTimeout(() => tip.remove(), 1000);
+    }}
+    className="absolute -top-1.5 right-1.5 hidden group-hover:flex items-center justify-center w-5 h-5 rounded-full bg-white shadow text-gray-500 hover:text-blue-600"
+    title="Copy link to this message"
+  >
+    🔗
+  </button>
+
           </div>
+
+          
         )})}
 
        
