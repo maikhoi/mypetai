@@ -45,6 +45,7 @@ export default async function ShopPage({
   const qs = new URLSearchParams();
   if (category) qs.append("category", category);
   if (species) qs.append("species", species);
+qs.append("shopOnly","1");
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/products${qs.size ? `?${qs.toString()}` : ""}`,
