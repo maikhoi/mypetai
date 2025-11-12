@@ -1,5 +1,5 @@
 import mongoose, { Schema, models, model } from "mongoose";
-
+import slugify from "slugify";
 
 /* ----------------------------- 🏪 Store Schema ----------------------------- */
 const storePriceSchema = new Schema(
@@ -55,6 +55,9 @@ const ReviewSchema = new Schema<Review>(
 const productSchema = new Schema(
   {
     name: { type: String, required: true, index: true },
+    
+    // 🆕 SEO Slug
+    slug: { type: String, unique: true, index: true },
 
     species: {
       type: [{ type: String, enum: ["dog", "cat", "aquatic", "bird", "small-animal", "reptile", "other"] }],
@@ -114,6 +117,26 @@ productSchema.index({ species: 1, categories: 1 });
 productSchema.index({ species: 1, "breedCompatibility": 1 });
 productSchema.index({ name: "text", description: "text" });
 
+
+/* ----------------------------- ⚙️ Auto Slug Logic ---------------------------- */
+productSchema.pre("save", async function (next) {
+  // Only generate if missing or name changed
+  if (!this.isModified("name") && this.slug) return next();
+
+  const baseSlug = slugify(this.name, { lower: true, strict: true });
+  let slug = baseSlug;
+  let counter = 1;
+
+  // Ensure unique slug
+  while (await mongoose.models.Product.findOne({ slug })) {
+    slug = `${baseSlug}-${counter++}`;
+  }
+
+  this.slug = slug;
+  next();
+});
+
+/* -------------------------- ⭐ Update Rating  ------------------------------ */
 // Auto-calc before save
 productSchema.methods.updateRating = function () {
   if (this.reviews.length > 0) {
@@ -125,6 +148,7 @@ productSchema.methods.updateRating = function () {
     this.averageRating = 0;
   }
 };
+
 /* ----------------------------- 🧾 Type Definitions ---------------------------- */
 export type DigitalAsset = {
   url: string;
@@ -178,6 +202,8 @@ export type ProductDoc = {
 
   createdAt?: string;
   updatedAt?: string;
+
+  slug?:string;
 
   /* Method added by schema */
   updateRating?: () => void;
