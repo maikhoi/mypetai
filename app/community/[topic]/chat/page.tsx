@@ -11,13 +11,12 @@ export default function CommunityChatPage() {
   const searchParams = useSearchParams();
 
   const messageId = searchParams.get("messageId");
-  const urlChannelId = searchParams.get("channelId"); // optional override from URL
+  const urlChannelId = searchParams.get("channelId");
 
   const [currentRoom, setCurrentRoom] = useState('general');
-  
   const [roomCounts, setRoomCounts] = useState<Record<string, number>>({});
+  const [mobileRoomsOpen, setMobileRoomsOpen] = useState(false); // ✅ added
 
-  // You can define topic-specific rooms or behavior
   const roomsByTopic: Record<string, string[]> = {
     guppy: ['general', 'breeding', 'buy-sell'],
     dog: ['general', 'training', 'adoption'],
@@ -27,17 +26,15 @@ export default function CommunityChatPage() {
 
   const rooms = roomsByTopic[topic] || ['general'];
 
-  // 🧭 When URL specifies channelId, open that room automatically
   useEffect(() => {
     if (urlChannelId) {
-      const channelName = urlChannelId.replace(`${topic}-`, ""); // e.g. "guppy-breeding" → "breeding"
+      const channelName = urlChannelId.replace(`${topic}-`, "");
       if (rooms.includes(channelName)) {
         setCurrentRoom(channelName);
       }
     }
   }, [urlChannelId, topic, rooms]);
 
-  // Optional: page customization based on topic
   useEffect(() => {
     document.title = `🐾 ${topic.toUpperCase()} Chat — MyPetAI`;
   }, [topic]);
@@ -52,20 +49,62 @@ export default function CommunityChatPage() {
           Welcome to the {topic.charAt(0).toUpperCase() + topic.slice(1)} community!
         </div>
 
-        <div className="flex justify-between p-4 overflow-y-auto gap-1">
-          <ChatSidebar
-            rooms={rooms}
-            currentRoom={currentRoom}
-            onSelect={setCurrentRoom}
-            roomCounts={roomCounts}
-            topic={topic} // 🆕 add this
-          />
-          {/* channelId can depend on topic */}
-          <ChatClient channelId={`${topic}-${currentRoom}`} 
-            onRoomCountsUpdate={setRoomCounts}
-            scrollToMessageId={messageId} // 🆕 pass messageId
-          />
+        {/* 🟧 Mobile toggle button (only shows on small screens) */}
+        <div className="md:hidden flex justify-between items-center px-4 py-2 border-b bg-white">
+          <h3 className="font-semibold text-gray-700 text-base">Rooms</h3>
+          <button
+            onClick={() => setMobileRoomsOpen(!mobileRoomsOpen)}
+            className="px-3 py-1 text-sm bg-orange-100 rounded shadow"
+          >
+            {mobileRoomsOpen ? 'Hide ▲' : 'Show ▼'}
+          </button>
         </div>
+
+        {/* ✅ Chat layout - unchanged for desktop */}
+{/* 🧩 Chat layout */}
+<div className="p-4 overflow-y-auto">
+  {/* ✅ Mobile sidebar (collapsible) */}
+  {mobileRoomsOpen && (
+    <div className="fixed left-0 w-3/4 z-30 bg-white shadow-lg border-r border-gray-200 md:hidden overflow-y-auto p-4">
+      <ChatSidebar
+        rooms={rooms}
+        currentRoom={currentRoom}
+        onSelect={(room) => {
+          setCurrentRoom(room);
+          setMobileRoomsOpen(false);
+        }}
+        roomCounts={roomCounts}
+        topic={topic}
+      />
+    </div>
+  )}
+
+  {/* ✅ Desktop layout (sidebar + chat side by side) */}
+  <div className="hidden md:flex justify-between gap-1">
+    <ChatSidebar
+      rooms={rooms}
+      currentRoom={currentRoom}
+      onSelect={setCurrentRoom}
+      roomCounts={roomCounts}
+      topic={topic}
+    />
+    <ChatClient
+      channelId={`${topic}-${currentRoom}`}
+      onRoomCountsUpdate={setRoomCounts}
+      scrollToMessageId={messageId}
+    />
+  </div>
+
+  {/* ✅ Mobile chat (always visible below toggle) */}
+  <div className="block md:hidden">
+    <ChatClient
+      channelId={`${topic}-${currentRoom}`}
+      onRoomCountsUpdate={setRoomCounts}
+      scrollToMessageId={messageId}
+    />
+  </div>
+</div>
+
       </div>
     </div>
   );

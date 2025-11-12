@@ -22,7 +22,7 @@ export default function ChatSidebar({
    }: ChatSidebarProps ) {
   const { data: session } = useSession();
   return (
-    <div className="w-1/4 border-r bg-gray-50 h-[70vh] rounded-l-2xl p-3">
+    <div className=" md:w-1/4 border-r bg-gray-50 h-[70vh] rounded-l-2xl p-3">
       <h3 className="font-semibold mb-3 text-gray-700">Rooms</h3>
       <ul className="space-y-1">
         {rooms.map((room) => {
