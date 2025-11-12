@@ -104,7 +104,7 @@ export default async function ShopPage({
         {mypetaiProducts.map((p: any) => (
           <Link
             key={p._id}
-            href={`/products/${p._id}`}
+            href={`/product/${p.slug}`}
             style={{
               border: "1px solid #eee",
               borderRadius: 12,
