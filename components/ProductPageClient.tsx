@@ -384,7 +384,7 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
             </div>
 
             <p style={{ margin: "6px 0" }}>
-              🚚 <strong>Flat Shipping Fee:</strong> $19.99
+              🚚 <strong>Flat Shipping Fee:</strong> ${shippingCost}
             </p>
 
             <p style={{ fontSize: 15 }}>
