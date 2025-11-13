@@ -1,53 +1,118 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-interface ProductInfo {
-  _id: string;
-  name: string;
-}
-
-interface Props {
+interface ProductSwitcherProps {
+  selectedId: string;
   onSelect: (id: string) => void;
-  selectedId?: string;
 }
 
-export default function ProductSwitcher({ onSelect, selectedId }: Props) {
-  const [products, setProducts] = useState<ProductInfo[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ProductSwitcher({ selectedId, onSelect }: ProductSwitcherProps) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showList, setShowList] = useState(false);
+
+  // 🔥 Debounce search function
+  const debouncedSearch = useCallback(
+    debounce(async (term: string) => {
+      if (!term || term.length < 2) {
+        setResults([]);
+        return;
+      }
+
+      setLoading(true);
+      const res = await fetch(`/api/admin/products/search?q=${encodeURIComponent(term)}`);
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.success) setResults(data.products);
+    }, 300),
+    []
+  );
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch("/api/admin/products/list");
-        const data = await res.json();
-        if (data.success) setProducts(data.products);
-      } catch (err) {
-        console.error("Failed to load product list", err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    debouncedSearch(query);
+  }, [query]);
+
+  function handleSelect(p: any) {
+    setQuery(p.name);
+    setShowList(false);
+    onSelect(p._id);
+  }
 
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <label className="font-medium text-sm">Select Product: </label>
-      {loading ? (
-        <span className="text-gray-500 text-sm">Loading...</span>
-      ) : (
-        <select
-          className="select-product"
-          value={selectedId || ""}
-          onChange={(e) => onSelect(e.target.value)}
+    <div style={{ position: "relative", width: "100%" }}>
+      <input
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setShowList(true);
+        }}
+        placeholder="Search product to edit..."
+        style={{
+          width: "100%",
+          padding: "8px 10px",
+          borderRadius: 6,
+          border: "1px solid #ccc",
+        }}
+      />
+
+      {/* 🔽 Dropdown result list */}
+      {showList && (results.length > 0 || loading) && (
+        <div
+          style={{
+            position: "absolute",
+            top: "105%",
+            left: 0,
+            right: 0,
+            background: "white",
+            border: "1px solid #ddd",
+            borderRadius: 6,
+            maxHeight: 300,
+            overflowY: "auto",
+            zIndex: 999,
+            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+          }}
         >
-          <option value="">-- Choose a product --</option>
-          {products.map((p) => (
-            <option key={p._id} value={p._id}>
-              {p.name}
-            </option>
+          {loading && (
+            <div style={{ padding: 10, textAlign: "center", color: "#888" }}>
+             Searching...
+            </div>
+          )}
+
+          {results.map((p) => (
+            <div
+              key={p._id}
+              onClick={() => handleSelect(p)}
+              style={{
+                padding: "10px 12px",
+                cursor: "pointer",
+                background: p._id === selectedId ? "#fff6e0" : "white",
+                borderBottom: "1px solid #eee",
+              }}
+            >
+              <strong>{p.name}</strong>
+              <br />
+              <span style={{ fontSize: 12, color: "#666" }}>{p.species?.join(", ")}</span>
+            </div>
           ))}
-        </select>
+
+          {!loading && results.length === 0 && (
+            <div style={{ padding: 10, textAlign: "center", color: "#999" }}>
+              No results found
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
+}
+
+// ⏳ Debounce util
+function debounce(fn: Function, delay: number) {
+  let timer: any;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
 }
