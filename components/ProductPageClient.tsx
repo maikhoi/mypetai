@@ -72,7 +72,7 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
   const unitPrice = memberPrice && memberPrice < regularPrice ? memberPrice : regularPrice;
 
   // 🚚 Flat shipping
-  const shippingCost = 20;
+  const shippingCost = 19.99;
 
   // 🧾 Total cost
   const totalAmount = unitPrice * quantity + shippingCost;
@@ -384,7 +384,7 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
             </div>
 
             <p style={{ margin: "6px 0" }}>
-              🚚 <strong>Flat Shipping Fee:</strong> $20.00
+              🚚 <strong>Flat Shipping Fee:</strong> $19.99
             </p>
 
             <p style={{ fontSize: 15 }}>
