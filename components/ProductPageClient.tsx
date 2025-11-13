@@ -434,7 +434,7 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
                       }),
                     });
                     const result = await res.json();
-                    if (result.success) alert("✅ Payment successful!");
+                    if (result.success) alert("✅ Payment successful! You will receive Order Comfirmation shortly. Please email support if you have any issues.");
                     else alert("❌ Payment failed");
                   }}
                 />
