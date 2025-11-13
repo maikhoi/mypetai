@@ -416,6 +416,11 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
                       }),
                     });
                     const data = await res.json();
+                    if (!data.orderID) {
+                      console.error("⚠️ No orderID returned!", data);
+                      throw new Error("Order ID missing");
+                    }
+                    
                     return data.order?.id;
                   }}
                   onApprove={async (data) => {
