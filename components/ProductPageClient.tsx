@@ -331,7 +331,7 @@ export default function ProductPageClient({ product }: { product: ProductDoc }) 
                     marginLeft: 6,
                   }}
                 >
-                  SALE
+                  MEMBER
                 </span>
               </div>
             ) : (
