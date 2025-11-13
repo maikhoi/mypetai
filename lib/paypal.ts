@@ -43,7 +43,7 @@ export async function getPayPalAccessToken(): Promise<string> {
 
 /** 💵 Get shipping cost (flat $19.99 if MyPetAI product) */
 export function getShippingCost(product: ProductDoc): number {
-  return isSoldByMyPetAI(product) ? 19.99 : 99;
+  return isSoldByMyPetAI(product) ? 0 : 99;
 }
 
 /** 🧾 Helper to call PayPal API endpoints with automatic headers */
