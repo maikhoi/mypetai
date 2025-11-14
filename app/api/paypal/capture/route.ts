@@ -53,7 +53,7 @@ function getMyPetAIShopMemberPrice(product: ProductDoc): number {
 }
 
 
-export async function sendOrderConfirmationEmail(params: OrderEmailParams) {
+async function sendOrderConfirmationEmail(params: OrderEmailParams) {
   const {
     to,
     buyerName,
