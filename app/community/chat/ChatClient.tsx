@@ -161,7 +161,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
         setError("💤 Chat server is waking up... please try again in a minute.");
       }
     })();
-
+    /*
     if (!socketRef.current) {
       socketRef.current = io(serverUrl, {
         query: {
@@ -173,7 +173,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     }
   
     const socket = socketRef.current;
-/*
+    */
     const socket = io(serverUrl, {
       query: {
         channelId,
@@ -183,7 +183,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     });
       
     socketRef.current = socket;
-*/
+
     // Handle new messages
     socket.on('chat:new', (msg: Message) => {
       setMessages((prev) => {
