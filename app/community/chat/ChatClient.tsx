@@ -118,6 +118,28 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     }
   };
 
+  // 🩹 Fix: reconnect socket when session loads (only runs once)
+  useEffect(() => {
+    // Only run after user logs in AND socket already created
+    if (!session?.user?.id) return;
+    if (!socketRef.current) return;
+
+    // Disconnect old guest socket
+    socketRef.current.disconnect();
+
+    // Reconnect with updated session identity
+    socketRef.current = io(serverUrl, {
+      query: {
+        channelId,
+        senderName: session.user?.name || guestName,
+        senderId: session.user?.id || guestName,
+      },
+    });
+
+    console.log("🔄 Socket reconnected with user:", session.user.id);
+  }, [session?.user?.id]);  // SAFE dependency
+
+
   // ✅ Initial fetch + socket setup
   useEffect(() => {
     (async () => {
