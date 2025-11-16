@@ -2,7 +2,6 @@
 
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { getSocket } from "@/lib/socket";
 import { useRouter } from "next/navigation";
 import LoadingButton from "../ui/LoadingButton";
 

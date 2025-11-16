@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { getChatSocket } from '@/lib/chatSocket';
 import io from 'socket.io-client';
 import UserName from '@/components/chat/UserName'; // ✅ import the new component
 import TextareaAutosize from "react-textarea-autosize";
@@ -118,31 +117,6 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       setLoading(false);
     }
   };
-/*
-  // 🩹 Fix: reconnect socket when session loads (only runs once)
-  useEffect(() => {
-    // Only run after user logs in AND socket already created
-    if (!session?.user?.id) return;
-    if (!socketRef.current) return;
-
-    // Disconnect old guest socket
-    socketRef.current.disconnect();
-
-    // Reconnect with updated session identity
-    socketRef.current = io(serverUrl, {
-      query: {
-        channelId,
-        senderName: session.user?.name || guestName,
-        senderId: session.user?.id || guestName,
-      },
-    });
-
-    console.log("🆕 session changed, rejoining room:", channelId);
-     socketRef.current.emit("chat:switchRoom", channelId);
-
-    console.log("🔄 Socket reconnected with user:", session.user.id);
-  }, [session?.user?.id]);  // SAFE dependency
-*/
 
   // ✅ Initial fetch + socket setup
   useEffect(() => {
@@ -184,7 +158,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     
       socket.emit("chat:switchRoom", channelId);
     });
-    
+
     // Handle new messages
     socket.on('chat:new', (msg: Message) => {
       setMessages((prev) => {
@@ -215,7 +189,6 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
     socket.on('room:users', (users: string[]) => {
       onActiveUsersUpdate?.(users);
-      //if (onActiveUsersUpdate) onActiveUsersUpdate(users); // ✅ Pass up
     });
 
     
