@@ -137,12 +137,12 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       }
     })();
     
-    let socket;
+  //  let socket;
 
-    if (!socketRef.current) {// && !socketInitRef.current) {
+    //if (!socketRef.current) {// && !socketInitRef.current) {
       //socketInitRef.current = true; // 🔒 lock to prevent double creation
       // Create socket once
-      socket = io(serverUrl, {
+     const socket = io(serverUrl, {
         withCredentials: true,
         query: {
           channelId,
@@ -154,16 +154,16 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       socketRef.current = socket;
       console.log("🆕 New socket created:", socket.id);
 
-    } else {
+  //  } else {
       // Reuse the same socket + update identity only
-      socketRef.current.emit("chat:identify", {
-        senderName,
-        senderId: session?.user?.id || guestName,
-      });
+ //     socketRef.current.emit("chat:identify", {
+   //     senderName,
+  //      senderId: session?.user?.id || guestName,
+    //  });
 
-      socket = socketRef.current;
-      console.log("♻️ Reusing socket:", socket.id);
-    }
+  //    socket = socketRef.current;
+  //    console.log("♻️ Reusing socket:", socket.id);
+ //   }
 
 
     socket.on("connect", () => {
