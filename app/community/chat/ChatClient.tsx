@@ -280,6 +280,10 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     setHasMore(true);
     setUnread(0);
     // ✅ Reset scroll flags automatically when changing room
+    // 🆕 Tell server we're switching rooms
+    if (socketRef.current && channelId) {
+      socketRef.current.emit("chat:switchRoom", channelId);
+    }
   }, [channelId]);
 
   // ✅ Send message (text or file)
