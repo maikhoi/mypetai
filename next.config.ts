@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     // ✅ Allow production builds to complete even with ESLint errors
     ignoreDuringBuilds: true,
   },
+  reactStrictMode: false,
 };
 
 export default nextConfig;
