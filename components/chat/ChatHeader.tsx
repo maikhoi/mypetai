@@ -25,7 +25,7 @@ export default function ChatHeader() {
       }
     }
   }, [session]);
-
+/*
   // Pass user info to socket
   useEffect(() => {
     const socket = getSocket(session?.user?.name || guestName);
@@ -35,7 +35,7 @@ export default function ChatHeader() {
       socket.auth = { guest: guestName };
     }
   }, [session, guestName]);
-
+*/
   // Generate a friendly greeting
   const getGreeting = (name: string) => {
     const greetings = [
