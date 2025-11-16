@@ -21,7 +21,7 @@ const handler = NextAuth({
         const email = profile.email || `${profile.id}@facebook.com`;
         // ✅ Map the Facebook API response into a NextAuth-compatible user object
         return {
-          //id: profile.id,
+          id: profile.id,
           name: profile.name || "Facebook User",
           email,
           image: profile.picture?.data?.url || null,
