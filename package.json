@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build:chat": "tsc -p server/tsconfig.server.json",
     "build:server": "tsc -p server/tsconfig.server.json",
     "start:server": "node dist/server/index.js",
     "dev": "concurrently \"npm run dev:next\" \"npm run dev:chat\"",
