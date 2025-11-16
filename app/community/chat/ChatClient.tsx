@@ -120,7 +120,6 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
   // ✅ Initial fetch + socket setup
   useEffect(() => {
-    console.log("📤 Sending chat:identify...", senderName);
     (async () => {
       try {
         const res = await fetch(`${serverUrl}/api/messages/${channelId}`);
@@ -139,6 +138,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     })();
     
     const socket = io(serverUrl, {
+      withCredentials: true,
       query: {
         channelId,
         senderName,
@@ -236,7 +236,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       socket.off("connect_error");
       socket.disconnect();
     };
-  }, [channelId, serverUrl,  onActiveUsersUpdate]);
+  }, [channelId, serverUrl, senderName, onActiveUsersUpdate]);
 
   // 🆕 Scroll to specific message when messageId changes
   useEffect(() => {
