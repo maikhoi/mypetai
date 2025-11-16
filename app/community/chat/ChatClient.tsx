@@ -136,6 +136,9 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       },
     });
 
+    console.log("🆕 session changed, rejoining room:", channelId);
+     socketRef.current.emit("chat:switchRoom", channelId);
+
     console.log("🔄 Socket reconnected with user:", session.user.id);
   }, [session?.user?.id]);  // SAFE dependency
 
