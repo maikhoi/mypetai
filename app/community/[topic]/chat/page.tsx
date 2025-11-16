@@ -15,7 +15,19 @@ export default function CommunityChatPage() {
 
   const [currentRoom, setCurrentRoom] = useState('general');
   const [roomCounts, setRoomCounts] = useState<Record<string, number>>({});
-  const [mobileRoomsOpen, setMobileRoomsOpen] = useState(false); // ✅ added
+  const [mobileRoomsOpen, setMobileRoomsOpen] = useState(false);
+
+  // 🆕 Detect mobile width
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    onResize(); // run at start
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const roomsByTopic: Record<string, string[]> = {
     guppy: ['general', 'breeding', 'buy-sell'],
@@ -44,12 +56,11 @@ export default function CommunityChatPage() {
       <div className="flex flex-col w-full max-w-5xl border border-gray-200 rounded-lg shadow-sm overflow-hidden bg-white">
         <ChatHeader />
 
-        {/* Optional banner */}
         <div className="text-center bg-gradient-to-r from-orange-100 to-yellow-100 py-3 text-sm text-gray-700 font-medium">
           Welcome to the {topic.charAt(0).toUpperCase() + topic.slice(1)} community!
         </div>
 
-        {/* 🟧 Mobile toggle button (only shows on small screens) */}
+        {/* 🟧 Mobile toggle */}
         <div className="md:hidden flex justify-between items-center px-4 py-2 border-b bg-white">
           <h3 className="font-semibold text-gray-700 text-base">Rooms</h3>
           <button
@@ -60,51 +71,55 @@ export default function CommunityChatPage() {
           </button>
         </div>
 
-        {/* ✅ Chat layout - unchanged for desktop */}
-{/* 🧩 Chat layout */}
-<div className="p-4 overflow-y-auto">
-  {/* ✅ Mobile sidebar (collapsible) */}
-  {mobileRoomsOpen && (
-    <div className="fixed left-0 w-3/4 z-30 bg-white shadow-lg border-r border-gray-200 md:hidden overflow-y-auto p-4">
-      <ChatSidebar
-        rooms={rooms}
-        currentRoom={currentRoom}
-        onSelect={(room) => {
-          setCurrentRoom(room);
-          setMobileRoomsOpen(false);
-        }}
-        roomCounts={roomCounts}
-        topic={topic}
-      />
-    </div>
-  )}
+        <div className="p-4 overflow-y-auto">
 
-  {/* ✅ Desktop layout (sidebar + chat side by side) */}
-  <div className="hidden md:flex justify-between gap-1">
-    <ChatSidebar
-      rooms={rooms}
-      currentRoom={currentRoom}
-      onSelect={setCurrentRoom}
-      roomCounts={roomCounts}
-      topic={topic}
-    />
-    <ChatClient
-      channelId={`${topic}-${currentRoom}`}
-      onRoomCountsUpdate={setRoomCounts}
-      scrollToMessageId={messageId}
-    />
-  </div>
+          {/* MOBILE SIDEBAR */}
+          {mobileRoomsOpen && (
+            <div className="fixed left-0 w-3/4 z-30 bg-white shadow-lg border-r border-gray-200 md:hidden overflow-y-auto p-4">
+              <ChatSidebar
+                rooms={rooms}
+                currentRoom={currentRoom}
+                onSelect={(room) => {
+                  setCurrentRoom(room);
+                  setMobileRoomsOpen(false);
+                }}
+                roomCounts={roomCounts}
+                topic={topic}
+              />
+            </div>
+          )}
 
-  {/* ✅ Mobile chat (always visible below toggle) */}
-  <div className="block md:hidden">
-    <ChatClient
-      channelId={`${topic}-${currentRoom}`}
-      onRoomCountsUpdate={setRoomCounts}
-      scrollToMessageId={messageId}
-    />
-  </div>
-</div>
+          {/* DESKTOP LAYOUT */}
+          {!isMobile && (
+            <div className="flex justify-between gap-1">
+              <ChatSidebar
+                rooms={rooms}
+                currentRoom={currentRoom}
+                onSelect={setCurrentRoom}
+                roomCounts={roomCounts}
+                topic={topic}
+              />
 
+              {/* 🟢 SINGLE ChatClient instance */}
+              <div className="flex-1">
+                <ChatClient
+                  channelId={`${topic}-${currentRoom}`}
+                  onRoomCountsUpdate={setRoomCounts}
+                  scrollToMessageId={messageId}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* MOBILE LAYOUT */}
+          {isMobile && (
+            <ChatClient
+              channelId={`${topic}-${currentRoom}`}
+              onRoomCountsUpdate={setRoomCounts}
+              scrollToMessageId={messageId}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

@@ -117,7 +117,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       setLoading(false);
     }
   };
-  const socketInitRef = useRef(false);
+  //const socketInitRef = useRef(false);
   // ✅ Initial fetch + socket setup
   useEffect(() => {
     (async () => {
@@ -139,8 +139,8 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     
     let socket;
 
-    if (!socketRef.current && !socketInitRef.current) {
-      socketInitRef.current = true; // 🔒 lock to prevent double creation
+    if (!socketRef.current) {// && !socketInitRef.current) {
+      //socketInitRef.current = true; // 🔒 lock to prevent double creation
       // Create socket once
       socket = io(serverUrl, {
         withCredentials: true,
