@@ -146,6 +146,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
   // ✅ Initial fetch + socket setup
   useEffect(() => {
+    console.log("📤 Sending chat:identify...", senderName);
     (async () => {
       try {
         const res = await fetch(`${serverUrl}/api/messages/${channelId}`);
@@ -162,31 +163,28 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
         setError("💤 Chat server is waking up... please try again in a minute.");
       }
     })();
-    /*
-    if (!socketRef.current) {
-      socketRef.current = io(serverUrl, {
-        query: {
-          channelId,
-          senderName,
-          senderId: session?.user?.id || guestName,
-        },
-      });
-    }
-  
-    const socket = socketRef.current;
-    */
-    const socket = getChatSocket(serverUrl);
-    socketRef.current = socket;
-
-    socket.emit("chat:identify", {
-      senderName,
-      senderId: session?.user?.id || guestName,
+    
+    const socket = io(serverUrl, {
+      query: {
+        channelId,
+        senderName,
+        senderId: session?.user?.id || guestName,
+      },
     });
     
-    // Join/switch room
-    socket.emit("chat:switchRoom", channelId);
+    socketRef.current = socket;
 
-
+    socket.on("connect", () => {
+      console.log("Connected:", socket.id);
+      
+      socket.emit("chat:identify", {
+        senderName,
+        senderId: session?.user?.id || guestName,
+      });
+    
+      socket.emit("chat:switchRoom", channelId);
+    });
+    
     // Handle new messages
     socket.on('chat:new', (msg: Message) => {
       setMessages((prev) => {
