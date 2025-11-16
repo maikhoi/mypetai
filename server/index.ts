@@ -96,15 +96,16 @@ io.on("connection", (socket) => {
 
   // Allow the client to update identity after login
   socket.on("chat:identify", ({ senderName, senderId }) => {
+    
+    console.log("🔐 Identity updated started:", senderName, senderId);
     socket.data.senderName = senderName;
     socket.data.senderId = senderId;
-    console.log("🔐 Identity updated:", senderName, senderId);
+    console.log("🔐 Identity updated ended:", senderName, senderId);
   });
   
   const { channelId } = socket.handshake.query;  // room stays in handshake
-  const displayName = socket.data.senderName || socket.handshake.query.senderName || "Guest";
+  const displayName = getDisplayName();
   let currentRoom: string | null = null;
-  //const displayName = senderName || "Guest";
   const socketId = socket.id;
 
   // 🚫 Block guests from private (non-general) rooms
@@ -154,7 +155,7 @@ io.on("connection", (socket) => {
       broadcastUsers(currentRoom);
       socket.leave(currentRoom);
     }
-
+ 
     socket.join(newRoom);
     currentRoom = newRoom;
     console.log(`🔁 ${displayName} switched to room: ${newRoom}`);
@@ -217,18 +218,13 @@ io.on("connection", (socket) => {
     broadcastRoomCounts();
   });
 
-  // 👉 new helper to calculate & send counts to everyone
-  function broadcastRoomCounts_old() {
-    const counts: Record<string, number> = {};
-    for (const [roomName, sockets] of io.sockets.adapter.rooms) {
-      // ignore internal socket rooms (each socket has its own id room)
-      if (!io.sockets.sockets.get(roomName)) {
-        counts[roomName] = sockets.size;
-      }
-    }
-    io.emit("chat:roomUsers", counts);
+  // 👉 new helper get User
+  function getDisplayName() {
+    return socket.data.senderName || socket.handshake.query.senderName || "Guest";
   }
+  
 
+  // 👉 new helper to calculate & send counts to everyone
   function broadcastRoomCounts() {
     const counts: Record<string, number> = {};
     for (const [roomName, users] of Object.entries(roomUsers)) {
