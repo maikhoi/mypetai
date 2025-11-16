@@ -149,6 +149,13 @@ io.on("connection", (socket) => {
     socket.join(newRoom);
     currentRoom = newRoom;
     console.log(`🔁 ${displayName} switched to room: ${newRoom}`);
+
+    // Add user to new room's user set
+    if (!roomUsers[newRoom]) roomUsers[newRoom] = new Set();
+    roomUsers[newRoom].add(displayName as string);
+  
+    // Update both user list + counts for the new room
+    broadcastUsers(newRoom);
     
     broadcastRoomCounts();
   });
@@ -202,7 +209,7 @@ io.on("connection", (socket) => {
   });
 
   // 👉 new helper to calculate & send counts to everyone
-  function broadcastRoomCounts() {
+  function broadcastRoomCounts_old() {
     const counts: Record<string, number> = {};
     for (const [roomName, sockets] of io.sockets.adapter.rooms) {
       // ignore internal socket rooms (each socket has its own id room)
@@ -212,6 +219,15 @@ io.on("connection", (socket) => {
     }
     io.emit("chat:roomUsers", counts);
   }
+
+  function broadcastRoomCounts() {
+    const counts: Record<string, number> = {};
+    for (const [roomName, users] of Object.entries(roomUsers)) {
+      counts[roomName] = users.size;
+    }
+    io.emit("chat:roomUsers", counts);
+  }
+  
 });
 
 // 🧩 Dynamic port for Render
