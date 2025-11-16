@@ -118,8 +118,31 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     }
   };
 
+  //Step 3 — When session loads, send identity (ONE event)
+  useEffect(() => {
+    if (!socketRef.current) return;
+    if (!session?.user?.id) return;
+  
+    socketRef.current.emit("chat:identify", {
+      senderName: session.user.name,
+      senderId: session.user.id,
+    });
+  }, [session?.user?.id]);
+
+//Step 4 — When channel changes, switch room
+  useEffect(() => {
+    if (!socketRef.current) return;
+    socketRef.current.emit("chat:switchRoom", channelId);
+  }, [channelId]);
+  
+  
+//Step 1 — Add a guard so effect runs ONLY once per page load
+  const didInit = useRef(false);
   // ✅ Initial fetch + socket setup
   useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+
     (async () => {
       try {
         const res = await fetch(`${serverUrl}/api/messages/${channelId}`);
