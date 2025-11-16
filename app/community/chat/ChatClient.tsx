@@ -117,7 +117,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       setLoading(false);
     }
   };
-
+/*
   // 🩹 Fix: reconnect socket when session loads (only runs once)
   useEffect(() => {
     // Only run after user logs in AND socket already created
@@ -141,6 +141,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
     console.log("🔄 Socket reconnected with user:", session.user.id);
   }, [session?.user?.id]);  // SAFE dependency
+*/
 
   // ✅ Initial fetch + socket setup
   useEffect(() => {
@@ -150,20 +151,17 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setMessages(data);
-  
-        if (!hasTargetMessage) {
+        if(!hasTargetMessage) {
+          // ✅ only scroll when not deep-linking to a specific message
           setTimeout(() => scrollToBottom(false), 150);
-        }
+        }        
       } catch (err) {
         console.error("⚠️ Failed to load messages:", err);
-        setMessages([]);
+        setMessages([]); // clear just in case
         setError("💤 Chat server is waking up... please try again in a minute.");
       }
     })();
-  
-    // -----------------------------
-    // ⭐ CORRECT SOCKET INITIALIZATION
-    // -----------------------------
+    /*
     if (!socketRef.current) {
       socketRef.current = io(serverUrl, {
         query: {
@@ -171,30 +169,22 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
           senderName,
           senderId: session?.user?.id || guestName,
         },
-        transports: ["websocket"],
-        reconnection: true,
-        reconnectionAttempts: Infinity,
-        reconnectionDelay: 500,
       });
     }
   
     const socket = socketRef.current;
-  
-    // ⭐ ALWAYS join room on connect
-    socket.on("connect", () => {
-      console.log("🔌 Connected → joining:", channelId);
-      socket.emit("chat:switchRoom", channelId);
+    */
+    const socket = io(serverUrl, {
+      query: {
+        channelId,
+        senderName,
+        senderId: session?.user?.id || guestName,
+      },
     });
-  
-    // ⭐ ALWAYS rejoin on reconnect
-    socket.on("reconnect", () => {
-      console.log("🔁 Reconnected → rejoining:", channelId);
-      socket.emit("chat:switchRoom", channelId);
-    });
-  
-    // -----------------------------
-    // ⭐ YOUR EXISTING EVENT HANDLERS (unchanged)
-    // -----------------------------
+      
+    socketRef.current = socket;
+
+    // Handle new messages
     socket.on('chat:new', (msg: Message) => {
       setMessages((prev) => {
         const next = [...prev, msg];
@@ -206,57 +196,73 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
         return next;
       });
     });
-  
+
+    // Typing indicator
     socket.on('chat:typing', (data: { senderName: string }) => {
       if (data.senderName !== senderName) {
         setTypingUser(data.senderName);
         setTimeout(() => setTypingUser(null), 2000);
+
         requestAnimationFrame(() => scrollToBottom(true));
       }
     });
-  
+    
+    // 🧹 handle DELETE message 
     socket.on('chat:delete', (data: { _id: string }) => {
       setMessages((prev) => prev.filter((m) => m._id !== data._id));
     });
-  
+
     socket.on('room:users', (users: string[]) => {
       onActiveUsersUpdate?.(users);
+      //if (onActiveUsersUpdate) onActiveUsersUpdate(users); // ✅ Pass up
     });
-  
+
+    
     socket.on('room:counts', (counts: Record<string, number>) => {
       onRoomCountsUpdate?.(counts);
     });
-  
+
+    // ✅ new: receive room user counts
     socket.on("chat:roomUsers", (data: Record<string, number>) => {
       onRoomCountsUpdate?.(data);
     });
-  
+
     socket.on("connect_error", () => {
       setError("Chat server unreachable. Please refresh this page after a few minutes to Retry...");
     });
-  
+
+    socket.on("reconnect", () => {
+      setError(null);
+    });
+
+    // 📬 Handle server response for findMessageById
     socket.on("loadMessages", (nearby: Message[]) => {
       console.log("📩 Received loadMessages:", nearby.length);
       setMessages((prev) => {
+        // de-dup by _id
         const map = new Map<string, Message>();
         for (const m of prev) if (m._id) map.set(m._id, m);
         for (const m of nearby) if (m._id) map.set(m._id, m);
-        return Array.from(map.values()).sort(
+    
+        const merged = Array.from(map.values()).sort(
           (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()
         );
+        return merged;
       });
     });
-  
+
     return () => {
       socket.off("loadMessages");
-      socket.off("room:users");
-      socket.off("room:counts");
-      socket.off("connect");
-      socket.off("reconnect");
+      socket.off('room:users');
+      socket.off('room:counts');
+      socket.off("chat:roomUsers");
+      socket.off("chat:new");
+      socket.off("chat:typing");
+      socket.off("chat:delete");
+      socket.off("connect_error");
+      socket.disconnect();
     };
-  
   }, [channelId, serverUrl, senderName, onActiveUsersUpdate]);
-  
 
   // 🆕 Scroll to specific message when messageId changes
   useEffect(() => {
@@ -283,9 +289,9 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     setUnread(0);
     // ✅ Reset scroll flags automatically when changing room
     // 🆕 Tell server we're switching rooms
-    if (socketRef.current && channelId) {
-      socketRef.current.emit("chat:switchRoom", channelId);
-    }
+    //if (socketRef.current && channelId) {
+    //  socketRef.current.emit("chat:switchRoom", channelId);
+   // }
   }, [channelId]);
 
   // ✅ Send message (text or file)
