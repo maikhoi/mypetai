@@ -236,7 +236,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       socket.off("connect_error");
       socket.disconnect();
     };
-  }, [channelId, serverUrl, senderName, onActiveUsersUpdate]);
+  }, [channelId, serverUrl,  onActiveUsersUpdate]);
 
   // 🆕 Scroll to specific message when messageId changes
   useEffect(() => {
