@@ -17,6 +17,7 @@ const handler = NextAuth({
           scope: "public_profile,email", // ✅ request both
         },
       },
+      allowDangerousEmailAccountLinking: true, // ⭐ KEY LINE
       profile(profile) {
         const email = profile.email || `${profile.id}@facebook.com`;
         // ✅ Map the Facebook API response into a NextAuth-compatible user object
