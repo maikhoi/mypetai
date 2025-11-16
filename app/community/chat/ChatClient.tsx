@@ -117,7 +117,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       setLoading(false);
     }
   };
-  //const socketInitRef = useRef(false);
+
   // ✅ Initial fetch + socket setup
   useEffect(() => {
     (async () => {
@@ -137,11 +137,6 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       }
     })();
     
-  //  let socket;
-
-    //if (!socketRef.current) {// && !socketInitRef.current) {
-      //socketInitRef.current = true; // 🔒 lock to prevent double creation
-      // Create socket once
      const socket = io(serverUrl, {
         withCredentials: true,
         query: {
@@ -154,27 +149,14 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       socketRef.current = socket;
       console.log("🆕 New socket created:", socket.id);
 
-  //  } else {
-      // Reuse the same socket + update identity only
- //     socketRef.current.emit("chat:identify", {
-   //     senderName,
-  //      senderId: session?.user?.id || guestName,
-    //  });
-
-  //    socket = socketRef.current;
-  //    console.log("♻️ Reusing socket:", socket.id);
- //   }
-
-
     socket.on("connect", () => {
-      console.log("Connected:", socket.id);
-      
       socket.emit("chat:identify", {
         senderName,
         senderId: session?.user?.id || guestName,
       });
     
       socket.emit("chat:switchRoom", channelId);
+      console.log("Connected:::::", socket.id);   //log console here
     });
 
     // Handle new messages
@@ -281,9 +263,6 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     setUnread(0);
     // ✅ Reset scroll flags automatically when changing room
     // 🆕 Tell server we're switching rooms
-    //if (socketRef.current && channelId) {
-    //  socketRef.current.emit("chat:switchRoom", channelId);
-   // }
   }, [channelId]);
 
   // ✅ Send message (text or file)
@@ -470,29 +449,26 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
               />
             )}
               {/* 🔗 Hover link icon */}
-  <button
-    type="button"
-    onClick={(e) => {
-      const messageUrl = `${window.location.origin}/community/${channelId.split("-")[0]}/chat?messageId=${m._id}&channelId=${channelId}`;
-      navigator.clipboard.writeText(messageUrl);
+              <button
+                type="button"
+                onClick={(e) => {
+                  const messageUrl = `${window.location.origin}/community/${channelId.split("-")[0]}/chat?messageId=${m._id}&channelId=${channelId}`;
+                  navigator.clipboard.writeText(messageUrl);
 
-      // quick "Copied!" tooltip
-      const tip = document.createElement("div");
-      tip.textContent = "Copied!";
-      tip.className =
-        "absolute -top-5 right-0 text-xs bg-black text-white px-1.5 py-0.5 rounded opacity-90";
-      (e.currentTarget.parentElement as HTMLElement)?.appendChild(tip);
-      setTimeout(() => tip.remove(), 1000);
-    }}
-    className="absolute -top-1.5 right-1.5 hidden group-hover:flex items-center justify-center w-5 h-5 rounded-full bg-white shadow text-gray-500 hover:text-blue-600"
-    title="Copy link to this message"
-  >
-    🔗
-  </button>
-
-          </div>
-
-          
+                  // quick "Copied!" tooltip
+                  const tip = document.createElement("div");
+                  tip.textContent = "Copied!";
+                  tip.className =
+                    "absolute -top-5 right-0 text-xs bg-black text-white px-1.5 py-0.5 rounded opacity-90";
+                  (e.currentTarget.parentElement as HTMLElement)?.appendChild(tip);
+                  setTimeout(() => tip.remove(), 1000);
+                }}
+                className="absolute -top-1.5 right-1.5 hidden group-hover:flex items-center justify-center w-5 h-5 rounded-full bg-white shadow text-gray-500 hover:text-blue-600"
+                title="Copy link to this message"
+              >
+                🔗
+              </button>
+          </div>          
         )})}
 
        
