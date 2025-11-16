@@ -13,7 +13,11 @@ Message.collection.createIndex({ channelId: 1, createdAt: -1 });
 const app = express();
 
 // 🌏 Setup CORS
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").split(",");
+const allowedOrigins = [
+  "https://mypetai.app",
+  "https://www.mypetai.app",
+  "https://chat.mypetai.app"
+];// hardcode allowed origin on chat server (process.env.CORS_ORIGIN || "http://localhost:3000").split(",");
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
