@@ -93,9 +93,18 @@ const roomUsers: Record<string, Set<string>> = {}; // ✅ Add this line at the t
 
 // 💬 WebSocket logic
 io.on("connection", (socket) => {
-  const { channelId, senderName } = socket.handshake.query;
+
+  // Allow the client to update identity after login
+  socket.on("chat:identify", ({ senderName, senderId }) => {
+    socket.data.senderName = senderName;
+    socket.data.senderId = senderId;
+    console.log("🔐 Identity updated:", senderName, senderId);
+  });
+  
+  const { channelId } = socket.handshake.query;  // room stays in handshake
+  const displayName = socket.data.senderName || socket.handshake.query.senderName || "Guest";
   let currentRoom: string | null = null;
-  const displayName = senderName || "Guest";
+  //const displayName = senderName || "Guest";
   const socketId = socket.id;
 
   // 🚫 Block guests from private (non-general) rooms

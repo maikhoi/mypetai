@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { getChatSocket } from '@/lib/chatSocket';
 import io from 'socket.io-client';
 import UserName from '@/components/chat/UserName'; // ✅ import the new component
 import TextareaAutosize from "react-textarea-autosize";
@@ -174,15 +175,17 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
   
     const socket = socketRef.current;
     */
-    const socket = io(serverUrl, {
-      query: {
-        channelId,
-        senderName,
-        senderId: session?.user?.id || guestName,
-      },
-    });
-      
+    const socket = getChatSocket(serverUrl);
     socketRef.current = socket;
+
+    socket.emit("chat:identify", {
+      senderName,
+      senderId: session?.user?.id || guestName,
+    });
+    
+    // Join/switch room
+    socket.emit("chat:switchRoom", channelId);
+
 
     // Handle new messages
     socket.on('chat:new', (msg: Message) => {
