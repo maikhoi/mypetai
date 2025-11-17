@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
+import AdminGate from "@/components/admin/AdminGate";
+
 
 interface Subscriber {
   email: string;
@@ -11,15 +13,7 @@ export default function AdminSubscribersPage() {
   const [subs, setSubs] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  // ✅ Check if admin session is active
-  useEffect(() => {
-    (async () => {
-      const res = await fetch('/api/admin/me');
-      setLoggedIn(res.ok);
-    })();
-  }, []);
+  
 
   async function fetchSubs() {
     setLoading(true);
@@ -41,22 +35,8 @@ export default function AdminSubscribersPage() {
     return dateStr;
   }
 
-  if (!loggedIn) {
-    return (
-      <div style={{ textAlign: 'center', padding: 40 }}>
-        <h3>🔒 Admin access required</h3>
-        <p>
-          Please log in from the{' '}
-          <a href="/admin/products" style={{ color: '#f5a623' }}>
-            Product Admin Page
-          </a>{' '}
-          first.
-        </p>
-      </div>
-    );
-  }
-
   return (
+    <AdminGate>
     <div style={{ fontFamily: 'Poppins, sans-serif', padding: 30 }}>
       <h2>🐾 MyPetAI+ Subscribers</h2>
 
@@ -114,6 +94,6 @@ export default function AdminSubscribersPage() {
       {!loading && subs.length === 0 && !error && (
         <p style={{ marginTop: 20 }}>No subscribers yet.</p>
       )}
-    </div>
+    </div></AdminGate>
   );
 }
