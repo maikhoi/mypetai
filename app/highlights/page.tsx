@@ -2,13 +2,20 @@
 import Breadcrumbs from "@/components/Breadcrumb";
 import Highlight from "@/models/Highlight";
 
+
+interface HighlightParams {
+  page?: string;
+  category?: string;
+  sort?: string;
+}
+
 export default async function HighlightsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<HighlightParams>;
 }) {
-
-  const page = Number(searchParams.page) || 1;
+  const sp = await searchParams;
+  const page = Number(sp.page) || 1;
   const pageSize = 10;
   const skip = (page - 1) * pageSize;
 
