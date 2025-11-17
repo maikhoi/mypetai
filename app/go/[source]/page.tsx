@@ -1,6 +1,19 @@
 // app/go/[source]/page.tsx
 import { redirect } from "next/navigation";
 
+
+export const metadata = {
+  title: "MyPetAI Case Studies",
+  description: "Full-stack engineering case studies by Khoi Mai.",
+  openGraph: {
+    title: "MyPetAI Case Studies",
+    description: "Full-stack engineering case studies by Khoi Mai.",
+    url: "https://mypetai.app/case-studies",
+    images: ["https://mypetai.app/preview.jpg"], // optional
+  },
+};
+
+
 interface Params {
   source: string;
 }
