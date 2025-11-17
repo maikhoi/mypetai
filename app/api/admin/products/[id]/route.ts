@@ -22,7 +22,7 @@ export async function GET(
 
     await dbConnect();
 
-    // 🆕 If the request is for dropdown options
+    // 🆓 Public: dropdown options
     if (id === "options") {
       const allProducts = await Product.find({}, {
         species: 1,
@@ -48,11 +48,24 @@ export async function GET(
       });
     }
 
-    // 🧩 Otherwise, load a single product by ID
+    // 🔒 Protected: require admin session
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // 🔍 Fetch product
     const product = await Product.findById(id).lean();
 
-    if (!product)
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    if (!product) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ success: true, product });
   } catch (error) {
@@ -63,6 +76,7 @@ export async function GET(
     );
   }
 }
+
 
 export async function PUT(
   req: Request,

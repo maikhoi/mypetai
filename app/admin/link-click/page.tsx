@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AdminGate from "@/components/admin/AdminGate";
 
 export default function LinkClicksAdminPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -12,6 +13,7 @@ export default function LinkClicksAdminPage() {
   }, []);
 
   return (
+    <AdminGate>
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">🔗 Link Click Analytics</h1>
 
@@ -38,5 +40,6 @@ export default function LinkClicksAdminPage() {
         </tbody>
       </table>
     </div>
+    </AdminGate>
   );
 }

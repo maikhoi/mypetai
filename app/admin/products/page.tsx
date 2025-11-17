@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import ProductSwitcher from "@/components/admin/ProductSwitcher";
+import AdminGate from "@/components/admin/AdminGate";
+
 
 // Example dropdown options — you can later fetch these dynamically
 
@@ -26,84 +28,7 @@ export default function ProductAdminDashboard() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showDetails, setShowDetails] = useState(false); // for Description + Average Price
-
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState(""); 
-  const [rememberMe, setRememberMe] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/admin/me").then(async (res) => {
-      if (res.ok) setLoggedIn(true);
-    });
-  }, []);
-
-  async function handleLogin() {
-    setError("");
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    if (res.ok) setLoggedIn(true);
-    else setError("Invalid login");
-  }
-
-  async function handleLogout() {
-    await fetch("/api/admin/login", { method: "DELETE" });
-    setLoggedIn(false);
-  }
-
-  if (!loggedIn) {
-    return (
-      <div style={{ padding: 40, maxWidth: 400, margin: "auto", textAlign: "center" }}>
-        <h3>🔐 Admin Login</h3>
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={{ width: "100%", padding: 8, marginBottom: 10 }}
-        />
-        <input
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", padding: 8, marginBottom: 10 }}
-        />
-
-        <div style={{ marginBottom: 12 }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              style={{ marginRight: 6 }}
-            />
-            Remember me
-          </label>
-        </div>
-
-        <button
-          onClick={handleLogin}
-          style={{
-            padding: "8px 16px",
-            background: "#f5a623",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-          }}
-        >
-          Login
-        </button>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
-    );
-  }
-
+  const [showDetails, setShowDetails] = useState(false); // for Description + Average Price  
 
   // 🧩 Load product
   async function loadProduct(id: string) {
@@ -304,10 +229,13 @@ export default function ProductAdminDashboard() {
     }
   }
   
-  
-  
+  async function handleLogout() {    
+    await fetch("/api/admin/login", { method: "DELETE" });
+    window.location.href = "/admin/login";
+  }  
 
   return (
+    <AdminGate>
     <div
       style={{
         padding: 10,
@@ -1131,6 +1059,6 @@ export default function ProductAdminDashboard() {
   }
 `}</style>
 
-    </div>
+    </div></AdminGate>
   );
 }
