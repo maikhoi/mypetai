@@ -9,23 +9,17 @@ interface Params {
 export default async function GoProductPage({
   params,
 }: {
-  params: Params;
+  params: Promise<Params>;
 }) {
   // Params may sometimes be a Promise in some environments — resolve it safely.
-  const resolved = await Promise.resolve(params);
+  const {encodedUrl} = await params;
 
-  console.log("👉 RAW PARAM:", resolved.encodedUrl);
-
-  // 1️⃣ Guard: missing or bad encoded URL
-  if (!resolved.encodedUrl || resolved.encodedUrl === "undefined") {
-    console.warn("❌ Missing encodedUrl param in /go/p route");
-    return redirect("/");
-  }
+  console.log("👉 RAW PARAM:", encodedUrl);
 
   // 2️⃣ Decode back to original product URL
   let decodedUrl: string;
   try {
-    decodedUrl = decodeURIComponent(resolved.encodedUrl);
+    decodedUrl = decodeURIComponent(encodedUrl);
   } catch (err) {
     console.error("❌ decodeURIComponent failed:", err);
     return redirect("/");
@@ -39,7 +33,7 @@ export default async function GoProductPage({
       body: JSON.stringify({
         type: "externalProduct",
         source: "product",
-        encodedUrl: resolved.encodedUrl,
+        encodedUrl: encodedUrl,
         targetUrl: decodedUrl,
         timestamp: Date.now(),
       }),
