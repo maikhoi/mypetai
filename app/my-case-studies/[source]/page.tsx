@@ -1,4 +1,4 @@
-// app/go/[source]/page.tsx
+// app/my-case-studies/[source]/page.tsx
 import { redirect } from "next/navigation";
 
 
