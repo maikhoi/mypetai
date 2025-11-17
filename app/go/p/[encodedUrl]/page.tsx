@@ -24,7 +24,9 @@ export default async function GoProductPage({
     console.error("❌ decodeURIComponent failed:", err);
     return redirect("/");
   }  
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/link-click`, {
+
+
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/link-click`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -34,7 +36,7 @@ export default async function GoProductPage({
         targetUrl: decodedUrl,
         timestamp: Date.now(),
       }),
-    });
+    }).catch(() => {});
   // 4️⃣ Redirect user to the actual product page
   return redirect(decodedUrl);
 }
