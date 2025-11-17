@@ -23,10 +23,7 @@ export default async function GoProductPage({
   } catch (err) {
     console.error("❌ decodeURIComponent failed:", err);
     return redirect("/");
-  }
-
-  // 3️⃣ Fire-and-forget logging
-  Promise.resolve(
+  }  
     fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/link-click`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -37,9 +34,7 @@ export default async function GoProductPage({
         targetUrl: decodedUrl,
         timestamp: Date.now(),
       }),
-    })
-  ).catch((err) => console.error("❌ Link logging error:", err));
-
+    });
   // 4️⃣ Redirect user to the actual product page
   return redirect(decodedUrl);
 }
