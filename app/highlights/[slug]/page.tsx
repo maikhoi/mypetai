@@ -1,45 +1,8 @@
 import { dbConnect } from "@/lib/mongoose";
-import mongoose, { Document, Model } from "mongoose";
+import Breadcrumb from "@/components/Breadcrumb";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-
-// ✅ Define a strong TypeScript interface for your highlight documents
-interface HighlightDoc extends Document {
-  title: string;
-  slug: string;
-  sourceUrl?: string;
-  summary: string;
-  keyTips?: string[];
-  category?: string;
-  image?: string;
-  seoMeta?: {
-    title?: string;
-    description?: string;
-  };
-  updatedAt?: Date;
-}
-
-// ✅ Define schema with correct model typing
-const highlightSchema = new mongoose.Schema<HighlightDoc>(
-  {
-    title: String,
-    slug: String,
-    sourceUrl: String,
-    summary: String,
-    keyTips: [String],
-    category: String,
-    image: String,
-    seoMeta: {
-      title: String,
-      description: String,
-    },
-  },
-  { timestamps: true }
-);
-
-const Highlight: Model<HighlightDoc> =
-  mongoose.models.Highlight ||
-  mongoose.model<HighlightDoc>("Highlight", highlightSchema);
+import Highlight, { HighlightDoc } from "@/models/Highlight";
+ 
 
 // --- Metadata ---
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -71,10 +34,16 @@ export default async function HighlightPage({ params }: { params: Promise<{ slug
   await dbConnect();
   const doc = (await Highlight.findOne({ slug }).lean()) as HighlightDoc | null;
 
-  if (!doc) return notFound();
+  if (!doc) return notFound();//<div className="max-w-4xl mx-auto p-4 space-y-6">
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-100 py-12 px-4">
+    <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-100 py-5 px-4"><div className="max-w-4xl mx-auto p-4 space-y-6">
+      <Breadcrumb
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Highlights", href: "/highlights" },
+                { label: doc.title },
+              ]} />
       <article className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8 border border-amber-100">
         <h1 className="text-3xl font-bold text-amber-700 mb-4">{doc.title}</h1>
 
@@ -119,6 +88,6 @@ export default async function HighlightPage({ params }: { params: Promise<{ slug
           </p>
         )}
       </article>
-    </main>
+    </div></main>
   );
 }
