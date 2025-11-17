@@ -644,7 +644,6 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                         <a
                         href={`/go/p/${encodedUrl}`}
                         target="_blank"
-                        data-no-prefetch 
                         rel="noopener noreferrer"
                         style={{
                           display: "inline-block",
