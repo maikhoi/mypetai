@@ -1,18 +1,24 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose from "mongoose";
 
-export interface LinkClickDoc extends Document {
-  source: string;
-  timestamp: number;
-  ip: string;
-  userAgent: string;
-}
+const LinkClickSchema = new mongoose.Schema({
+  type: { type: String, default: "unknown" },
+  // optional source (linkedin, seek, homepage, etc.)
+  source: { type: String, default: null },
 
-const LinkClickSchema = new Schema<LinkClickDoc>({
-  source: { type: String, required: true },
-  timestamp: { type: Number, required: true },
-  ip: String,
+  
+  path: String,
+  fullUrl: String,
+  query: mongoose.Schema.Types.Mixed,
+  
+  productUrl: String,
+  encodedUrl: String,
+  storeName: String,
+  targetUrl: String,
+
   userAgent: String,
+  
+  timestamp: { type: Date, default: Date.now }
 });
 
 export default mongoose.models.LinkClick ||
-  mongoose.model<LinkClickDoc>("LinkClick", LinkClickSchema);
+  mongoose.model("LinkClick", LinkClickSchema);
