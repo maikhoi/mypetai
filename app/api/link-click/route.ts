@@ -2,22 +2,32 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongoose";
 import LinkClick from "@/models/LinkClick";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
     await dbConnect();
+    
+    const data = await req.json();
+    const timestamp = new Date(data.timestamp || Date.now());
 
-    const { source, timestamp } = await req.json();
-
-    await LinkClick.create({
-      source,
+    const record = await LinkClick.create({
+      type: data.type || "unknown",
+      source: data.source || null,
+      productUrl: data.productUrl || null,
+      encodedUrl: data.encodedUrl || null,
+      storeName: data.storeName || null,
+      path: data.path || null,
+      fullUrl: data.fullUrl || null,
+      query: data.query || null,
+      targetUrl: data.targetUrl || null,
+      userAgent: req.headers.get("user-agent") || null,
       timestamp,
-      userAgent: req.headers.get("user-agent") || "",
-      ip: req.headers.get("x-forwarded-for") || "",
     });
 
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("Click logging failed:", err);
-    return NextResponse.json({ ok: false }, { status: 500 });
+    return NextResponse.json({ success: true, record });
+  } catch (err: any) {
+    console.error("❌ LinkClick error:", err);
+    return NextResponse.json({ success: false, error: err.message });
   }
 }

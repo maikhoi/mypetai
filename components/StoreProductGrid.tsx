@@ -390,6 +390,7 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
                     s.repeatPrice &&
                     s.repeatPrice > 0
                 );
+                const encodedUrl = encodeURIComponent(best?.productUrl || "");
 
                 // 🕒 Determine last update string
                 const storeMatch = storeArray.find((s) => s.storeName === storeName);
@@ -641,8 +642,9 @@ export default function StoreProductGrid({ apiPath, title, subtitle }: Props) {
 
                     {best?.productUrl && (
                         <a
-                        href={best.productUrl}
+                        href={`/go/p/${encodedUrl}`}
                         target="_blank"
+                        data-no-prefetch 
                         rel="noopener noreferrer"
                         style={{
                           display: "inline-block",

@@ -36,7 +36,7 @@ export default async function RedirectPage({
   }).catch(() => {});
 
   // final target of your portfolio
-  const TARGET = "https://www.mypetai.app/case-studies";
+  const TARGET = `https://www.mypetai.app/case-studies?utm_source=${source}`;
 
   redirect(TARGET);
 }
