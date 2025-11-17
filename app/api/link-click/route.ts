@@ -3,12 +3,11 @@ import { dbConnect } from "@/lib/mongoose";
 import LinkClick from "@/models/LinkClick";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs"; // ⬅️ IMPORTANT: use Node runtime, not edge!
+export const runtime = "nodejs"; // Required for MongoDB
 
-export async function POST(req: Request, context: any) {
+export async function POST(req: Request) {
   try {
     const data = await req.json();
-
     const payload = {
       type: data.type || "unknown",
       source: data.source || null,
@@ -23,21 +22,13 @@ export async function POST(req: Request, context: any) {
       timestamp: new Date(data.timestamp || Date.now()),
     };
 
-    // Background logging (non-blocking)
-    context.waitUntil(
-      (async () => {
-        try {
-          await dbConnect();
-          await LinkClick.create(payload);
-        } catch (err) {
-          console.error("❌ Background LinkClick DB error:", err);
-        }
-      })()
-    );
+    // ⚡ DB write in the same request (reliable)
+    await dbConnect();
+    await LinkClick.create(payload);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("❌ LinkClick route error:", err);
+    console.error("❌ LinkClick error:", err);
     return NextResponse.json({ success: false, error: err.message });
   }
 }
