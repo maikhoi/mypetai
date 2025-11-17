@@ -1,7 +1,7 @@
 // app/highlights/page.tsx
 import Breadcrumbs from "@/components/Breadcrumb";
 import Highlight from "@/models/Highlight";
-
+import { dbConnect } from "@/lib/mongoose";
 
 interface HighlightParams {
   page?: string;
@@ -14,6 +14,7 @@ export default async function HighlightsPage({
 }: {
   searchParams: Promise<HighlightParams>;
 }) {
+  await dbConnect();
   const sp = await searchParams;
   const page = Number(sp.page) || 1;
   const pageSize = 10;
