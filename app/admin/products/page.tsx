@@ -231,7 +231,7 @@ export default function ProductAdminDashboard() {
   
   async function handleLogout() {    
     await fetch("/api/admin/login", { method: "DELETE" });
-    window.location.href = "/admin/login";
+    window.location.href = "/admin/login?from=/admin/products";
   }  
 
   return (
