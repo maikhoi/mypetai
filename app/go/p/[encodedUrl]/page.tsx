@@ -23,10 +23,11 @@ export default async function GoProductPage({
   } catch (err) {
     console.error("❌ decodeURIComponent failed:", err);
     return redirect("/");
-  }  
+  }
 
-
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/link-click`, {
+  // 3️⃣ Fire-and-forget logging
+  Promise.resolve(
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/link-click`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -36,7 +37,9 @@ export default async function GoProductPage({
         targetUrl: decodedUrl,
         timestamp: Date.now(),
       }),
-    }).catch(() => {});
+    })
+  ).catch((err) => console.error("❌ Link logging error:", err));
+
   // 4️⃣ Redirect user to the actual product page
   return redirect(decodedUrl);
 }
