@@ -1,25 +1,35 @@
 "use client";
 
 import { useEffect } from "react";
+import { io } from "socket.io-client";
 
-export default function clientRedirect({ encodedUrl }: { encodedUrl: string }) {
+export default function ClientRedirect({ encodedUrl }: { encodedUrl: string }) {
   useEffect(() => {
     const decodedUrl = decodeURIComponent(encodedUrl);
 
-    const track = async () => {
-      try {
-        // call Rocky Linux chat server (Express)
-        fetch(`https://chat.mypetai.app/api/tracking/link/${encodedUrl}`)
-          .catch(() => {});
-      } catch (err) {
-        console.warn("Tracking failed:", err);
-      } finally {
-        // immediate redirect
-        //window.location.href = decodedUrl;
-      }
-    };
+    const socket = io("https://chat.mypetai.app/tracking", {
+      path: "/socket.io",
+      transports: ["websocket"],
+      forceNew: true,
+    });
 
-    track();
+    socket.on("connect", () => {
+      socket.emit("track:linkClick", {
+        encodedUrl,
+        targetUrl: decodedUrl,
+        ts: Date.now(),
+      });
+
+      setTimeout(() => {
+        socket.disconnect();
+        window.location.href = decodedUrl;  // instant redirect
+      }, 120);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("Socket tracking error:", err);
+      window.location.href = decodedUrl; // fail-safe
+    });
   }, [encodedUrl]);
 
   return null;
