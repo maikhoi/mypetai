@@ -11,35 +11,38 @@ export default async function GoProductPage({
 }: {
   params: Promise<Params>;
 }) {
-  // Params may sometimes be a Promise in some environments — resolve it safely.
-  const {encodedUrl} = await params;
+  const { encodedUrl } = await params;
 
-  console.log("👉 RAW PARAM:", encodedUrl);
+  const decodedUrl = decodeURIComponent(encodedUrl);
 
-  // 2️⃣ Decode back to original product URL
-  let decodedUrl: string;
+  // Fire-and-forget socket logging
   try {
-    decodedUrl = decodeURIComponent(encodedUrl);
+    const socketUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL!;
+
+    // dynamic import to avoid build-time issues
+    const io = (await import("socket.io-client")).io;
+
+    const socket = io(socketUrl, {
+      transports: ["websocket"],
+      timeout: 2000,
+    });
+
+    socket.emit("track:linkClick", {
+      type: "externalProduct",
+      source: "product",
+      encodedUrl,
+      targetUrl: decodedUrl,
+      timestamp: Date.now(),
+      userAgent: "",
+    });
+
+    // disconnect quickly to not hold server open
+    setTimeout(() => socket.disconnect(), 100);
+
   } catch (err) {
-    console.error("❌ decodeURIComponent failed:", err);
-    return redirect("/");
+    console.error("⚠️ Socket logging failed:", err);
   }
 
-  // 3️⃣ Fire-and-forget logging
-  Promise.resolve(
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/link-click`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "externalProduct",
-        source: "product",
-        encodedUrl: encodedUrl,
-        targetUrl: decodedUrl,
-        timestamp: Date.now(),
-      }),
-    })
-  ).catch((err) => console.error("❌ Link logging error:", err));
-
-  // 4️⃣ Redirect user to the actual product page
+  // Redirect immediately
   return redirect(decodedUrl);
 }
