@@ -8,6 +8,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import { Message } from "./models/Message";
+import LinkClick from "./models/LinkClick";
+
 Message.collection.createIndex({ channelId: 1, createdAt: -1 });
 
 const app = express();
@@ -93,6 +95,22 @@ const roomUsers: Record<string, Set<string>> = {}; // ✅ Add this line at the t
 
 // 💬 WebSocket logic
 io.on("connection", (socket) => {
+  console.log("🔌 Client connected:", socket.id);
+
+  socket.on("track:linkClick", async (data) => {
+    try {
+      console.log("📥 Tracking click:", data);
+
+      await LinkClick.create({
+        ...data,
+        serverTs: new Date(),
+      });
+
+      console.log("🟢 Click saved to database");
+    } catch (err) {
+      console.error("❌ Failed to save click:", err);
+    }
+  });
 
   // Allow the client to update identity after login
   socket.on("chat:identify", ({ senderName, senderId }) => {
