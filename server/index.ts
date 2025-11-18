@@ -112,6 +112,17 @@ app.delete("/api/messages/:id", async (req, res) => {
   }
 });
 
+const trackingIO = io.of("/tracking");
+
+trackingIO.on("connection", socket => {
+  console.log("🔌 Tracking client connected:", socket.id);
+
+  socket.on("track:linkClick", async (data) => {
+    console.log("📥 Tracking click:", data);
+    await LinkClick.create({ ...data, serverTs: new Date() });
+  });
+});
+
 // 🧠 Track users in each room
 const roomUsers: Record<string, Set<string>> = {}; // ✅ Add this line at the top of your socket section
 
