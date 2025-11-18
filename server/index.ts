@@ -93,25 +93,21 @@ app.delete("/api/messages/:id", async (req, res) => {
 // 🧠 Track users in each room
 const roomUsers: Record<string, Set<string>> = {}; // ✅ Add this line at the top of your socket section
 
-// 💬 WebSocket logic
-io.on("connection", (socket) => {
-  console.log("🔌 Client connected:", socket.id);
+const trackingIO = io.of("/tracking");
+
+trackingIO.on("connection", (socket) => {
+  console.log("🔌 Tracking client connected:", socket.id);
 
   socket.on("track:linkClick", async (data) => {
-    try {
-      console.log("📥 Tracking click:", data);
-
-      await LinkClick.create({
-        ...data,
-        serverTs: new Date(),
-      });
-
-      console.log("🟢 Click saved to database");
-    } catch (err) {
-      console.error("❌ Failed to save click:", err);
-    }
+    console.log("📥 Tracking click:", data);
+    await LinkClick.create({ ...data });
   });
+});
 
+
+// 💬 WebSocket logic
+io.on("connection", (socket) => {
+  
   // Allow the client to update identity after login
   socket.on("chat:identify", ({ senderName, senderId }) => {
     
