@@ -20,7 +20,8 @@ export default async function Page({
   return (
     <>
       <ClientRedirect encodedUrl={encodedUrl} />
-      {redirect(decodedUrl)}
+     
     </>
   );
 }
+//{redirect(decodedUrl)}

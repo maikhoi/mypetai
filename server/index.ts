@@ -40,23 +40,28 @@ mongoose
   .catch((err) => console.error("❌ Mongo error:", err));
 
 
-  app.post("/api/tracking/link/:encodedUrl", async (req, res) => {
+  app.get("/api/tracking/link", async (req, res) => {
     try {
-      const { encodedUrl } = req.params;
+      const { encoded, target, ts } = req.query;
   
       await LinkClick.create({
-        encodedUrl,
-        targetUrl: decodeURIComponent(encodedUrl),
+        encodedUrl: encoded,
+        targetUrl: target,
+        clientTs: Number(ts),
         serverTs: new Date(),
-        payload: req.body ?? null,
       });
   
       res.json({ ok: true });
     } catch (err) {
-      console.error("❌ Tracking failed:", err);
+      if ((err as any).code === 11000) {
+        console.log("⚠️ Duplicate click ignored (GET)");
+        return res.json({ ok: true });
+      }
+      console.error("❌ Tracking error:", err);
       res.status(500).json({ ok: false });
     }
   });
+  
   
 
 // 📨 REST: recent messages
@@ -112,14 +117,26 @@ app.delete("/api/messages/:id", async (req, res) => {
 
 const trackingIO = io.of("/tracking");
 
-trackingIO.on("connection", socket => {
-  console.log("🔌 Tracking client connected:", socket.id);
-
+trackingIO.on("connection", (socket) => {
   socket.on("track:linkClick", async (data) => {
-    console.log("📥 Tracking click:", data);
-    await LinkClick.create({ ...data, serverTs: new Date() });
+    try {
+      await LinkClick.create({
+        encodedUrl: data.encodedUrl,
+        targetUrl: data.targetUrl,
+        clientTs: data.ts,
+        serverTs: new Date(),
+      });
+      console.log("🟢 Socket saved click");
+    } catch (err:any) {
+      if ((err as any).code === 11000) {
+        console.log("⚠️ Duplicate click ignored (socket)");
+      } else {
+        console.error("❌ Socket tracking error:", err);
+      }
+    }
   });
 });
+
 
 // 🧠 Track users in each room
 const roomUsers: Record<string, Set<string>> = {}; // ✅ Add this line at the top of your socket section

@@ -17,6 +17,8 @@ const LinkClickSchema = new Schema(
   },
   { timestamps: true }
 );
+// Prevent duplicate events (same click)
+LinkClickSchema.index({ encodedUrl: 1, clientTs: 1 }, { unique: true });
 
 // Required to avoid recompilation errors during hot reload
 export default mongoose.models.LinkClick ||
