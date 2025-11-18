@@ -6,11 +6,12 @@ interface Params {
   encodedUrl: string;
 }
 
-export default async function GoProductPage({
+export default async function Page({
   params,
 }: {
   params: Promise<Params>;
 }) {
   const { encodedUrl } = await params;
+
   return <ClientRedirect encodedUrl={encodedUrl} />;
 }

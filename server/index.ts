@@ -39,6 +39,28 @@ mongoose
   .then(() => console.log("✅ Mongo connected"))
   .catch((err) => console.error("❌ Mongo error:", err));
 
+
+
+  app.get("/api/tracking/link/:encodedUrl", async (req, res) => {
+    try {
+      const { encodedUrl } = req.params;
+  
+      const targetUrl = decodeURIComponent(encodedUrl);
+  
+      await LinkClick.create({
+        encodedUrl,
+        targetUrl,
+        serverTs: new Date(),
+      });
+  
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("❌ Tracking failed:", err);
+      res.status(500).json({ ok: false });
+    }
+  });
+  
+
 // 📨 REST: recent messages
 // 📨 REST: lazy-load messages with pagination
 app.get("/api/messages/:channelId", async (req, res) => {
@@ -92,18 +114,6 @@ app.delete("/api/messages/:id", async (req, res) => {
 
 // 🧠 Track users in each room
 const roomUsers: Record<string, Set<string>> = {}; // ✅ Add this line at the top of your socket section
-
-const trackingIO = io.of("/tracking");
-
-trackingIO.on("connection", (socket) => {
-  console.log("🔌 Tracking client connected:", socket.id);
-
-  socket.on("track:linkClick", async (data) => {
-    console.log("📥 Tracking click:", data);
-    await LinkClick.create({ ...data });
-  });
-});
-
 
 // 💬 WebSocket logic
 io.on("connection", (socket) => {
