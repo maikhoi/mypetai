@@ -40,17 +40,15 @@ mongoose
   .catch((err) => console.error("❌ Mongo error:", err));
 
 
-
-  app.get("/api/tracking/link/:encodedUrl", async (req, res) => {
+  app.post("/api/tracking/link/:encodedUrl", async (req, res) => {
     try {
       const { encodedUrl } = req.params;
   
-      const targetUrl = decodeURIComponent(encodedUrl);
-  
       await LinkClick.create({
         encodedUrl,
-        targetUrl,
+        targetUrl: decodeURIComponent(encodedUrl),
         serverTs: new Date(),
+        payload: req.body ?? null,
       });
   
       res.json({ ok: true });
