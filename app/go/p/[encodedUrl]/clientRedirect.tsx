@@ -1,31 +1,47 @@
 "use client";
 import { useEffect } from "react";
+import { io, Socket } from "socket.io-client";
 
 export default function ClientRedirect({ encodedUrl }: { encodedUrl: string }) {
   useEffect(() => {
     const decodedUrl = decodeURIComponent(encodedUrl);
-    const trackingUrl = `https://chat.mypetai.app/api/tracking/link/${encodedUrl}`;
 
-    // 1) Try super-fast beacon
-    const payload = JSON.stringify({
-      encodedUrl,
-      targetUrl: decodedUrl,
-      ts: Date.now(),
+    const socket: Socket = io("https://chat.mypetai.app", {
+      transports: ["websocket"],
+      path: "/socket.io",
+      query: {
+        channelId: "tracking-public",
+        senderName: "RedirectBot"
+      }
     });
 
-    const sent = navigator.sendBeacon(trackingUrl, payload);
+    socket.on("connect", () => {
+      console.log("⚡ tracking socket connected", socket.id);
 
-    // 2) If beacon fails → fallback to fetch (non-blocking)
-    if (!sent) {
-      fetch(trackingUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
-        keepalive: true,
-      }).catch(() => {});
-    }
+      socket.emit("track:linkClick", {
+        encodedUrl,
+        targetUrl: decodedUrl,
+        ts: Date.now()
+      });
 
-    // Nothing else — redirect already triggered server-side
+      // redirect instantly
+      window.location.href = decodedUrl;
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("Socket error:", err);
+
+      // fallback redirect
+      window.location.href = decodedUrl;
+    });
+
+    // ✅ Correct cleanup: disconnect socket
+    return () => {
+      try {
+        socket.disconnect();
+      } catch (_) {}
+    };
+
   }, [encodedUrl]);
 
   return null;
