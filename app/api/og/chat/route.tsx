@@ -28,10 +28,13 @@ export async function GET(req: Request) {
       });
     }
 
-    // ⭐ Otherwise → return IMAGE
-    const imageUrl =
-      msg?.mediaUrl || "https://www.mypetai.app/og-default.png";
 
+      // ⭐ IMAGE MODE
+    const imgSrc =
+      msg?.mediaUrl || "https://www.mypetai.app/og-default.png";
+      // Fetch the remote image bytes
+      const imgBuffer = await fetch(imgSrc).then((r) => r.arrayBuffer());
+  
     return new ImageResponse(
       (
         <div
@@ -45,7 +48,7 @@ export async function GET(req: Request) {
           }}
         >
           <img
-            src={imageUrl}
+            src={imgBuffer as unknown as string}
             style={{
               width: "100%",
               height: "100%",
