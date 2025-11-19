@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
+ 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const pathname = url.pathname;
@@ -19,7 +19,7 @@ export function middleware(req: NextRequest) {
     ua.includes("WhatsApp");
 console.log("ua|",ua);
   if (!isBot) {
-   // return NextResponse.next();
+    return NextResponse.next();
   }
 
   // Use existing OG route — no DB needed
