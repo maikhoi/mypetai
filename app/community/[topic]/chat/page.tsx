@@ -6,6 +6,7 @@ import ChatSidebar from '@/app/community/chat/ChatSidebar';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { useState, useEffect } from 'react';
 
+ 
 export default function CommunityChatPage() {
   const { topic } = useParams<{ topic: string }>();
   const searchParams = useSearchParams();
