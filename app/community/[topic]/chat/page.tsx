@@ -1,8 +1,8 @@
 'use client';
 
 import { useParams, useSearchParams } from 'next/navigation';
-import ChatClient from '@/app/community/chat-general/ChatClient';
-import ChatSidebar from '@/app/community/chat-general/ChatSidebar';
+import ChatClient from '@/app/community/chat/ChatClient';
+import ChatSidebar from '@/app/community/chat/ChatSidebar';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { useState, useEffect } from 'react';
 
