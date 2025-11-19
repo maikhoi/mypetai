@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: "MyPetAI Chat Message",
       description: "View chat on MyPetAI",
-      images: [ogImage],
+      images: [`https://www.mypetai.app/api/og/chat?messageId=${messageId}&aaaa=1`],
     },
   };
 }
