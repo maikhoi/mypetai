@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { dbConnect } from "@/lib/mongoose";
-import {Message} from "@/server/models/Message";
+import Message, { IMessage } from "@/models/Message";
 
 export const runtime = "edge";
 
@@ -9,8 +9,9 @@ export async function GET(req: Request) {
   const messageId = searchParams.get("messageId");
 
   await dbConnect();
-  const msg = await Message.findById(messageId).lean();
-
+   
+  const msg = (await Message.findById(messageId).lean()) as IMessage | null;
+  
   const imageUrl = msg?.mediaUrl
     ? msg.mediaUrl
     : "https://www.mypetai.app/og-default.png";
