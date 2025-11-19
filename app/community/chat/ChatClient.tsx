@@ -209,7 +209,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     socket.on("connect", () => {
       socket.on("connect_error", () => {
         // this will only run for THIS socket
-        setError("Chat server unreachable. Please refresh this page after a few minutes to Retry...");
+        //TEMPORARY REMOVE THIS setError("Chat server unreachable. Please refresh this page after a few minutes to Retry...");
       });
     });
 
