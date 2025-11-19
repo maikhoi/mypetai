@@ -43,9 +43,7 @@ export async function middleware(req: NextRequest) {
 
   const ogDescription = meta?.text || "Chat message on MyPetAI";
 
-  const ogImageUrl =
-    meta?.mediaUrl ||
-    `https://www.mypetai.app/api/og/chat?messageId=${messageId}`;
+  const ogImageUrl = `https://www.mypetai.app/api/og/chat?messageId=${messageId}`;
 
   const ogUrl = url.toString();
 
