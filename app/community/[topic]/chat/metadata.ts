@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { dbConnect } from "@/lib/mongoose";
-import {Message} from "@/server/models/Message";
+import Message, { IMessage } from "@/models/Message";
 
 type Props = {
   searchParams: { messageId?: string };
@@ -22,7 +22,8 @@ export async function generateMetadata(
   }
 
   await dbConnect();
-  const msg = await Message.findById(messageId).lean();
+ 
+  const msg = (await Message.findById(messageId).lean()) as IMessage | null;
 
   const hasImage = msg?.mediaUrl;
 
