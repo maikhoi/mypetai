@@ -7,8 +7,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const h = await headers();
 
   // Trick: access the raw HTML of the current render phase
-  const rawHead = h.get("x-nextjs-head") || "";
-
+  const rawHead = h.get("x-url") || "";
+console.log("header data:", rawHead);
   let messageId = "";
 
   // Extract <meta name="x-message-id">
