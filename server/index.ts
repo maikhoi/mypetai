@@ -41,6 +41,8 @@ const io = new Server(server, {
     credentials: true,
     methods: ["GET", "POST"],
   },
+  pingInterval: 20000,  // every 20s
+  pingTimeout: 60000,   // allow 60s silence
   allowEIO3: true, // fix for some browsers
   transports: ["websocket"],  // disable polling
 });
