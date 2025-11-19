@@ -17,9 +17,9 @@ export function middleware(req: NextRequest) {
     ua.includes("Slackbot") ||
     ua.includes("LinkedInBot") ||
     ua.includes("WhatsApp");
-
+console.log("ua|",ua);
   if (!isBot) {
-    return NextResponse.next();
+   // return NextResponse.next();
   }
 
   // Use existing OG route — no DB needed
