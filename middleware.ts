@@ -1,18 +1,16 @@
-import { NextResponse, NextRequest } from "next/server";
-import { dbConnect } from "@/lib/mongoose";
-import Message from "@/models/Message";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const pathname = url.pathname;
-  const ua = req.headers.get("user-agent") || "";
 
-  // Only target chat page
-  if (!pathname.startsWith("/community/") || !pathname.endsWith("/chat")) {
+  // Only chat pages
+  if (!pathname.endsWith("/chat")) {
     return NextResponse.next();
   }
 
-  // Detect bot
+  // Detect bots (only these need OG tag rewrite)
+  const ua = req.headers.get("user-agent") || "";
   const isBot =
     ua.includes("facebookexternalhit") ||
     ua.includes("Twitterbot") ||
@@ -24,43 +22,24 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Extract search param: messageId
-  const messageId = url.searchParams.get("messageId");
+  // Use existing OG route — no DB needed
+  const messageId = url.searchParams.get("messageId") || "";
+  const ogImageUrl = `https://www.mypetai.app/api/og/chat?messageId=${messageId}`;
 
-  // Fetch message
-  await dbConnect();
-  const msg = messageId ? await Message.findById(messageId).lean() : null;
+  // Fetch original HTML
+  return fetch(url.toString())
+    .then((res) => res.text())
+    .then((html) => {
+      // Replace only OG:image — keep everything else intact
+      html = html.replace(
+        /<meta property="og:image"[^>]*>/,
+        `<meta property="og:image" content="${ogImageUrl}">`
+      );
 
-  // Build OG image URL
-  const ogImage = messageId
-    ? `https://www.mypetai.app/api/og/chat?messageId=${messageId}`
-    : "https://www.mypetai.app/preview.jpg";
-
-  const title = msg?.senderName
-    ? `${msg.senderName}'s message`
-    : "MyPetAI Chat Message";
-
-  const description = msg?.text || "Chat message on MyPetAI";
-
-  // Fetch the original page HTML
-  const res = await fetch(url.toString());
-  let html = await res.text();
-
-  // Inject OG tags by rewriting the HTML
-  html = html
-    .replace(/<meta property="og:image".*?>/g, "")
-    .replace(/<meta property="og:title".*?>/g, "")
-    .replace(/<meta property="og:description".*?>/g, "")
-    .replace("</head>", `
-        <meta property="og:image" content="${ogImage}">
-        <meta property="og:title" content="${title}">
-        <meta property="og:description" content="${description}">
-      </head>
-    `);
-
-  return new NextResponse(html, {
-    headers: { "Content-Type": "text/html" },
-  });
+      return new NextResponse(html, {
+        headers: { "Content-Type": "text/html" },
+      });
+    });
 }
 
 export const config = {
