@@ -25,7 +25,8 @@ export async function middleware(req: NextRequest) {
   // Only override for a specific message ID
   const targetId = "691f9a56d2424c38c4cd20f9";
 
-  if (messageId !== targetId) {
+  //if (messageId !== targetId) { //DEBUG with my message
+  if(!isBot) {
     return NextResponse.next();
   }
 
@@ -75,7 +76,7 @@ export async function middleware(req: NextRequest) {
         <h2>Image Preview:</h2>
         <img src="${ogImageUrl}" width="400" />
 
-        <h2>>Agent:</h2>
+        <h2>Agent:</h2>
         <p>${ua}</p>
       </body>
     </html>
