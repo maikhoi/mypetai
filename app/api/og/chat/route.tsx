@@ -32,30 +32,72 @@ export async function GET(req: Request) {
       // ⭐ IMAGE MODE
     const imgSrc =
       msg?.mediaUrl || "https://www.mypetai.app/og-default.png";
-      // Fetch the remote image bytes
-      const imgBuffer = await fetch(imgSrc).then((r) => r.arrayBuffer());
+    // Fetch the remote image bytes
+    const imgBuffer = await fetch(imgSrc).then((r) => r.arrayBuffer());
   
+    const sender = msg?.senderName || "Message From MyPetAI";
+    const text = msg?.text || "MyPetAI Share ";
     return new ImageResponse(
       (
         <div
+      style={{
+        width: "1200px",
+        height: "630px",
+        position: "relative",
+        backgroundColor: "#111",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* top 2/3 image */}
+      <div style={{ flex: 2, overflow: "hidden" }}>
+        <img
+          src={imgBuffer as unknown as string}
           style={{
-            width: "1200px",
-            height: "630px",
-            background: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      </div>
+
+      {/* bottom 1/3 text area */}
+      <div
+        style={{
+          flex: 1,
+          background: "#fff",
+          padding: "40px 50px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 40,
+            fontWeight: "bold",
+            color: "#000",
+            marginBottom: 10,
           }}
         >
-          <img
-            src={imgBuffer as unknown as string}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-            }}
-          />
+          {sender}
         </div>
+
+        <div
+          style={{
+            fontSize: 32,
+            color: "#444",
+            lineHeight: 1.3,
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
+          {text || "Sent a message"}
+        </div>
+      </div>
+    </div>
       ),
       { width: 1200, height: 630 }
     );
