@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     description: "View chat on MyPetAI",
     url: "https://www.mypetai.app/community/guppy/chat",   // 👈 IMPORTANT
     images: [
-      "https://www.mypetai.app/uploads/1761350637151-IMG_2601.jpg"
+      "https://www.mypetai.app/api/og/chat?messageId=69117b3b13bba5e70e9d7bee"
     ],
   },
   alternates: {
