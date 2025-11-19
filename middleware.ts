@@ -1,55 +1,84 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const pathname = url.pathname;
 
-  // Only apply to /chat pages
+  // Only target chat pages
   if (!pathname.endsWith("/chat")) {
     return NextResponse.next();
   }
 
   const messageId = url.searchParams.get("messageId");
 
-  // The ONLY messageId that should trigger OG override
-  const targetId = "69117b3b13bba5e70e9d7bee";
+  // Detect bots (kept for structure, not used)
+  const ua = req.headers.get("user-agent") || "";
+  const isBot =
+    ua.includes("facebookexternalhit") ||
+    ua.includes("Twitterbot") ||
+    ua.includes("Slackbot") ||
+    ua.includes("LinkedInBot") ||
+    ua.includes("WhatsApp");
 
-  // If messageId does not match → return normal page
+ // console.log("ua:", ua, "isBot:", isBot);
+
+  // Only override for a specific message ID
+  const targetId = "691f9a56d2424c38c4cd20f9";
+
   if (messageId !== targetId) {
     return NextResponse.next();
   }
 
-  // Build OG image URL for this specific message
-  const ogImageUrl = `https://www.mypetai.app/api/og/chat?messageId=${messageId}`;
+  // 🚀 Fetch metadata from the OG route using meta=1
+  const metaUrl = `https://www.mypetai.app/api/og/chat?messageId=${messageId}&meta=1`;
 
-  // Example OG title + description
-  const ogTitle = `Message ${messageId}`;
-  const ogDescription = `OG preview for message ${messageId}`;
+  const meta = await fetch(metaUrl)
+    .then((r) => r.json())
+    .catch(() => null);
 
-  // Build simple HTML that shows OG tags
+  // Fallbacks
+  const ogTitle = meta?.senderName
+    ? `${meta.senderName}'s message`
+    : `Message ${messageId}`;
+
+  const ogDescription = meta?.text || "Chat message on MyPetAI";
+
+  const ogImageUrl =
+    meta?.mediaUrl ||
+    `https://www.mypetai.app/api/og/chat?messageId=${messageId}`;
+
+  const ogUrl = url.toString();
+
+  // ⭐ Render OG preview page for bots / testing
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
         <meta property="og:title" content="${ogTitle}" />
         <meta property="og:description" content="${ogDescription}" />
-        <meta property="og:image" content="${ogImageUrl}" />        
-        <meta property="og:url" content="${url.toString()}" />
+        <meta property="og:image" content="${ogImageUrl}" />
+        <meta property="og:url" content="${ogUrl}" />
       </head>
       <body style="padding:20px;font-family:Arial;">
         <h1>OG Tags Preview (Matched Target ID)</h1>
-        <p><strong>Matched messageId:</strong> ${messageId}</p>
+        <p><strong>messageId:</strong> ${messageId}</p>
 
         <h2>Generated OG Tags:</h2>
         <pre>
 &lt;meta property="og:title" content="${ogTitle}" /&gt;
 &lt;meta property="og:description" content="${ogDescription}" /&gt;
 &lt;meta property="og:image" content="${ogImageUrl}" /&gt;
-&lt;meta property="og:url" content="${url.toString()}" /&gt;
+&lt;meta property="og:url" content="${ogUrl}" /&gt;
         </pre>
+
+        <h2>Text Preview:</h2>
+        <p>${ogDescription}</p>
 
         <h2>Image Preview:</h2>
         <img src="${ogImageUrl}" width="400" />
+
+        <h2>>Agent:</h2>
+        <p>${ua}</p>
       </body>
     </html>
   `;
