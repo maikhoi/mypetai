@@ -37,14 +37,32 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error("CORS not allowed"), false);
-    },
-    credentials: true
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+  allowEIO3: true, // fix for some browsers
+});
+
+io.engine.on("initial_headers", (headers, req) => {
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+    headers["Access-Control-Allow-Credentials"] = "true";
   }
 });
+
+io.engine.on("headers", (headers, req) => {
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+    headers["Access-Control-Allow-Credentials"] = "true";
+  }
+});
+
+
 // ✅ Connect Mongo
 mongoose
   .connect(process.env.MONGO_URI!)
