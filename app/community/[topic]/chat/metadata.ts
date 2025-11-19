@@ -34,9 +34,7 @@ export async function generateMetadata(
         : "MyPetAI Chat Message",
       description: msg?.text || "Chat message",
       images: [
-        hasImage
-          ? `https://www.mypetai.app/community/guppy/chat/opengraph-image?messageId=${messageId}`
-          : "https://www.mypetai.app/og-default.png",
+        `https://www.mypetai.app/api/og/chat?messageId=${messageId}`
       ],
     },
   };
