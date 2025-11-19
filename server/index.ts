@@ -42,6 +42,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
   allowEIO3: true, // fix for some browsers
+  transports: ["websocket"],  // disable polling
 });
 
 io.engine.on("initial_headers", (headers, req) => {
