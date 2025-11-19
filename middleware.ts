@@ -1,63 +1,68 @@
 import { NextResponse, NextRequest } from "next/server";
-
-export const config = {
-  matcher: ["/community11111111/:topic/chat"],
-};
+import { dbConnect } from "@/lib/mongoose";
+import Message from "@/models/Message";
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
-  const messageId = url.searchParams.get("messageId");
+  const pathname = url.pathname;
+  const ua = req.headers.get("user-agent") || "";
 
-  // If no messageId → normal render
-  if (!messageId) {
+  // Only target chat page
+  if (!pathname.startsWith("/community/") || !pathname.endsWith("/chat")) {
     return NextResponse.next();
   }
 
-  // OG preview card URL (your OG image generator)
-  const ogImageUrl = `https://www.mypetai.app/api/og/chat?messageId=${messageId}`;
+  // Detect bot
+  const isBot =
+    ua.includes("facebookexternalhit") ||
+    ua.includes("Twitterbot") ||
+    ua.includes("Slackbot") ||
+    ua.includes("LinkedInBot") ||
+    ua.includes("WhatsApp");
 
-  // The real page URL
-  const canonical = url.toString();
+  if (!isBot) {
+    return NextResponse.next();
+  }
 
-  // This HTML will be returned ONLY to scrapers (FB, Twitter, etc)
-  // Normal users get redirected instantly via <script>
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
+  // Extract search param: messageId
+  const messageId = url.searchParams.get("messageId");
 
-  <title>MyPetAI Chat Message</title>
+  // Fetch message
+  await dbConnect();
+  const msg = messageId ? await Message.findById(messageId).lean() : null;
 
-  <!-- OpenGraph -->
-  <meta property="og:title" content="MyPetAI Chat Message" />
-  <meta property="og:description" content="View chat message on MyPetAI" />
-  <meta property="og:image" content="${ogImageUrl}" />
-  <meta property="og:url" content="${canonical}" />
-  <meta property="og:type" content="article" />
+  // Build OG image URL
+  const ogImage = messageId
+    ? `https://www.mypetai.app/api/og/chat?messageId=${messageId}`
+    : "https://www.mypetai.app/preview.jpg";
 
-  <!-- Canonical -->
-  <link rel="canonical" href="${canonical}" />
+  const title = msg?.senderName
+    ? `${msg.senderName}'s message`
+    : "MyPetAI Chat Message";
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="${ogImageUrl}" />
-  <meta name="twitter:title" content="MyPetAI Chat Message" />
-  <meta name="twitter:description" content="View chat message on MyPetAI" />
-</head>
-<body>
-  <p>Redirecting…</p>
+  const description = msg?.text || "Chat message on MyPetAI";
 
-  <!-- Real users will follow this JS redirect -->
-  <script>
-    window.location.href = "${canonical}";
-  </script>
-</body>
-</html>`;
+  // Fetch the original page HTML
+  const res = await fetch(url.toString());
+  let html = await res.text();
+
+  // Inject OG tags by rewriting the HTML
+  html = html
+    .replace(/<meta property="og:image".*?>/g, "")
+    .replace(/<meta property="og:title".*?>/g, "")
+    .replace(/<meta property="og:description".*?>/g, "")
+    .replace("</head>", `
+        <meta property="og:image" content="${ogImage}">
+        <meta property="og:title" content="${title}">
+        <meta property="og:description" content="${description}">
+      </head>
+    `);
 
   return new NextResponse(html, {
-    headers: {
-      "Content-Type": "text/html",
-    },
+    headers: { "Content-Type": "text/html" },
   });
 }
+
+export const config = {
+  matcher: ["/community/:topic/chat"],
+};
