@@ -19,7 +19,7 @@ const allowedOrigins = [
   "https://mypetai.app",
   "https://www.mypetai.app",
   "https://chat.mypetai.app",
-  "https://localhost:3000"
+  "http://localhost:3000"
 ];// hardcode allowed origin on chat server (process.env.CORS_ORIGIN || "http://localhost:3000").split(",");
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
@@ -30,10 +30,21 @@ app.get("/", (_, res) => res.send("🐾 MyPetAI Chat Server is live."));
 
 // 🚀 HTTP + Socket.IO setup
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: allowedOrigins, credentials: true },
-});
 
+//const io = new Server(server, {
+//  cors: { origin: allowedOrigins, credentials: true },
+//});
+
+const io = new Server(server, {
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS not allowed"), false);
+    },
+    credentials: true
+  }
+});
 // ✅ Connect Mongo
 mongoose
   .connect(process.env.MONGO_URI!)
