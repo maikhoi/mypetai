@@ -139,6 +139,8 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     
      const socket = io(serverUrl, {
         withCredentials: true,
+        reconnectionAttempts: 1,   // only try once issue connect_error
+        reconnectionDelayMax: 500, // also delay max 500 issue connect_error
         query: {
           channelId,
           senderName,
@@ -201,8 +203,15 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       onRoomCountsUpdate?.(data);
     });
 
-    socket.on("connect_error", () => {
-      setError("Chat server unreachable. Please refresh this page after a few minutes to Retry...");
+   // socket.on("connect_error", () => {
+   //   setError("Chat server unreachable. Please refresh this page after a few minutes to Retry...");
+   // });
+
+    socket.on("connect", () => {
+      socket.on("connect_error", () => {
+        // this will only run for THIS socket
+        setError("Chat server unreachable. Please refresh this page after a few minutes to Retry...");
+      });
     });
 
     socket.on("reconnect", () => {
@@ -318,7 +327,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
       setMessages((prev) => prev.filter((m) => m._id !== id));
     } catch (err) {
       console.error(err);
-      alert("Failed to delete message");
+      alert("Failed to delete message. Please try again later");
     }
   }; 
 
