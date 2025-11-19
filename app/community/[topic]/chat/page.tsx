@@ -53,6 +53,8 @@ export default function CommunityChatPage() {
   }, [topic]);
 
   return (
+    <>{/* Hybrid Trick Metadata */}
+      <meta name="x-message-id" content={messageId||""} />
     <div className="flex justify-center mt-5">
       <div className="flex flex-col w-full max-w-5xl border border-gray-200 rounded-lg shadow-sm overflow-hidden bg-white">
         <ChatHeader />
@@ -122,6 +124,6 @@ export default function CommunityChatPage() {
           )}
         </div>
       </div>
-    </div>
+    </div></>
   );
 }

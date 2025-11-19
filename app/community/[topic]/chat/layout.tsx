@@ -1,21 +1,40 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  openGraph: {
-    title: "MyPetAI Chat",
-    description: "View chat on MyPetAI",
-    url: "https://www.mypetai.app/community/guppy/chat",   // 👈 IMPORTANT
-    images: [
-      "https://www.mypetai.app/api/og/chat?messageId=69117b3b13bba5e70e9d7bee"
-    ],
-  },
-  alternates: {
-    canonical: "https://www.mypetai.app/community/guppy/chat", // 👈 FIX canonical too
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const h = await headers();
 
-export default function ChatLayout({ children }: { children: React.ReactNode }) {
+  // Trick: access the raw HTML of the current render phase
+  const rawHead = h.get("x-nextjs-head") || "";
+
+  let messageId = "";
+
+  // Extract <meta name="x-message-id">
+  const match = rawHead.match(/<meta name="x-message-id" content="([^"]*)"/);
+  if (match) {
+    messageId = match[1];
+  }
+
+  const ogImage =
+    messageId
+      ? `https://www.mypetai.app/api/og/chat?messageId=${messageId}`
+      : "https://mypetai.app/preview.jpg";
+
+  return {
+    openGraph: {
+      title: "MyPetAI Chat Message",
+      description: "View chat on MyPetAI",
+      images: [ogImage],
+    },
+  };
+}
+
+export default function ChatLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }
