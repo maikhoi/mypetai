@@ -138,9 +138,8 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     })();
     
      const socket = io(serverUrl, {
+        transports: ["websocket"],
         withCredentials: true,
-        reconnectionAttempts: 1,   // only try once issue connect_error
-        reconnectionDelayMax: 500, // also delay max 500 issue connect_error
         query: {
           channelId,
           senderName,
