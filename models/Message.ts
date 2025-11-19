@@ -1,4 +1,4 @@
-import mongoose, { Schema, models, model } from "mongoose";
+import mongoose, { Schema, Model } from "mongoose";
 
 export interface IMessage {
   channelId?: string;
@@ -12,6 +12,7 @@ export interface IMessage {
   isGuest?: boolean;
 }
 
+// Schema
 const MessageSchema = new Schema<IMessage>(
   {
     channelId: { type: String, default: "general" },
@@ -27,6 +28,9 @@ const MessageSchema = new Schema<IMessage>(
   { timestamps: true }
 );
 
-const Message = models.Message || model<IMessage>("Message", MessageSchema);
+// ✅ IMPORTANT: use mongoose.models, not a named `models` import
+const Message: Model<IMessage> =
+  (mongoose.models.Message as Model<IMessage> | undefined) ||
+  mongoose.model<IMessage>("Message", MessageSchema);
 
 export default Message;
