@@ -140,6 +140,9 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
      const socket = io(serverUrl, {
         transports: ["websocket"],
         withCredentials: true,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 2000,
         query: {
           channelId,
           senderName,
