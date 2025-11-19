@@ -1,8 +1,9 @@
+export const dynamic = "force-dynamic"; // ⭐ STOP BUILD FROM EXECUTING THIS ROUTE
+export const runtime = "nodejs"; // ⭐ Mongoose only works in node runtime
+
 import { ImageResponse } from "next/og";
 import { dbConnect } from "@/lib/mongoose";
 import Message, { IMessage } from "@/models/Message";
-
-export const runtime = "edge"; // required for ImageResponse
 
 export async function GET(req: Request) {
   try {
@@ -13,16 +14,12 @@ export async function GET(req: Request) {
       return new Response("Missing messageId", { status: 400 });
     }
 
-    // Connect to DB
     await dbConnect();
 
-    // Fetch message    
-      const msg = (await Message.findById(messageId).lean()) as IMessage | null;
+    const msg = (await Message.findById(messageId).lean()) as IMessage | null;
 
-    // Fallback image if no media URL
     const imageUrl =
-      msg?.mediaUrl ||
-      "https://www.mypetai.app/og-default.png";
+      msg?.mediaUrl || "https://www.mypetai.app/og-default.png";
 
     return new ImageResponse(
       (
@@ -30,10 +27,10 @@ export async function GET(req: Request) {
           style={{
             width: "1200px",
             height: "630px",
+            background: "#ffffff",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "#ffffff",
           }}
         >
           <img
@@ -46,13 +43,10 @@ export async function GET(req: Request) {
           />
         </div>
       ),
-      {
-        width: 1200,
-        height: 630,
-      }
+      { width: 1200, height: 630 }
     );
   } catch (err) {
-    console.error("OG IMAGE ERROR:", err);
-    return new Response("Failed to generate image", { status: 500 });
+    console.error("OG ERROR", err);
+    return new Response("Failed to generate OG image", { status: 500 });
   }
 }
