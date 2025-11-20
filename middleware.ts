@@ -25,8 +25,8 @@ export async function middleware(req: NextRequest) {
   // Only override for a specific message ID
   const targetId = "691f9a56d2424c38c4cd20f9";
 
-  if (messageId !== targetId) { //DEBUG with my message
-  //if(!isBot) {
+  //if (messageId !== targetId) { //DEBUG with my message
+  if(!isBot) {
     return NextResponse.next();
   }
 
