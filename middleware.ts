@@ -53,8 +53,8 @@ export async function middleware(req: NextRequest) {
     <!DOCTYPE html>
     <html>
       <head>
-        <meta property="og:title" content="${ogTitle}" />
-        <meta property="og:description" content="${ogDescription}" />
+        <meta property="og:title" content="${ogDescription}" />
+        <meta property="og:description" content="${ogTitle}" />
         <meta property="og:image" content="${ogImageUrl}" />
         <meta property="og:url" content="${ogUrl}" />  <!-- NEW REQUIRED TAGS -->
         <meta property="og:type" content="article" />
