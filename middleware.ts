@@ -40,7 +40,7 @@ export async function middleware(req: NextRequest) {
   // Fallbacks
   const ogTitle = meta?.senderName
     ? `${meta.senderName}'s message`
-    : `Message ${messageId}`;
+    : `MyPetAI's Chat Message`;
 
   const ogDescription = meta?.text || "Chat message on MyPetAI";
 
