@@ -25,8 +25,8 @@ export async function middleware(req: NextRequest) {
   // Only override for a specific message ID
   const targetId = "691f9a56d2424c38c4cd20f9";
 
-  //if (messageId !== targetId) { //DEBUG with my message
-  if(!isBot) {
+  if (messageId !== targetId) { //DEBUG with my message
+  //if(!isBot) {
     return NextResponse.next();
   }
 
@@ -56,7 +56,9 @@ export async function middleware(req: NextRequest) {
         <meta property="og:title" content="${ogTitle}" />
         <meta property="og:description" content="${ogDescription}" />
         <meta property="og:image" content="${ogImageUrl}" />
-        <meta property="og:url" content="${ogUrl}" />
+        <meta property="og:url" content="${ogUrl}" />  <!-- NEW REQUIRED TAGS -->
+        <meta property="og:type" content="article" />
+        <meta property="fb:app_id" content="827828513508449" />
       </head>
       <body style="padding:20px;font-family:Arial;">
         <h1>OG Tags Preview (Matched Target ID)</h1>
