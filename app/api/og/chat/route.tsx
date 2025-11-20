@@ -70,7 +70,7 @@ export async function GET(req: Request) {
           textAlign: "center",
         }}
       >
-        {msg?.text ?? ""}
+        {msg?.text ?? "Chat Message from MyPetAI"}
       </div>
     </div>
       ),
