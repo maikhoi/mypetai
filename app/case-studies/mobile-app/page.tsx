@@ -25,13 +25,6 @@ export default function MobileAppCaseStudyPage() {
         "Local NAS Model Storage",
       ]}
     >
-      <Breadcrumb
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Case Studies", href: "/case-studies" },
-          { label: "Mobile App" },
-        ]}
-      />
 
       {/* Overview */}
       <section className="space-y-3 mt-4">
