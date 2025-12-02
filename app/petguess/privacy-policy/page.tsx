@@ -178,7 +178,7 @@ export default function PetGuessPrivacyPolicyPage() {
               https://www.mypetai.app
             </Link>
           </li>
-          <li>Email: <strong>khoi@mypetai.app</strong></li>
+          <li>Email: <strong>support@mypetai.app</strong></li>
         </ul>
 
         <p style={{ lineHeight: 1.8, marginBottom: 0 }}>
