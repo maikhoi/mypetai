@@ -120,9 +120,12 @@ export default function Navbar() {
         >
           About
         </Link>
-        <a href="mailto:hello@mypetai.app" className="nav-link">
+        <Link
+          href="/contact"
+          className={`nav-link ${isActive("/contact") ? "active" : ""}`}
+        >
           Contact
-        </a>
+        </Link>
 
         
       </nav>

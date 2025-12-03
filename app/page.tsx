@@ -89,7 +89,7 @@ export default function HomePage() {
 
           {/* PETGUESS+ AI */}
           <div className="eco-card">
-            <h3>📱 PetGuess+ AI</h3>
+            <h3>📱 PetGuess+ AI App</h3>
             <p>Identify your pet’s species and breed from a single photo.</p>
             <div className="hero-buttons1">
             <a
