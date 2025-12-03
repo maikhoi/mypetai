@@ -38,6 +38,13 @@ const CASE_STUDIES = [
     role: "Mobile & API Integrations",
     tags: ["React Native", "Expo", "AsyncStorage"],
   },
+  {
+    slug: "petguess-app",
+    title: "PetGuess+AI Mobile iOS & Android App",
+    subtitle: "Cross-platform pet companion for iOS & Android.",
+    role: "Mobile & API Integrations",
+    tags: ["React Native", "Expo", "AsyncStorage", "ONNX Runtime"],
+  },
 ];
 
 export default function CaseStudiesIndexPage() {
