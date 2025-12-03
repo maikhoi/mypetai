@@ -91,13 +91,21 @@ export default function HomePage() {
           <div className="eco-card">
             <h3>📱 PetGuess+ AI</h3>
             <p>Identify your pet’s species and breed from a single photo.</p>
+            <div className="hero-buttons1">
+            <a
+              href="/petguess"
+              target="_blank"
+              className="btn secondary"
+            >
+              More Info
+            </a>
             <a
               href="https://apps.apple.com/us/app/petguess-ai/id6755983803"
               target="_blank"
               className="btn primary small"
             >
               Download iOS App
-            </a>
+            </a></div>
           </div>
 
           {/* COMING SOON APP */}
@@ -162,6 +170,13 @@ export default function HomePage() {
           flex-wrap: wrap;
           justify-content: center;
           gap: 15px;
+        }
+
+        .hero-buttons1 {           
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 10px;
         }
 
         /* BUTTONS */
