@@ -26,7 +26,7 @@ export default function HomePage() {
         alert("⚠️ Something went wrong. Please try again.");
       }
     } catch (err) {
-      alert("⚠️ Network error — please try again later.");
+      alert("⚠️ Network error — please try again later."); //test
     } finally {
       setLoading(false);
     }
