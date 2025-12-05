@@ -286,7 +286,22 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
-      const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+
+
+
+
+      const isVideo = file.type.startsWith("video/");
+
+      const uploadUrl = isVideo
+        ? "https://chat.mypetai.app/api/upload-video"  // Rocky server
+        : "/api/upload";                               // Vercel image upload
+
+      const uploadRes = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      //const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await uploadRes.json();
       mediaUrl = data.url;
       mediaType = file.type.startsWith('video') ? 'video' : 'image';
