@@ -44,6 +44,13 @@ const CASE_STUDIES = [
     subtitle: "Cross-platform pet companion for iOS & Android.",
     role: "Mobile & API Integrations",
     tags: ["React Native", "Expo", "AsyncStorage", "ONNX Runtime"],
+  },  
+  {
+    slug: "transitsense-app",
+    title: "TransitSense+AI Public Transport Engine",
+    subtitle: "Real-time GTFS-powered transport insights and departure lookup.",
+    role: "Backend Engineering & Future Mobile Development",
+    tags: ["Node.js", "Prisma", "PostgreSQL", "GTFS", "TypeScript"],
   },
 ];
 
