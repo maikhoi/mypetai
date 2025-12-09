@@ -45,13 +45,13 @@ const CASE_STUDIES = [
     role: "Mobile & API Integrations",
     tags: ["React Native", "Expo", "AsyncStorage", "ONNX Runtime"],
   },  
-  {
-    slug: "transitsense-app",
-    title: "TransitSense+AI Public Transport Engine",
-    subtitle: "Real-time GTFS-powered transport insights and departure lookup.",
-    role: "Backend Engineering & Future Mobile Development",
-    tags: ["Node.js", "Prisma", "PostgreSQL", "GTFS", "TypeScript"],
-  },
+  // {
+  //   slug: "transitsense-app",
+  //   title: "TransitSense+AI Public Transport Engine",
+  //   subtitle: "Real-time GTFS-powered transport insights and departure lookup.",
+  //   role: "Backend Engineering & Future Mobile Development",
+  //   tags: ["Node.js", "Prisma", "PostgreSQL", "GTFS", "TypeScript"],
+  // },
 ];
 
 export default function CaseStudiesIndexPage() {
