@@ -81,7 +81,7 @@ export default function RootLayout({
             © {currentYear} MyPetAI+. All Rights Reserved. |{' '}
             <a href="/about">About</a> | <a href="/privacy">Privacy</a> |{' '}            
             <a href="/affiliate-disclosure">Affiliate Disclosure</a> |{' '}
-            <a href="mailto:hello@mypetai.app">Contact Us</a>
+            <a href="/contact">Contact Us</a>
           </p>
           {/* <p>Australian Registered ABN: 34525786729, Title: TRAN, THAO THI THANH</p> */}
         </footer>
