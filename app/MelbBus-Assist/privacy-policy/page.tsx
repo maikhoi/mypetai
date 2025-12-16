@@ -8,12 +8,11 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
   return (
     <main
       style={{
-        background: "linear-gradient(135deg, #f2f8ff 0%, #eaf3ff 100%)",
-        fontFamily:
-          "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-        color: "#333",
-        minHeight: "60vh",
-      }}
+            background: "linear-gradient(135deg, #fffaf2 0%, #fff2e1 100%)",
+            fontFamily: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+            color: "#333",
+            minHeight: "60vh",
+        }}
     >
       <section
         style={{
@@ -27,11 +26,11 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
       >
         <h1
           style={{
-            color: "#2563eb",
-            textAlign: "center",
-            marginTop: 0,
-            fontSize: "2.4rem",
-          }}
+                color: "#f5a623",
+                textAlign: "center",
+                marginTop: 0,
+                fontSize: "2.4rem",
+            }}
         >
           Melbourne Bus Assist – Privacy Policy
         </h1>
