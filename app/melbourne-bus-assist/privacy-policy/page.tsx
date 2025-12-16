@@ -8,11 +8,12 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
   return (
     <main
       style={{
-            background: "linear-gradient(135deg, #fffaf2 0%, #fff2e1 100%)",
-            fontFamily: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-            color: "#333",
-            minHeight: "60vh",
-        }}
+        background: "linear-gradient(135deg, #fffaf2 0%, #fff2e1 100%)",
+        fontFamily:
+          "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+        color: "#333",
+        minHeight: "60vh",
+      }}
     >
       <section
         style={{
@@ -26,11 +27,11 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
       >
         <h1
           style={{
-                color: "#f5a623",
-                textAlign: "center",
-                marginTop: 0,
-                fontSize: "2.4rem",
-            }}
+            color: "#f5a623",
+            textAlign: "center",
+            marginTop: 0,
+            fontSize: "2.4rem",
+          }}
         >
           Melbourne Bus Assist – Privacy Policy
         </h1>
@@ -68,8 +69,7 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
           1.1 Location Information
         </h3>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          Melbourne Bus Assist may collect approximate or precise location data
-          to:
+          Melbourne Bus Assist collects precise location data to:
         </p>
         <ul style={{ lineHeight: 1.8, marginBottom: 18, paddingLeft: 22 }}>
           <li>Find nearby bus stops.</li>
@@ -77,9 +77,10 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
           <li>Trigger optional location-based bus alerts.</li>
         </ul>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          Location data is used only for app functionality and is not used to
-          identify you personally. You can disable location access at any time in
-          your device settings.
+          Location data is used only for app functionality and is processed in
+          real time. It is not used to identify you personally, and it is not
+          stored long-term. You can disable location access at any time in your
+          device settings.
         </p>
 
         <h3 style={{ fontSize: "1.1rem", marginTop: 18, marginBottom: 8 }}>
@@ -100,28 +101,49 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
           1.3 Analytics & Diagnostics
         </h3>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          We may collect basic, non-identifying analytics and diagnostic
-          information such as:
+          We may collect basic, non-identifying diagnostic information such as:
         </p>
         <ul style={{ lineHeight: 1.8, marginBottom: 18, paddingLeft: 22 }}>
           <li>App version and device type.</li>
           <li>Crash logs and performance metrics.</li>
-          <li>Anonymous usage patterns.</li>
         </ul>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          This data helps us improve reliability and performance. It is not used
-          for cross-app or cross-website tracking.
+          This data helps us improve reliability and performance and is not used
+          for tracking users across apps or websites.
+        </p>
+
+        <h3 style={{ fontSize: "1.1rem", marginTop: 18, marginBottom: 8 }}>
+          1.4 Advertising (Google AdMob)
+        </h3>
+        <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
+          Melbourne Bus Assist displays ads provided by <strong>Google AdMob</strong>.
+          AdMob may use device identifiers, such as the Android Advertising ID,
+          to serve and measure ads in accordance with Google’s privacy policies.
+        </p>
+        <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
+          We do not have access to or control over how Google processes this data.
+          You can learn more about how Google uses data in advertising here:{" "}
+          <Link
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            style={{
+              color: "#f5a623",
+              fontWeight: 600,
+              textDecoration: "underline",
+              textUnderlineOffset: "3px",
+            }}
+          >
+            https://policies.google.com/privacy
+          </Link>
         </p>
 
         <h2 style={{ fontSize: "1.4rem", marginTop: 32, marginBottom: 12 }}>
           2. How We Use Information
         </h2>
-        <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          We use the information described above to:
-        </p>
         <ul style={{ lineHeight: 1.8, marginBottom: 18, paddingLeft: 22 }}>
           <li>Provide nearby bus and timetable information.</li>
           <li>Send bus alerts you explicitly enable.</li>
+          <li>Display ads to support the operation of the App.</li>
           <li>Maintain and improve app stability and usability.</li>
         </ul>
 
@@ -130,26 +152,29 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
         </h2>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
           We do not sell your personal data. Limited data may be shared with
-          trusted service providers who help operate the App, such as:
+          trusted third-party service providers, including:
         </p>
         <ul style={{ lineHeight: 1.8, marginBottom: 18, paddingLeft: 22 }}>
+          <li>Google AdMob (advertising services).</li>
           <li>Cloud hosting providers.</li>
           <li>Push notification delivery services.</li>
-          <li>Crash reporting or analytics tools.</li>
+          <li>Crash reporting tools.</li>
         </ul>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          These providers are only permitted to use data to deliver their
-          services and must handle it securely.
+          These providers are permitted to use data only to deliver their
+          services and must handle it in accordance with applicable privacy
+          laws.
         </p>
 
         <h2 style={{ fontSize: "1.4rem", marginTop: 32, marginBottom: 12 }}>
           4. Data Retention
         </h2>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          Location data is used in real time and not stored long-term. Alert
-          preferences and notification tokens are kept only while alerts are
-          active. You can remove all stored data by disabling alerts or
-          uninstalling the App.
+          Location data is processed in real time and not stored long-term. Alert
+          preferences and notification tokens are retained only while alerts are
+          active. Advertising data is handled by Google AdMob according to their
+          retention policies. You can stop all data collection by uninstalling
+          the App.
         </p>
 
         <h2 style={{ fontSize: "1.4rem", marginTop: 32, marginBottom: 12 }}>
@@ -157,15 +182,16 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
         </h2>
         <ul style={{ lineHeight: 1.8, marginBottom: 18, paddingLeft: 22 }}>
           <li>
-            <strong>Location Access:</strong> You can turn location access on or
-            off in your device settings.
+            <strong>Location access:</strong> You can enable or disable location
+            permissions in your device settings.
           </li>
           <li>
-            <strong>Notifications:</strong> You can disable notifications at any
-            time via system settings.
+            <strong>Ads personalisation:</strong> You can manage ad
+            personalisation settings through your Google account or device
+            settings.
           </li>
           <li>
-            <strong>Uninstall:</strong> Removing the App stops all data
+            <strong>Uninstall:</strong> Removing the App stops further data
             collection.
           </li>
         </ul>
@@ -174,8 +200,8 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
           6. Children’s Privacy
         </h2>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          Melbourne Bus Assist is not specifically directed at children under
-          13, and we do not knowingly collect personal information from children.
+          Melbourne Bus Assist is not directed at children under 13, and we do
+          not knowingly collect personal information from children.
         </p>
 
         <h2 style={{ fontSize: "1.4rem", marginTop: 32, marginBottom: 12 }}>
@@ -183,23 +209,19 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
         </h2>
         <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
           We may update this Privacy Policy from time to time. When changes are
-          made, the “Last updated” date at the top of this page will be revised.
+          made, the “Last updated” date will be revised.
         </p>
 
         <h2 style={{ fontSize: "1.4rem", marginTop: 32, marginBottom: 12 }}>
           8. Contact Us
         </h2>
-        <p style={{ lineHeight: 1.8, marginBottom: 18 }}>
-          If you have questions about this Privacy Policy or the App, you can
-          contact us at:
-        </p>
         <ul style={{ lineHeight: 1.8, marginBottom: 18, paddingLeft: 22 }}>
           <li>
             Website:{" "}
             <Link
               href="https://www.mypetai.app/melbourne-bus-assist"
               style={{
-                color: "#2563eb",
+                color: "#f5a623",
                 fontWeight: 600,
                 textDecoration: "underline",
                 textUnderlineOffset: "3px",
