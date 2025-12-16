@@ -197,7 +197,7 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
           <li>
             Website:{" "}
             <Link
-              href="https://www.mypetai.app/MelbBus-Assist/"
+              href="https://www.mypetai.app/melbourne-bus-assist"
               style={{
                 color: "#2563eb",
                 fontWeight: 600,
@@ -205,7 +205,7 @@ export default function MelbourneBusAssistPrivacyPolicyPage() {
                 textUnderlineOffset: "3px",
               }}
             >
-              https://www.mypetai.app/MelbBus-Assist/
+              https://www.mypetai.app/melbourne-bus-assist
             </Link>
           </li>
           <li>Email: <strong>support-mbbassist@mypetai.app</strong></li>
