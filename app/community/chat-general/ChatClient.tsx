@@ -469,7 +469,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
             {m.senderName === senderName && (
               <img
-                src= { m.senderAvatar || `https://graph.facebook.com/${m.senderAvatar?.match(/asid=(\d+)/)?.[1]}/picture?type=square&height=80&width=80` || '/default-avatar.png'}
+                src= { `https://graph.facebook.com/${m.senderAvatar?.match(/asid=(\d+)/)?.[1]}/picture?type=square&height=80&width=80` || '/default-avatar.png'}
                 alt="me"
                 className="w-8 h-8 rounded-full"
               />
