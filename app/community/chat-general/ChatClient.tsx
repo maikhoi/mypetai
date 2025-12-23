@@ -393,7 +393,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
         
             {m.senderName !== senderName && (
               <img
-                src={`https://graph.facebook.com/${m._id}/picture?type=square&height=80&width=80` || '/default-avatar.png'}
+                src={ m.senderAvatar || '/default-avatar.png'}
                 alt={m.senderName}
                 className="w-8 h-8 rounded-full"
               />
@@ -469,7 +469,7 @@ export default function ChatClient({ channelId = 'general', onActiveUsersUpdate,
 
             {m.senderName === senderName && (
               <img
-                src={`https://graph.facebook.com/${m._id}/picture?type=square&height=80&width=80`  || '/default-avatar.png'}
+                src={`https://graph.facebook.com/${m.senderId}/picture?type=square&height=80&width=80` || '/default-avatar.png'}
                 alt="me"
                 className="w-8 h-8 rounded-full"
               />
