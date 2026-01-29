@@ -6,8 +6,6 @@ import { useMemo, useState } from "react";
 type YesNo = "Yes" | "No" | "";
 type Employed = "Employed" | "Unemployed" | "";
 
-type ActiveQuestion = "Q1" | "Q2" | "Q3" | "Q4" | "Q5" | "Q6" | "Q7";
-
 type FormState = {
   firstName: string;
   surname: string;
@@ -84,31 +82,54 @@ const initialState: FormState = {
   optOutEmails: false,
 };
 
-function resolveFromStart(form: FormState): ActiveQuestion {
-  // Follow the red-arrow logic deterministically to pick the next question to show.
-  // If something required is unanswered, that's the current "active" question.
-  if (!form.q1) return "Q1";
-  if (form.q1 === "Yes") return "Q7";
+/**
+ * Determine which questions should be visible, *without hiding already answered ones*.
+ * We show the entire path from Q1 up to the current "next required" question, plus Q7/Q8 when reached.
+ */
+function computeVisibleQuestions(form: FormState): {
+  showQ1: boolean;
+  showQ2: boolean;
+  showQ3: boolean;
+  showQ4: boolean;
+  showQ5: boolean;
+  showQ6: boolean;
+  showQ7: boolean;
+  showQ8: boolean;
+} {
+  // Always show Q1
+  const showQ1 = true;
 
-  // q1 === "No" -> Q2
-  if (!form.q2) return "Q2";
-  if (form.q2 === "Yes") return "Q7";
+  // Q2 is only on the path when Q1 answered "No"
+  const showQ2 = form.q1 === "No";
 
-  // q2 === "No" -> Q3
-  if (!form.q3) return "Q3";
-  if (form.q3 === "Employed") {
-    // employed -> Q4
-    if (!form.q4) return "Q4";
-    return "Q7";
-  }
+  // Q3 is on the path when Q1=No and Q2=No
+  const showQ3 = form.q1 === "No" && form.q2 === "No";
 
-  // unemployed -> Q5
-  if (!form.q5) return "Q5";
-  if (form.q5 === "Yes") return "Q7";
+  // Q4 is on the path when Q3=Employed
+  const showQ4 = showQ3 && form.q3 === "Employed";
 
-  // q5 === "No" -> Q6
-  if (!form.q6) return "Q6";
-  return "Q7";
+  // Q5 is on the path when Q3=Unemployed
+  const showQ5 = showQ3 && form.q3 === "Unemployed";
+
+  // Q6 is on the path when Q5=No
+  const showQ6 = showQ5 && form.q5 === "No";
+
+  // Q7 is reached when:
+  // - Q1=Yes OR Q2=Yes OR Q4 answered OR Q5=Yes OR Q6 answered
+  const reachedQ7 =
+    form.q1 === "Yes" ||
+    form.q2 === "Yes" ||
+    (showQ4 && !!form.q4) ||
+    (showQ5 && form.q5 === "Yes") ||
+    (showQ6 && !!form.q6);
+
+  // If Q7 is answered, keep it visible. If it's reached, show it even if unanswered.
+  const showQ7 = reachedQ7 || !!form.q7;
+
+  // Q8 shown once Q7 is visible (matches the block flow)
+  const showQ8 = showQ7;
+
+  return { showQ1, showQ2, showQ3, showQ4, showQ5, showQ6, showQ7, showQ8 };
 }
 
 function QuestionRow({
@@ -148,30 +169,123 @@ export default function GordonFormPage() {
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
 
-  const activeQ = resolveFromStart(form);
+  const visible = computeVisibleQuestions(form);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
 
-  async function onSend() {
-    setSending(true);
-    setStatus("");
-    try {
-      // optional: you can enforce Q7 answered before send if you want:
-      // if (activeQ !== "Q7" || !form.q7) throw new Error("Please complete Q1–Q7 flow first.");
+  /**
+   * When a branching answer changes, clear downstream answers that are no longer relevant,
+   * but DO NOT hide previously answered questions that are still on the path.
+   */
+  function setQ1(v: YesNo) {
+    setForm((p) => {
+      const next: FormState = { ...p, q1: v };
 
-      const res = await fetch("/api/forms/gordon", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ form, petname: "" }), // keep honeypot
-      });
-      if (!res.ok) throw new Error(await res.text());
-      setStatus("✅ Sent! PDF emailed");
-    } catch (e: any) {
-      setStatus(`❌ ${e?.message || "Failed"}`);
-    } finally {
-      setSending(false);
-    }
+      if (v === "Yes") {
+        // Path goes straight to Q7. Clear Q2-Q6 since they are not on this path.
+        next.q2 = "";
+        next.q3 = "";
+        next.q4 = "";
+        next.q5 = "";
+        next.q6 = "";
+      } else if (v === "No") {
+        // Need Q2 next, but clear deeper if they no longer make sense
+        // (Leave q2 as-is if already answered)
+        // Clear deeper path until Q2 is known
+        if (next.q2 !== "No") {
+          next.q3 = "";
+          next.q4 = "";
+          next.q5 = "";
+          next.q6 = "";
+        }
+      } else {
+        // Unanswered
+        next.q2 = "";
+        next.q3 = "";
+        next.q4 = "";
+        next.q5 = "";
+        next.q6 = "";
+        next.q7 = "";
+        next.q8 = "";
+      }
+
+      return next;
+    });
+  }
+
+  function setQ2(v: YesNo) {
+    setForm((p) => {
+      const next: FormState = { ...p, q2: v };
+
+      if (v === "Yes") {
+        // Jump to Q7
+        next.q3 = "";
+        next.q4 = "";
+        next.q5 = "";
+        next.q6 = "";
+      } else if (v === "No") {
+        // Need Q3
+        // Clear deeper until Q3 known
+        if (!next.q3) {
+          next.q4 = "";
+          next.q5 = "";
+          next.q6 = "";
+        }
+      } else {
+        next.q3 = "";
+        next.q4 = "";
+        next.q5 = "";
+        next.q6 = "";
+        next.q7 = "";
+        next.q8 = "";
+      }
+
+      return next;
+    });
+  }
+
+  function setQ3(v: Employed) {
+    setForm((p) => {
+      const next: FormState = { ...p, q3: v };
+
+      if (v === "Employed") {
+        // Q4 path
+        next.q5 = "";
+        next.q6 = "";
+      } else if (v === "Unemployed") {
+        // Q5 path
+        next.q4 = "";
+        // Q6 depends on Q5
+        if (next.q5 !== "No") next.q6 = "";
+      } else {
+        next.q4 = "";
+        next.q5 = "";
+        next.q6 = "";
+        next.q7 = "";
+        next.q8 = "";
+      }
+
+      return next;
+    });
+  }
+
+  function setQ5(v: YesNo) {
+    setForm((p) => {
+      const next: FormState = { ...p, q5: v };
+      if (v === "Yes") {
+        // Jump to Q7
+        next.q6 = "";
+      } else if (v === "No") {
+        // Need Q6
+        // keep q6 if already answered
+      } else {
+        next.q6 = "";
+        next.q7 = "";
+        next.q8 = "";
+      }
+      return next;
+    });
   }
 
   const hearOptions = [
@@ -191,6 +305,24 @@ export default function GordonFormPage() {
     "Other (please specify)",
   ];
 
+  async function onSend() {
+    setSending(true);
+    setStatus("");
+    try {
+      const res = await fetch("/api/forms/gordon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ form, petname: "" }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setStatus("✅ Sent! PDF emailed to owner@mypetai.app");
+    } catch (e: any) {
+      setStatus(`❌ ${e?.message || "Failed"}`);
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -200,8 +332,8 @@ export default function GordonFormPage() {
               Skills & Jobs Centre Registration
             </h1>
             <p className="mt-1 text-sm text-zinc-300">
-              Smart question flow (Q1–Q7) based on the official red-arrow logic.
-              Click <span className="font-semibold">Send</span> to generate a PDF and email it.
+              Smart flow: it reveals the next question, but keeps previously
+              answered questions visible.
             </p>
           </div>
 
@@ -226,14 +358,17 @@ export default function GordonFormPage() {
           </div>
         </div>
 
-        {status ? <div className="mt-4 text-sm text-zinc-100">{status}</div> : null}
+        {status ? (
+          <div className="mt-4 text-sm text-zinc-100">{status}</div>
+        ) : null}
 
         {/* FORM “PAPER” */}
         <div className="mt-6 rounded-2xl bg-white p-6 text-black shadow">
           <div className="border-b-2 border-black pb-3">
             <div className="text-lg font-bold">Registration</div>
             <div className="mt-1 text-xs">
-              The Victorian Government monitors and funds The Gordon Skills and Jobs Centre…
+              The Victorian Government monitors and funds The Gordon Skills and
+              Jobs Centre…
             </div>
           </div>
 
@@ -403,37 +538,39 @@ export default function GordonFormPage() {
             </div>
           </div>
 
-          {/* Questions block — SMART FLOW */}
+          {/* Questions block — SMART FLOW (keep answered visible) */}
           <div className="mt-6 border-t-2 border-black pt-3">
             <div className="mb-2 text-sm font-semibold">
-              Smart Question Flow (shows only the next relevant question)
+              Question Flow (keeps answered questions visible)
             </div>
 
-            {/* Q1 */}
-            {activeQ === "Q1" && (
+            {/* Q1 always visible */}
+            {visible.showQ1 && (
               <QuestionRow
                 label="Q1: Are you currently undertaking an apprenticeship?"
                 yesChecked={form.q1 === "Yes"}
                 noChecked={form.q1 === "No"}
-                onYes={() => setForm((p) => ({ ...p, q1: "Yes" }))}
-                onNo={() => setForm((p) => ({ ...p, q1: "No" }))}
+                onYes={() => setQ1("Yes")}
+                onNo={() => setQ1("No")}
               />
             )}
 
-            {/* Q2 */}
-            {activeQ === "Q2" && (
-              <QuestionRow
-                label="Q2: Are you currently undertaking a traineeship?"
-                yesChecked={form.q2 === "Yes"}
-                noChecked={form.q2 === "No"}
-                onYes={() => setForm((p) => ({ ...p, q2: "Yes" }))}
-                onNo={() => setForm((p) => ({ ...p, q2: "No" }))}
-              />
+            {/* Q2 visible only if on path */}
+            {visible.showQ2 && (
+              <div className="mt-2">
+                <QuestionRow
+                  label="Q2: Are you currently undertaking a traineeship?"
+                  yesChecked={form.q2 === "Yes"}
+                  noChecked={form.q2 === "No"}
+                  onYes={() => setQ2("Yes")}
+                  onNo={() => setQ2("No")}
+                />
+              </div>
             )}
 
             {/* Q3 */}
-            {activeQ === "Q3" && (
-              <div className="grid grid-cols-[1fr_320px] border border-black text-sm">
+            {visible.showQ3 && (
+              <div className="mt-2 grid grid-cols-[1fr_320px] border border-black text-sm">
                 <div className="p-2">Q3: Are you currently employed?</div>
                 <div className="border-l border-black p-2">
                   <div className="flex flex-col gap-2">
@@ -441,9 +578,7 @@ export default function GordonFormPage() {
                       <input
                         type="radio"
                         checked={form.q3 === "Unemployed"}
-                        onChange={() =>
-                          setForm((p) => ({ ...p, q3: "Unemployed" }))
-                        }
+                        onChange={() => setQ3("Unemployed")}
                       />
                       No – Unemployed
                     </label>
@@ -451,9 +586,7 @@ export default function GordonFormPage() {
                       <input
                         type="radio"
                         checked={form.q3 === "Employed"}
-                        onChange={() =>
-                          setForm((p) => ({ ...p, q3: "Employed" }))
-                        }
+                        onChange={() => setQ3("Employed")}
                       />
                       Yes – Employed (Full time / Part / Casual)
                     </label>
@@ -463,54 +596,60 @@ export default function GordonFormPage() {
             )}
 
             {/* Q4 */}
-            {activeQ === "Q4" && (
-              <QuestionRow
-                label="Q4: Are you underemployed? (Working less than 35 hours pw but wanting more)"
-                yesChecked={form.q4 === "Yes"}
-                noChecked={form.q4 === "No"}
-                onYes={() => setForm((p) => ({ ...p, q4: "Yes" }))}
-                onNo={() => setForm((p) => ({ ...p, q4: "No" }))}
-              />
+            {visible.showQ4 && (
+              <div className="mt-2">
+                <QuestionRow
+                  label="Q4: Are you underemployed? (Working less than 35 hours pw but wanting more)"
+                  yesChecked={form.q4 === "Yes"}
+                  noChecked={form.q4 === "No"}
+                  onYes={() => set("q4", "Yes")}
+                  onNo={() => set("q4", "No")}
+                />
+              </div>
             )}
 
             {/* Q5 */}
-            {activeQ === "Q5" && (
-              <QuestionRow
-                label="Q5: Are you currently studying?"
-                yesChecked={form.q5 === "Yes"}
-                noChecked={form.q5 === "No"}
-                onYes={() => setForm((p) => ({ ...p, q5: "Yes" }))}
-                onNo={() => setForm((p) => ({ ...p, q5: "No" }))}
-              />
+            {visible.showQ5 && (
+              <div className="mt-2">
+                <QuestionRow
+                  label="Q5: Are you currently studying?"
+                  yesChecked={form.q5 === "Yes"}
+                  noChecked={form.q5 === "No"}
+                  onYes={() => setQ5("Yes")}
+                  onNo={() => setQ5("No")}
+                />
+              </div>
             )}
 
             {/* Q6 */}
-            {activeQ === "Q6" && (
-              <QuestionRow
-                label="Q6: Are you a Carer or Parent?"
-                yesChecked={form.q6 === "Yes"}
-                noChecked={form.q6 === "No"}
-                onYes={() => setForm((p) => ({ ...p, q6: "Yes" }))}
-                onNo={() => setForm((p) => ({ ...p, q6: "No" }))}
-              />
+            {visible.showQ6 && (
+              <div className="mt-2">
+                <QuestionRow
+                  label="Q6: Are you a Carer or Parent?"
+                  yesChecked={form.q6 === "Yes"}
+                  noChecked={form.q6 === "No"}
+                  onYes={() => set("q6", "Yes")}
+                  onNo={() => set("q6", "No")}
+                />
+              </div>
             )}
 
             {/* Q7 */}
-            {activeQ === "Q7" && (
-              <QuestionRow
-                label="Q7: Have you been retrenched in the last 5 years?"
-                yesChecked={form.q7 === "Yes"}
-                noChecked={form.q7 === "No"}
-                onYes={() => setForm((p) => ({ ...p, q7: "Yes" }))}
-                onNo={() => setForm((p) => ({ ...p, q7: "No" }))}
-              />
+            {visible.showQ7 && (
+              <div className="mt-2">
+                <QuestionRow
+                  label="Q7: Have you been retrenched in the last 5 years?"
+                  yesChecked={form.q7 === "Yes"}
+                  noChecked={form.q7 === "No"}
+                  onYes={() => set("q7", "Yes")}
+                  onNo={() => set("q7", "No")}
+                />
+              </div>
             )}
-          </div>
 
-          {/* Q8 (shown once Q7 is reached, like the original flow section continuing) */}
-          {activeQ === "Q7" && (
-            <div className="mt-4 border-t border-black pt-3">
-              <div className="grid grid-cols-[1fr_220px] border border-black text-sm">
+            {/* Q8 */}
+            {visible.showQ8 && (
+              <div className="mt-2 grid grid-cols-[1fr_220px] border border-black text-sm">
                 <div className="p-2">
                   Q8: Do you consider yourself to have a disability, impairment
                   or long-term condition?
@@ -540,8 +679,8 @@ export default function GordonFormPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Hear about section */}
           <div className="mt-6 border-t-2 border-black pt-3">
