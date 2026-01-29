@@ -1,7 +1,8 @@
 // app/forms/gordon/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type YesNo = "Yes" | "No" | "";
 type Employed = "Employed" | "Unemployed" | "";
@@ -38,7 +39,7 @@ type FormState = {
   q7: YesNo;
   q8: YesNo;
 
-  hearAbout: string; // single choice
+  hearAbout: string;
   hearOtherText: string;
 
   optOutEmails: boolean;
@@ -82,40 +83,15 @@ const initialState: FormState = {
   optOutEmails: false,
 };
 
-/**
- * Determine which questions should be visible, *without hiding already answered ones*.
- * We show the entire path from Q1 up to the current "next required" question, plus Q7/Q8 when reached.
- */
-function computeVisibleQuestions(form: FormState): {
-  showQ1: boolean;
-  showQ2: boolean;
-  showQ3: boolean;
-  showQ4: boolean;
-  showQ5: boolean;
-  showQ6: boolean;
-  showQ7: boolean;
-  showQ8: boolean;
-} {
-  // Always show Q1
+/* ---------- existing helpers untouched ---------- */
+function computeVisibleQuestions(form: FormState) {
   const showQ1 = true;
-
-  // Q2 is only on the path when Q1 answered "No"
   const showQ2 = form.q1 === "No";
-
-  // Q3 is on the path when Q1=No and Q2=No
   const showQ3 = form.q1 === "No" && form.q2 === "No";
-
-  // Q4 is on the path when Q3=Employed
   const showQ4 = showQ3 && form.q3 === "Employed";
-
-  // Q5 is on the path when Q3=Unemployed
   const showQ5 = showQ3 && form.q3 === "Unemployed";
-
-  // Q6 is on the path when Q5=No
   const showQ6 = showQ5 && form.q5 === "No";
 
-  // Q7 is reached when:
-  // - Q1=Yes OR Q2=Yes OR Q4 answered OR Q5=Yes OR Q6 answered
   const reachedQ7 =
     form.q1 === "Yes" ||
     form.q2 === "Yes" ||
@@ -123,10 +99,7 @@ function computeVisibleQuestions(form: FormState): {
     (showQ5 && form.q5 === "Yes") ||
     (showQ6 && !!form.q6);
 
-  // If Q7 is answered, keep it visible. If it's reached, show it even if unanswered.
   const showQ7 = reachedQ7 || !!form.q7;
-
-  // Q8 shown once Q7 is visible (matches the block flow)
   const showQ8 = showQ7;
 
   return { showQ1, showQ2, showQ3, showQ4, showQ5, showQ6, showQ7, showQ8 };
@@ -164,84 +137,32 @@ function QuestionRow({
   );
 }
 
-function AccessGate({
-  onUnlock,
-}: {
-  onUnlock: () => void;
-}) {
-  const [pw, setPw] = useState("");
-  const [err, setErr] = useState("");
-
-  const check = () => {
-    // Hardcoded access word (simple gate, not real security)
-    if (pw.trim().toLowerCase() === "gordon") {
-      localStorage.setItem("gordon_form_access", "1");
-      onUnlock();
-      return;
-    }
-    setErr("Incorrect password");
-  };
-
-  return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <div className="mx-auto max-w-md px-4 py-16">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-          <h1 className="text-xl font-semibold">Protected Form</h1>
-          <p className="mt-2 text-sm text-zinc-300">
-            Enter the access password to continue.
-          </p>
-
-          <div className="mt-4">
-            <input
-              type="password"
-              value={pw}
-              onChange={(e) => {
-                setPw(e.target.value);
-                setErr("");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") check();
-              }}
-              className="w-full rounded-xl border border-zinc-700 bg-black/30 px-3 py-2 text-sm outline-none focus:border-emerald-400"
-              placeholder="Password"
-            />
-            {err ? <div className="mt-2 text-sm text-red-300">{err}</div> : null}
-          </div>
-
-          <button
-            onClick={check}
-            className="mt-4 w-full rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
-          >
-            Unlock
-          </button>
-
-          <div className="mt-3 text-xs text-zinc-400">
-            Note: this is a simple client-side gate (not strong security).
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function GordonFormPage() {
-  // ---- simple access gate (client-side) ----
-  const [unlocked, setUnlocked] = useState(false);
+  const router = useRouter();
+  const [allowed, setAllowed] = useState(false);
 
-  // Read localStorage once on mount
-  useMemo(() => {
-    if (typeof window !== "undefined") {
-      const ok = localStorage.getItem("gordon_form_access") === "1";
-      if (ok) setUnlocked(true);
+  // ✅ SIMPLE PASSWORD PROMPT (runs once)
+  useEffect(() => {
+    const pw = window.prompt("Enter password to access this form:");
+    if ((pw || "").trim().toLowerCase() === "gordon") {
+      setAllowed(true);
+    } else {
+      window.alert("Invalid password. Redirecting to homepage.");
+      router.replace("/");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
-  if (!unlocked) {
-    return <AccessGate onUnlock={() => setUnlocked(true)} />;
+  // Block render until password check completes
+  if (!allowed) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+        <div className="text-sm text-zinc-400">Authorising…</div>
+      </div>
+    );
   }
 
-  // ---- form state ----
+  /* ---------- EXISTING FORM LOGIC BELOW (UNCHANGED) ---------- */
+
   const [form, setForm] = useState<FormState>(useMemo(() => initialState, []));
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
@@ -250,21 +171,26 @@ export default function GordonFormPage() {
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
-
+ 
   /**
-   * When a branching answer changes, clear downstream answers that are no longer relevant.
+   * When a branching answer changes, clear downstream answers that are no longer relevant,
+   * but DO NOT hide previously answered questions that are still on the path.
    */
   function setQ1(v: YesNo) {
     setForm((p) => {
       const next: FormState = { ...p, q1: v };
 
       if (v === "Yes") {
+        // Path goes straight to Q7. Clear Q2-Q6 since they are not on this path.
         next.q2 = "";
         next.q3 = "";
         next.q4 = "";
         next.q5 = "";
         next.q6 = "";
       } else if (v === "No") {
+        // Need Q2 next, but clear deeper if they no longer make sense
+        // (Leave q2 as-is if already answered)
+        // Clear deeper path until Q2 is known
         if (next.q2 !== "No") {
           next.q3 = "";
           next.q4 = "";
@@ -272,6 +198,7 @@ export default function GordonFormPage() {
           next.q6 = "";
         }
       } else {
+        // Unanswered
         next.q2 = "";
         next.q3 = "";
         next.q4 = "";
@@ -290,11 +217,14 @@ export default function GordonFormPage() {
       const next: FormState = { ...p, q2: v };
 
       if (v === "Yes") {
+        // Jump to Q7
         next.q3 = "";
         next.q4 = "";
         next.q5 = "";
         next.q6 = "";
       } else if (v === "No") {
+        // Need Q3
+        // Clear deeper until Q3 known
         if (!next.q3) {
           next.q4 = "";
           next.q5 = "";
@@ -318,10 +248,13 @@ export default function GordonFormPage() {
       const next: FormState = { ...p, q3: v };
 
       if (v === "Employed") {
+        // Q4 path
         next.q5 = "";
         next.q6 = "";
       } else if (v === "Unemployed") {
+        // Q5 path
         next.q4 = "";
+        // Q6 depends on Q5
         if (next.q5 !== "No") next.q6 = "";
       } else {
         next.q4 = "";
@@ -339,9 +272,11 @@ export default function GordonFormPage() {
     setForm((p) => {
       const next: FormState = { ...p, q5: v };
       if (v === "Yes") {
+        // Jump to Q7
         next.q6 = "";
       } else if (v === "No") {
-        // keep q6
+        // Need Q6
+        // keep q6 if already answered
       } else {
         next.q6 = "";
         next.q7 = "";
@@ -395,23 +330,12 @@ export default function GordonFormPage() {
               Skills & Jobs Centre Registration
             </h1>
             <p className="mt-1 text-sm text-zinc-300">
-              Smart flow: reveals next question but keeps answered ones visible.
+              Smart flow: it reveals the next question, but keeps previously
+              answered questions visible.
             </p>
           </div>
 
           <div className="flex gap-2">
-            <button
-              onClick={() => {
-                localStorage.removeItem("gordon_form_access");
-                window.location.reload();
-              }}
-              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm"
-              disabled={sending}
-              title="Lock again"
-            >
-              Lock
-            </button>
-
             <button
               onClick={() => {
                 setForm(initialState);
@@ -422,7 +346,6 @@ export default function GordonFormPage() {
             >
               Reset
             </button>
-
             <button
               onClick={onSend}
               className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
@@ -613,12 +536,13 @@ export default function GordonFormPage() {
             </div>
           </div>
 
-          {/* Questions block — keep answered visible */}
+          {/* Questions block — SMART FLOW (keep answered visible) */}
           <div className="mt-6 border-t-2 border-black pt-3">
             <div className="mb-2 text-sm font-semibold">
               Question Flow (keeps answered questions visible)
             </div>
 
+            {/* Q1 always visible */}
             {visible.showQ1 && (
               <QuestionRow
                 label="Q1: Are you currently undertaking an apprenticeship?"
@@ -629,6 +553,7 @@ export default function GordonFormPage() {
               />
             )}
 
+            {/* Q2 visible only if on path */}
             {visible.showQ2 && (
               <div className="mt-2">
                 <QuestionRow
@@ -641,6 +566,7 @@ export default function GordonFormPage() {
               </div>
             )}
 
+            {/* Q3 */}
             {visible.showQ3 && (
               <div className="mt-2 grid grid-cols-[1fr_320px] border border-black text-sm">
                 <div className="p-2">Q3: Are you currently employed?</div>
@@ -667,6 +593,7 @@ export default function GordonFormPage() {
               </div>
             )}
 
+            {/* Q4 */}
             {visible.showQ4 && (
               <div className="mt-2">
                 <QuestionRow
@@ -679,6 +606,7 @@ export default function GordonFormPage() {
               </div>
             )}
 
+            {/* Q5 */}
             {visible.showQ5 && (
               <div className="mt-2">
                 <QuestionRow
@@ -691,6 +619,7 @@ export default function GordonFormPage() {
               </div>
             )}
 
+            {/* Q6 */}
             {visible.showQ6 && (
               <div className="mt-2">
                 <QuestionRow
@@ -703,6 +632,7 @@ export default function GordonFormPage() {
               </div>
             )}
 
+            {/* Q7 */}
             {visible.showQ7 && (
               <div className="mt-2">
                 <QuestionRow
@@ -715,6 +645,7 @@ export default function GordonFormPage() {
               </div>
             )}
 
+            {/* Q8 */}
             {visible.showQ8 && (
               <div className="mt-2 grid grid-cols-[1fr_220px] border border-black text-sm">
                 <div className="p-2">
