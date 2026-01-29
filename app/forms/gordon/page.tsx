@@ -39,7 +39,7 @@ type FormState = {
   q7: YesNo;
   q8: YesNo;
 
-  hearAbout: string;
+  hearAbout: string; // single choice
   hearOtherText: string;
 
   optOutEmails: boolean;
@@ -83,15 +83,40 @@ const initialState: FormState = {
   optOutEmails: false,
 };
 
-/* ---------- existing helpers untouched ---------- */
-function computeVisibleQuestions(form: FormState) {
+/**
+ * Determine which questions should be visible, *without hiding already answered ones*.
+ * We show the entire path from Q1 up to the current "next required" question, plus Q7/Q8 when reached.
+ */
+function computeVisibleQuestions(form: FormState): {
+  showQ1: boolean;
+  showQ2: boolean;
+  showQ3: boolean;
+  showQ4: boolean;
+  showQ5: boolean;
+  showQ6: boolean;
+  showQ7: boolean;
+  showQ8: boolean;
+} {
+  // Always show Q1
   const showQ1 = true;
+
+  // Q2 is only on the path when Q1 answered "No"
   const showQ2 = form.q1 === "No";
+
+  // Q3 is on the path when Q1=No and Q2=No
   const showQ3 = form.q1 === "No" && form.q2 === "No";
+
+  // Q4 is on the path when Q3=Employed
   const showQ4 = showQ3 && form.q3 === "Employed";
+
+  // Q5 is on the path when Q3=Unemployed
   const showQ5 = showQ3 && form.q3 === "Unemployed";
+
+  // Q6 is on the path when Q5=No
   const showQ6 = showQ5 && form.q5 === "No";
 
+  // Q7 is reached when:
+  // - Q1=Yes OR Q2=Yes OR Q4 answered OR Q5=Yes OR Q6 answered
   const reachedQ7 =
     form.q1 === "Yes" ||
     form.q2 === "Yes" ||
@@ -99,7 +124,10 @@ function computeVisibleQuestions(form: FormState) {
     (showQ5 && form.q5 === "Yes") ||
     (showQ6 && !!form.q6);
 
+  // If Q7 is answered, keep it visible. If it's reached, show it even if unanswered.
   const showQ7 = reachedQ7 || !!form.q7;
+
+  // Q8 shown once Q7 is visible (matches the block flow)
   const showQ8 = showQ7;
 
   return { showQ1, showQ2, showQ3, showQ4, showQ5, showQ6, showQ7, showQ8 };
@@ -137,32 +165,8 @@ function QuestionRow({
   );
 }
 
-export default function GordonFormPage() {
-  const router = useRouter();
-  const [allowed, setAllowed] = useState(false);
-
-  // ✅ SIMPLE PASSWORD PROMPT (runs once)
-  useEffect(() => {
-    const pw = window.prompt("Enter password to access this form:");
-    if ((pw || "").trim().toLowerCase() === "gordon") {
-      setAllowed(true);
-    } else {
-      window.alert("Invalid password. Redirecting to homepage.");
-      router.replace("/");
-    }
-  }, [router]);
-
-  // Block render until password check completes
-  if (!allowed) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        <div className="text-sm text-zinc-400">Authorising…</div>
-      </div>
-    );
-  }
-
-  /* ---------- EXISTING FORM LOGIC BELOW (UNCHANGED) ---------- */
-
+/** ✅ Your original form component (unchanged) */
+function GordonFormInner() {
   const [form, setForm] = useState<FormState>(useMemo(() => initialState, []));
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
@@ -171,7 +175,7 @@ export default function GordonFormPage() {
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
- 
+
   /**
    * When a branching answer changes, clear downstream answers that are no longer relevant,
    * but DO NOT hide previously answered questions that are still on the path.
@@ -732,4 +736,30 @@ export default function GordonFormPage() {
       </div>
     </div>
   );
+}
+
+/** ✅ Wrapper: prompt password, then show inner form */
+export default function GordonFormPage() {
+  const router = useRouter();
+  const [allowed, setAllowed] = useState(false);
+
+  useEffect(() => {
+    const pw = window.prompt("Enter password to access this form:");
+    if ((pw || "").trim().toLowerCase() === "gordon") {
+      setAllowed(true);
+    } else {
+      window.alert("Invalid password. Redirecting to homepage.");
+      router.replace("/");
+    }
+  }, [router]);
+
+  if (!allowed) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+        <div className="text-sm text-zinc-400">Authorising…</div>
+      </div>
+    );
+  }
+
+  return <GordonFormInner />;
 }
